@@ -7,6 +7,7 @@ type ConfLiteral struct {
 	Desc         string
 	InLabel
 	OutLabel
+	Pattern     string
 	TemplateStr string
 }
 
@@ -26,8 +27,8 @@ func (b ConfLiteral) Data() interface{} {
 	return b
 }
 
-var HandleMeasure string = `
-{{define "HandleMeasure"}}
+var EmitMetrics string = `
+{{define "EmitMetrics"}}
 # {{.Desc}}
 <filter **>      
   @type record_transformer      
@@ -321,5 +322,26 @@ var ViaQDataModel string = `
 	static_index_name app-write
   </elasticsearch_index_name>
 </filter>
+{{end}}
+`
+
+var GenElasticsearchID string = `
+{{define "genElasticsearchID"}}
+# {{.Desc}}
+<filter **>
+  @type elasticsearch_genid_ext
+  hash_id_key viaq_msg_id
+  alt_key kubernetes.event.metadata.uid
+  alt_tags 'kubernetes.var.log.containers.logging-eventrouter-*.** kubernetes.var.log.containers.eventrouter-*.** kubernetes.var.log.containers.cluster-logging-eventrouter-*.** kubernetes.journal.container._default_.kubernetes-event'
+</filter>
+{{end}}
+`
+
+var DiscardMatched string = `
+{{define "discardMatched"}}
+# {{.Desc}}
+<match kubernetes.**>  
+  @type null  
+</match>
 {{end}}
 `

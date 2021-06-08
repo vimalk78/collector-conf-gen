@@ -14,6 +14,13 @@ type Element interface {
 	Data() interface{}
 }
 
+type Elements []Element
+
+type Section struct {
+	Elements
+	Comment string
+}
+
 type MultiElement interface {
 	Elements() []Element
 }
@@ -74,4 +81,20 @@ func generate(es []Element) (string, error) {
 		}
 	}
 	return b.String(), nil
+}
+
+func MergeElements(eles ...[]Element) []Element {
+	merged := make([]Element, 0)
+	for _, el := range eles {
+		merged = append(merged, el...)
+	}
+	return merged
+}
+
+func MergeSections(sections []Section) []Element {
+	merged := make([]Element, 0)
+	for _, s := range sections {
+		merged = append(merged, s.Elements...)
+	}
+	return merged
 }
