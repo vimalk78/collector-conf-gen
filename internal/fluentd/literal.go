@@ -258,7 +258,7 @@ var FixAuditLevel string = `
 `
 
 var ViaQDataModel string = `
-{{define "viaqDataModel"}}
+{{define "viaqDataModel" -}}
 # {{.Desc}}
 <filter **>
   @type viaq_data_model
@@ -326,7 +326,7 @@ var ViaQDataModel string = `
 `
 
 var GenElasticsearchID string = `
-{{define "genElasticsearchID"}}
+{{define "genElasticsearchID" -}}
 # {{.Desc}}
 <filter **>
   @type elasticsearch_genid_ext
@@ -338,7 +338,7 @@ var GenElasticsearchID string = `
 `
 
 var DiscardMatched string = `
-{{define "discardMatched"}}
+{{define "discardMatched" -}}
 # {{.Desc}}
 <match kubernetes.**>  
   @type null  

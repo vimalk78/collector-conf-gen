@@ -45,12 +45,20 @@ func indent(length int, in string) string {
 	return pad + strings.Replace(in, "\n", "\n"+pad, -1)
 }
 
-func GenerateConf(es ...Element) (string, error) {
+func GenerateConfWithHeader(es ...Element) (string, error) {
 	conf, err := generate(es)
 	if err != nil {
 		return "", err
 	}
 	return strings.Join([]string{Header, conf}, "\n"), nil
+}
+
+func GenerateConf(es ...Element) (string, error) {
+	conf, err := generate(es)
+	if err != nil {
+		return "", err
+	}
+	return conf, nil
 }
 
 func GenerateRec(t *template.Template, e Element, b *bytes.Buffer) error {
@@ -66,17 +74,24 @@ func GenerateRec(t *template.Template, e Element, b *bytes.Buffer) error {
 func generate(es []Element) (string, error) {
 	t := template.New("generate")
 	t.Funcs(template.FuncMap{
-		"generate": generate,
-		"indent":   indent,
+		"generate":            generate,
+		"indent":              indent,
+		"applicationTag":      applicationTag,
+		"labelName":           labelName,
+		"sourceTypelabelName": sourceTypeLabelName,
+		"routeMapValues":      routeMapValues,
+		"comma_separated":     comma_separated,
 	})
 	b := &bytes.Buffer{}
 	for i, e := range es {
+		if e == nil {
+			e = _Nil
+		}
 		if err := GenerateRec(t, e, b); err != nil {
 			fmt.Printf("error occured %v\n", err)
 			return "", err
 		}
 		if i < len(es)-1 {
-			// templates must add their own new line
 			b.Write([]byte("\n"))
 		}
 	}
