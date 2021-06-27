@@ -52,7 +52,7 @@ func (a ApplicationsToPipelines) Name() string {
 
 func (a ApplicationsToPipelines) Template() string {
 	return `{{define "` + a.Name() + `"  -}}
-# Copying Application to pipelines
+# Routing Application to pipelines
 <label @_APPLICATION>
   <match **>
     @type label_router
@@ -60,8 +60,12 @@ func (a ApplicationsToPipelines) Template() string {
     <route>
       @label {{labelName $a.Pipeline}}
       <match>
-        namespaces {{comma_separated $a.Namespaces }}
+        {{- if $a.Namespaces}}
+        namespaces {{comma_separated $a.Namespaces}}
+		{{- end}}
+        {{- if $a.Labels}}
         labels {{comma_separated $a.Labels }}
+		{{- end}}
       </match>
     </route>
 	{{- end}}

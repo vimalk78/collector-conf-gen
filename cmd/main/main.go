@@ -128,7 +128,49 @@ var testSpecs []struct {
 }
 
 func test() {
-	spec := &testSpecs[1].Spec
+	spec := &testSpecs[4].Spec
+	spec = &logging.ClusterLogForwarderSpec{
+		Inputs: []logging.InputSpec{
+			{
+				Name:        "myapplogs1",
+				Application: &logging.Application{},
+			},
+			{
+				Name: "myapplogs2",
+				Application: &logging.Application{
+					Namespaces: []string{"myapp"},
+					Selector: &v1.LabelSelector{
+						MatchLabels: map[string]string{
+							"key1": "value1",
+							"key2": "value2",
+						},
+					},
+				},
+			},
+		},
+		Pipelines: []logging.PipelineSpec{
+			{
+				InputRefs:  []string{"myapplogs1"},
+				OutputRefs: []string{logging.OutputNameDefault},
+				Name:       "my-pipe1",
+			},
+			{
+				InputRefs:  []string{"myapplogs2"},
+				OutputRefs: []string{logging.OutputNameDefault},
+				Name:       "my-pipe2",
+			},
+			{
+				InputRefs:  []string{logging.InputNameApplication},
+				OutputRefs: []string{logging.OutputNameDefault},
+				Name:       "my-pipe3",
+			},
+			{
+				InputRefs:  []string{logging.InputNameApplication},
+				OutputRefs: []string{logging.OutputNameDefault},
+				Name:       "my-pipe4",
+			},
+		},
+	}
 	g := fluentd.MakeGenerator()
 	s := g.MakeLoggingConf(spec)
 	e := MergeSections(s)

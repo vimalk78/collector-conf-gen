@@ -292,44 +292,63 @@ func (g *Generator) CopySourceTypeToPipeline(sourceType string, spec *logging.Cl
 }
 
 func (g *Generator) ApplicationToPipeline(spec *logging.ClusterLogForwarderSpec) []Element {
-	//s := InputSelector{}
-	needLabelRouter := false
 	userDefined := spec.InputMap()
-	for _, ud := range userDefined {
-		if ud.Application != nil && (ud.Application.Selector != nil || len(ud.Application.Namespaces) != 0) {
-			needLabelRouter = true
-		}
-	}
-	if !needLabelRouter {
-		return []Element{
-			g.CopySourceTypeToPipeline(logging.InputNameApplication, spec),
-		}
-	}
 	p := ApplicationsToPipelines{}
+	c := CopySourceTypeToPipeline{
+		SourceType: "APPLICATION_ALL",
+		Desc:       "Copying unrouted \"application\" to pipelines",
+	}
 	for _, pipeline := range spec.Pipelines {
 		for _, inRef := range pipeline.InputRefs {
 			if input, ok := userDefined[inRef]; ok {
 				// user defined input
-				if input.Application != nil && (input.Application.Selector != nil || len(input.Application.Namespaces) != 0) {
-					p = append(p, ApplicationToPipeline{
-						Pipeline:   pipeline.Name,
-						Namespaces: input.Application.Namespaces,
-						Labels:     LabelsKV(input.Application.Selector),
-					})
-				}
 				if input.Application != nil {
-					fmt.Println("user defined app", pipeline.Name)
-				} else {
-					// no Namespace or Labels, consider as "application"
-					fmt.Println("user defined other", pipeline.Name)
+					app := input.Application
+					var a *ApplicationToPipeline = nil
+					if len(app.Namespaces) != 0 {
+						if a == nil {
+							a = &ApplicationToPipeline{
+								Pipeline: pipeline.Name,
+							}
+						}
+						a.Namespaces = app.Namespaces
+					}
+					if app.Selector != nil && len(app.Selector.MatchLabels) != 0 {
+						if a == nil {
+							a = &ApplicationToPipeline{
+								Pipeline: pipeline.Name,
+							}
+						}
+						a.Labels = LabelsKV(app.Selector)
+					}
+					if a != nil {
+						p = append(p, *a)
+					} else {
+						c.Pipelines = append(c.Pipelines, pipeline.Name)
+					}
 				}
-			} else {
-				fmt.Println("using default", pipeline.Name)
+			} else if inRef == logging.InputNameApplication {
+				c.Pipelines = append(c.Pipelines, pipeline.Name)
 			}
 		}
 	}
-	return []Element{
-		p,
+	if len(p) == 0 {
+		return []Element{
+			g.CopySourceTypeToPipeline(logging.InputNameApplication, spec),
+		}
+	}
+	if len(c.Pipelines) != 0 {
+		p = append(p, ApplicationToPipeline{
+			Pipeline: "_APPLICATION_ALL",
+		})
+		return []Element{
+			p,
+			c,
+		}
+	} else {
+		return []Element{
+			p,
+		}
 	}
 }
 
