@@ -10,8 +10,7 @@ import (
 var clo CLO
 
 type Generator struct {
-	// spec
-	// routemap
+	// keep no state in generator
 }
 
 func MakeGenerator() *Generator {

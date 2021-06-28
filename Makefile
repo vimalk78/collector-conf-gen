@@ -11,3 +11,6 @@ bin/$(EXE): force
 
 generate: build
 	./bin/collector-conf-gen
+
+test:
+	go test ./internal/fluentd/...

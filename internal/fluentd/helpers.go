@@ -2,6 +2,7 @@ package fluentd
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"text/template"
 
@@ -47,9 +48,16 @@ func comma_separated(arr []string) string {
 
 func LabelsKV(ls *metav1.LabelSelector) []string {
 	m, _ := metav1.LabelSelectorAsMap(ls)
-	kv := []string{}
-	for k, v := range m {
-		kv = append(kv, fmt.Sprintf("%s:%s", k, v))
+	//fmt.Printf("map: %#v\n", m)
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	kv := make([]string, len(m))
+	for i, k := range keys {
+		//kv = append(kv, fmt.Sprintf("%s:%s", k, m[k]))
+		kv[i] = fmt.Sprintf("%s:%s", k, m[k])
 	}
 	return kv
 }

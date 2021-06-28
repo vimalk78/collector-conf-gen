@@ -58,7 +58,7 @@ func GenerateConf(es ...Element) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return conf, nil
+	return strings.TrimSpace(conf), nil
 }
 
 func GenerateRec(t *template.Template, e Element, b *bytes.Buffer) error {
