@@ -13,7 +13,7 @@ This test case includes only the dynamic parts of Fluentd conf. This leaves out 
 var source_to_pipline = Describe("Testing Config Generation", func() {
 	var SourceToPipelines = func(g *Generator, spec logging.ClusterLogForwarderSpec) []Element {
 		return MergeElements(
-			g.SelectLogTypePipeline(&spec),
+			g.SourceToInput(&spec),
 			g.InputsToPipeline(&spec))
 	}
 	DescribeTable("Source(s) to Pipeline(s)", GenerateConfWith(SourceToPipelines),

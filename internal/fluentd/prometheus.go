@@ -51,3 +51,34 @@ func (p PrometheusMonitor) Create(t *template.Template) *template.Template {
 func (p PrometheusMonitor) Data() interface{} {
 	return p
 }
+
+func (g *Generator) PrometheusMetrics() []Element {
+	return []Element{
+		Pipeline{
+			InLabel: "MEASURE",
+			Desc:    "Increment Prometheus metrics",
+			SubElements: []Element{
+				ConfLiteral{
+					TemplateName: "EmitMetrics",
+					Desc:         "xx",
+					TemplateStr:  EmitMetrics,
+				},
+				Relabel{
+					Desc:     "Journal Logs go to INGRESS pipeline",
+					Pattern:  "journal",
+					OutLabel: "INGRESS",
+				},
+				Relabel{
+					Desc:     "Audit Logs go to INGRESS pipeline",
+					Pattern:  "*.audit.log",
+					OutLabel: "INGRESS",
+				},
+				Relabel{
+					Desc:     "Kubernetes Logs go to CONCAT pipeline",
+					Pattern:  "kubernetes.**",
+					OutLabel: "CONCAT",
+				},
+			},
+		},
+	}
+}
