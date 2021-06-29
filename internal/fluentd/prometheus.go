@@ -82,3 +82,45 @@ func (g *Generator) PrometheusMetrics() []Element {
 		},
 	}
 }
+
+var EmitMetrics string = `
+{{define "EmitMetrics"}}
+# {{.Desc}}
+<filter **>
+  @type record_transformer
+  enable_ruby
+  <record>
+	msg_size ${record.to_s.length}
+  </record>
+</filter>
+<filter **>
+  @type prometheus
+  <metric>
+	name cluster_logging_collector_input_record_total
+	type counter
+	desc The total number of incoming records
+	<labels>
+	  tag ${tag}
+	  hostname ${hostname}
+	</labels>
+  </metric>
+</filter>
+<filter **>
+  @type prometheus
+  <metric>
+	name cluster_logging_collector_input_record_bytes
+	type counter
+	desc The total bytes of incoming records
+	key msg_size
+	<labels>
+	  tag ${tag}
+	  hostname ${hostname}
+	</labels>
+  </metric>
+</filter>
+<filter **>
+  @type record_transformer
+  remove_keys msg_size
+</filter>
+{{end}}
+`

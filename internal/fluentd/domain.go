@@ -27,7 +27,8 @@ func (g *Generator) MakeLoggingConf(spec *logging.ClusterLogForwarderSpec) []Sec
 		},
 		{
 			g.Concat(),
-			"Concat pipeline",
+			`Concat pipeline 
+			section`,
 		},
 		{
 			g.Ingress(spec),

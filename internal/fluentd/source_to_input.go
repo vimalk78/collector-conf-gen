@@ -63,3 +63,12 @@ func (g *Generator) SourceToInput(spec *logging.ClusterLogForwarderSpec) []Eleme
 	})
 	return el
 }
+
+var DiscardMatched string = `
+{{define "discardMatched" -}}
+# {{.Desc}}
+<match kubernetes.**>
+  @type null
+</match>
+{{end}}
+`

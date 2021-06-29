@@ -113,13 +113,13 @@ var source_to_pipline = Describe("Testing Config Generation", func() {
 </match>
 
 # Discard Infrastructure logs
-<match kubernetes.**>  
-  @type null  
+<match kubernetes.**>
+  @type null
 </match>
 
 # Discard Audit logs
-<match kubernetes.**>  
-  @type null  
+<match kubernetes.**>
+  @type null
 </match>
 
 # Send any remaining unmatched tags to stdout
@@ -171,13 +171,13 @@ var source_to_pipline = Describe("Testing Config Generation", func() {
 </match>
 
 # Discard Infrastructure logs
-<match kubernetes.**>  
-  @type null  
+<match kubernetes.**>
+  @type null
 </match>
 
 # Discard Audit logs
-<match kubernetes.**>  
-  @type null  
+<match kubernetes.**>
+  @type null
 </match>
 
 # Send any remaining unmatched tags to stdout
@@ -230,13 +230,13 @@ var source_to_pipline = Describe("Testing Config Generation", func() {
 </match>
 
 # Discard Infrastructure logs
-<match kubernetes.**>  
-  @type null  
+<match kubernetes.**>
+  @type null
 </match>
 
 # Discard Audit logs
-<match kubernetes.**>  
-  @type null  
+<match kubernetes.**>
+  @type null
 </match>
 
 # Send any remaining unmatched tags to stdout
@@ -295,13 +295,13 @@ var source_to_pipline = Describe("Testing Config Generation", func() {
 </match>
 
 # Discard Infrastructure logs
-<match kubernetes.**>  
-  @type null  
+<match kubernetes.**>
+  @type null
 </match>
 
 # Discard Audit logs
-<match kubernetes.**>  
-  @type null  
+<match kubernetes.**>
+  @type null
 </match>
 
 # Send any remaining unmatched tags to stdout
@@ -391,13 +391,13 @@ var source_to_pipline = Describe("Testing Config Generation", func() {
 </match>
 
 # Discard Infrastructure logs
-<match kubernetes.**>  
-  @type null  
+<match kubernetes.**>
+  @type null
 </match>
 
 # Discard Audit logs
-<match kubernetes.**>  
-  @type null  
+<match kubernetes.**>
+  @type null
 </match>
 
 # Send any remaining unmatched tags to stdout
