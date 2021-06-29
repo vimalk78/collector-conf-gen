@@ -23,6 +23,7 @@ func (p PipelineToOutputs) Name() string {
 
 func (p PipelineToOutputs) Template() string {
 	return `{{define "` + p.Name() + `"  -}}
+# {{.Desc}}
 <label {{labelName .Pipeline}}>
 {{- with $x := generate .Labels}}
 {{$x | indent 2 -}}
@@ -84,6 +85,7 @@ func (g *Generator) PipelineToOutputs(spec *logging.ClusterLogForwarderSpec) []E
 	})
 	for _, p := range pipelines {
 		po := PipelineToOutputs{
+			Desc:      fmt.Sprintf("Copying pipeline %s to outputs", p.Name),
 			Pipeline:  p.Name,
 			Outputs:   p.OutputRefs,
 			JsonParse: _Nils,
