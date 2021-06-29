@@ -63,7 +63,6 @@ var pipeline_to_outputs = Describe("Testing Config Generation", func() {
     </store>
   </match>
 </label>
-
 <label @AUDIT_TO_ES>
   <match **>
     @type copy
@@ -85,7 +84,10 @@ var pipeline_to_outputs = Describe("Testing Config Generation", func() {
 						InputRefs:  []string{logging.InputNameApplication},
 						OutputRefs: []string{logging.OutputNameDefault, "es-app-out"},
 						Name:       "app-to-es",
-						Labels:     map[string]string{"a": "b"},
+						Labels: map[string]string{
+							"a": "b",
+							"c": "d",
+						},
 					},
 				},
 			},
@@ -95,7 +97,7 @@ var pipeline_to_outputs = Describe("Testing Config Generation", func() {
   <filter **>
     @type record_transformer
     <record>
-      openshift { "labels": {"a":"b"} }
+      openshift { "labels": {"a":"b","c":"d"} }
     </record>
   </filter>
   <match **>

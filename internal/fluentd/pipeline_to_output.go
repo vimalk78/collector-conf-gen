@@ -40,7 +40,7 @@ func (p PipelineToOutputs) Template() string {
     {{- end }}
   </match>
 </label>
-{{end}}`
+{{- end}}`
 }
 
 func (p PipelineToOutputs) Data() interface{} {
