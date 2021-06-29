@@ -1,6 +1,7 @@
 package fluentd
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -17,7 +18,7 @@ type ConfGenerateTest struct {
 
 type GenerateFunc func(*Generator, logging.ClusterLogForwarderSpec) []Element
 
-func GenerateConfWith(gf GenerateFunc) func(ConfGenerateTest) {
+func TestGenerateConfWith(gf GenerateFunc) func(ConfGenerateTest) {
 	return func(testcase ConfGenerateTest) {
 		g := MakeGenerator()
 		e := gf(g, testcase.Spec)
@@ -27,6 +28,8 @@ func GenerateConfWith(gf GenerateFunc) func(ConfGenerateTest) {
 			strings.Split(strings.TrimSpace(testcase.ExpectedConf), "\n"),
 			strings.Split(strings.TrimSpace(conf), "\n"))
 		if diff != "" {
+			b, _ := json.MarshalIndent(e, "", " ")
+			fmt.Printf("elements:\n%s\n", string(b))
 			fmt.Println(conf)
 			fmt.Printf("diff: %s", diff)
 		}

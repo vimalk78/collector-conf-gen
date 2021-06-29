@@ -11,12 +11,12 @@ import (
 This test case includes only the dynamic parts of Fluentd conf. This leaves out the static parts which do not change with CLF spec.
 **/
 var source_to_pipline = Describe("Testing Config Generation", func() {
-	var SourceToPipelines = func(g *Generator, spec logging.ClusterLogForwarderSpec) []Element {
+	var f = func(g *Generator, spec logging.ClusterLogForwarderSpec) []Element {
 		return MergeElements(
 			g.SourceToInput(&spec),
 			g.InputsToPipeline(&spec))
 	}
-	DescribeTable("Source(s) to Pipeline(s)", GenerateConfWith(SourceToPipelines),
+	DescribeTable("Source(s) to Pipeline(s)", TestGenerateConfWith(f),
 		Entry("Send all log types to output by name", ConfGenerateTest{
 			Spec: logging.ClusterLogForwarderSpec{
 				Pipelines: []logging.PipelineSpec{

@@ -4,20 +4,11 @@ import (
 	"fmt"
 	"sort"
 	"strings"
-	"text/template"
 
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-var (
-	helperRegistry = &template.FuncMap{
-		"applicationTag":      applicationTag,
-		"labelName":           labelName,
-		"sourceTypelabelName": sourceTypeLabelName,
-		"routeMapValues":      routeMapValues,
-	}
-)
 var replacer = strings.NewReplacer(" ", "_", "-", "_", ".", "_")
 
 func applicationTag(namespace string) string {

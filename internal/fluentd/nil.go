@@ -21,3 +21,4 @@ func (n NilElement) Data() interface{} {
 }
 
 var _Nil NilElement
+var _Nils []Element = []Element{_Nil}
