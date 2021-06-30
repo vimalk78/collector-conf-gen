@@ -24,6 +24,7 @@ var pipeline_to_outputs = Describe("Testing Config Generation", func() {
 				},
 			},
 			ExpectedConf: `
+# Copying pipeline defaultoutput to outputs
 <label @DEFAULTOUTPUT>
   <match **>
     @type copy
@@ -50,6 +51,7 @@ var pipeline_to_outputs = Describe("Testing Config Generation", func() {
 				},
 			},
 			ExpectedConf: `
+# Copying pipeline app-to-es to outputs
 <label @APP_TO_ES>
   <match **>
     @type copy
@@ -63,6 +65,7 @@ var pipeline_to_outputs = Describe("Testing Config Generation", func() {
     </store>
   </match>
 </label>
+# Copying pipeline audit-to-es to outputs
 <label @AUDIT_TO_ES>
   <match **>
     @type copy
@@ -92,6 +95,7 @@ var pipeline_to_outputs = Describe("Testing Config Generation", func() {
 				},
 			},
 			ExpectedConf: `
+# Copying pipeline app-to-es to outputs
 <label @APP_TO_ES>
   # Add User Defined labels to the output record
   <filter **>
@@ -125,6 +129,7 @@ var pipeline_to_outputs = Describe("Testing Config Generation", func() {
 				},
 			},
 			ExpectedConf: `
+# Copying pipeline app-to-es to outputs
 <label @APP_TO_ES>
   # Parse the logs into json
   <filter **>
