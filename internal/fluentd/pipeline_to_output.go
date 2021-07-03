@@ -12,9 +12,9 @@ import (
 type PipelineToOutputs struct {
 	Desc      string
 	Pipeline  string
-	Outputs   []string
 	Labels    []Element
 	JsonParse []Element
+	ToOutputs []Element
 }
 
 func (p PipelineToOutputs) Name() string {
@@ -25,23 +25,13 @@ func (p PipelineToOutputs) Template() string {
 	return `{{define "` + p.Name() + `"  -}}
 # {{.Desc}}
 <label {{labelName .Pipeline}}>
-
 {{- with $x := compose .Labels}}
 {{$x |indent 2 -}}
 {{- end}}
-
 {{- with $x := compose .JsonParse}}
 {{$x |indent 2 -}}
 {{- end}}
-  <match **>
-    @type copy
-    {{- range $index, $output := .Outputs }}
-    <store>
-      @type relabel
-      @label {{labelName $output }}
-    </store>
-    {{- end }}
-  </match>
+{{compose .ToOutputs| indent 2}}
 </label>
 {{- end}}`
 }
@@ -89,7 +79,6 @@ func (g *Generator) PipelineToOutputs(spec *logging.ClusterLogForwarderSpec) []E
 		po := PipelineToOutputs{
 			Desc:      fmt.Sprintf("Copying pipeline %s to outputs", p.Name),
 			Pipeline:  p.Name,
-			Outputs:   p.OutputRefs,
 			JsonParse: _Nils,
 			Labels:    _Nils,
 		}
@@ -110,6 +99,23 @@ func (g *Generator) PipelineToOutputs(spec *logging.ClusterLogForwarderSpec) []E
 					Desc:         "Parse the logs into json",
 					TemplateName: "JsonParse",
 					TemplateStr:  JsonParseTemplate,
+				},
+			}
+		}
+		switch len(p.OutputRefs) {
+		case 0:
+			// should not happen
+		case 1:
+			po.ToOutputs = []Element{
+				Relabel{
+					MatchTags: "**",
+					OutLabel:  labelName(p.OutputRefs[0]),
+				},
+			}
+		default:
+			po.ToOutputs = []Element{
+				Copy{
+					Labels: labelNames(p.OutputRefs),
 				},
 			}
 		}

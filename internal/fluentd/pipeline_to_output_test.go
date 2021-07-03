@@ -27,11 +27,8 @@ var pipeline_to_outputs = Describe("Testing Config Generation", func() {
 # Copying pipeline defaultoutput to outputs
 <label @DEFAULTOUTPUT>
   <match **>
-    @type copy
-    <store>
-      @type relabel
-      @label @DEFAULT
-    </store>
+    @type relabel
+    @label @DEFAULT
   </match>
 </label>`,
 		}),
