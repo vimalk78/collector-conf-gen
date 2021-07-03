@@ -321,14 +321,11 @@ var source_to_pipline = Describe("Testing Config Generation", func() {
   </match>
 </label>
 
-# Copying unrouted "application" to pipelines
+# Sending unrouted application to pipelines
 <label @_APPLICATION_ALL>
   <match **>
-    @type copy
-    <store>
-      @type relabel
-      @label @PIPELINE1
-    </store>
+    @type relabel
+    @label @PIPELINE1
   </match>
 </label>`,
 		}),
@@ -417,7 +414,7 @@ var source_to_pipline = Describe("Testing Config Generation", func() {
   </match>
 </label>
 
-# Copying unrouted "application" to pipelines
+# Copying unrouted application to pipelines
 <label @_APPLICATION_ALL>
   <match **>
     @type copy

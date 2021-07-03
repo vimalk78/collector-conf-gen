@@ -28,7 +28,7 @@ func (a ApplicationsToPipelines) Template() string {
     @type label_router
 	{{- range $index, $a := .}}
     <route>
-      @label {{labelName $a.Pipeline}}
+      @label {{$a.Pipeline}}
       <match>
         {{- if $a.Namespaces}}
         namespaces {{comma_separated $a.Namespaces}}
@@ -53,35 +53,38 @@ func (a ApplicationsToPipelines) Data() interface{} {
 }
 
 func (g *Generator) SourceTypeToPipeline(sourceType string, spec *logging.ClusterLogForwarderSpec) Element {
-	c := Copy{}
+	srcTypePipeline := []string{}
 	for _, pipeline := range spec.Pipelines {
 		for _, inRef := range pipeline.InputRefs {
 			if inRef == sourceType {
-				c.Labels = append(c.Labels, pipeline.Name)
+				srcTypePipeline = append(srcTypePipeline, pipeline.Name)
 			}
 		}
 	}
-	if len(c.Labels) == 0 {
+	switch len(srcTypePipeline) {
+	case 0:
 		return _Nil
-	}
-	if len(c.Labels) == 1 {
+	case 1:
 		return FromLabel{
 			Desc:    fmt.Sprintf("Sending %s source type to pipeline", sourceType),
 			InLabel: sourceTypeLabelName(sourceType),
 			SubElements: []Element{
 				Relabel{
 					MatchTags: "**",
-					OutLabel:  labelName(c.Labels[0]),
+					OutLabel:  labelName(srcTypePipeline[0]),
 				},
 			},
 		}
-	}
-	return FromLabel{
-		Desc:    fmt.Sprintf("Copying %s source type to pipeline", sourceType),
-		InLabel: sourceTypeLabelName(sourceType),
-		SubElements: []Element{
-			c,
-		},
+	default:
+		return FromLabel{
+			Desc:    fmt.Sprintf("Copying %s source type to pipeline", sourceType),
+			InLabel: sourceTypeLabelName(sourceType),
+			SubElements: []Element{
+				Copy{
+					Labels: labelNames(srcTypePipeline),
+				},
+			},
+		}
 	}
 }
 
@@ -95,8 +98,8 @@ func (g *Generator) InputsToPipeline(spec *logging.ClusterLogForwarderSpec) []El
 
 func (g *Generator) ApplicationToPipeline(spec *logging.ClusterLogForwarderSpec) []Element {
 	userDefined := spec.InputMap()
-	p := ApplicationsToPipelines{}
-	c := Copy{}
+	routedPipelines := ApplicationsToPipelines{}
+	unRoutedPipelines := []string{}
 	for _, pipeline := range spec.Pipelines {
 		for _, inRef := range pipeline.InputRefs {
 			if input, ok := userDefined[inRef]; ok {
@@ -107,7 +110,7 @@ func (g *Generator) ApplicationToPipeline(spec *logging.ClusterLogForwarderSpec)
 					if len(app.Namespaces) != 0 {
 						if a == nil {
 							a = &ApplicationToPipeline{
-								Pipeline: pipeline.Name,
+								Pipeline: labelName(pipeline.Name),
 							}
 						}
 						a.Namespaces = app.Namespaces
@@ -115,45 +118,64 @@ func (g *Generator) ApplicationToPipeline(spec *logging.ClusterLogForwarderSpec)
 					if app.Selector != nil && len(app.Selector.MatchLabels) != 0 {
 						if a == nil {
 							a = &ApplicationToPipeline{
-								Pipeline: pipeline.Name,
+								Pipeline: labelName(pipeline.Name),
 							}
 						}
 						a.Labels = LabelsKV(app.Selector)
 					}
 					if a != nil {
-						p = append(p, *a)
+						routedPipelines = append(routedPipelines, *a)
 					} else {
-						c.Labels = append(c.Labels, pipeline.Name)
+						unRoutedPipelines = append(unRoutedPipelines, pipeline.Name)
 					}
 				}
 			} else if inRef == logging.InputNameApplication {
-				c.Labels = append(c.Labels, pipeline.Name)
+				unRoutedPipelines = append(unRoutedPipelines, pipeline.Name)
 			}
 		}
 	}
-	if len(p) == 0 {
+	if len(routedPipelines) == 0 {
 		return []Element{
 			g.SourceTypeToPipeline(logging.InputNameApplication, spec),
 		}
 	}
-	l := FromLabel{
-		Desc:    "Copying unrouted \"application\" to pipelines",
-		InLabel: sourceTypeLabelName("APPLICATION_ALL"),
-		SubElements: []Element{
-			c,
-		},
-	}
-	if len(c.Labels) != 0 {
-		p = append(p, ApplicationToPipeline{
-			Pipeline: "_APPLICATION_ALL",
+	switch len(unRoutedPipelines) {
+	case 0:
+		return []Element{
+			routedPipelines,
+		}
+	case 1:
+		routedPipelines = append(routedPipelines, ApplicationToPipeline{
+			Pipeline: sourceTypeLabelName("APPLICATION_ALL"),
 		})
 		return []Element{
-			p,
-			l,
+			routedPipelines,
+			FromLabel{
+				Desc:    "Sending unrouted application to pipelines",
+				InLabel: sourceTypeLabelName("APPLICATION_ALL"),
+				SubElements: []Element{
+					Relabel{
+						MatchTags: "**",
+						OutLabel:  labelName(unRoutedPipelines[0]),
+					},
+				},
+			},
 		}
-	} else {
+	default:
+		routedPipelines = append(routedPipelines, ApplicationToPipeline{
+			Pipeline: sourceTypeLabelName("APPLICATION_ALL"),
+		})
 		return []Element{
-			p,
+			routedPipelines,
+			FromLabel{
+				Desc:    "Copying unrouted application to pipelines",
+				InLabel: sourceTypeLabelName("APPLICATION_ALL"),
+				SubElements: []Element{
+					Copy{
+						Labels: labelNames(unRoutedPipelines),
+					},
+				},
+			},
 		}
 	}
 }

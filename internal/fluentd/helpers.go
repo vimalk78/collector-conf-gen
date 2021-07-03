@@ -22,6 +22,14 @@ func labelName(name string) string {
 	return strings.ToUpper(fmt.Sprintf("@%s", replacer.Replace(name)))
 }
 
+func labelNames(names []string) []string {
+	asLabels := make([]string, len(names))
+	for i, n := range names {
+		asLabels[i] = labelName(n)
+	}
+	return asLabels
+}
+
 func sourceTypeLabelName(name string) string {
 	return strings.ToUpper(fmt.Sprintf("@_%s", replacer.Replace(name)))
 }
@@ -39,7 +47,6 @@ func comma_separated(arr []string) string {
 
 func LabelsKV(ls *metav1.LabelSelector) []string {
 	m, _ := metav1.LabelSelectorAsMap(ls)
-	//fmt.Printf("map: %#v\n", m)
 	keys := make([]string, 0, len(m))
 	for k := range m {
 		keys = append(keys, k)
@@ -47,7 +54,6 @@ func LabelsKV(ls *metav1.LabelSelector) []string {
 	sort.Strings(keys)
 	kv := make([]string, len(m))
 	for i, k := range keys {
-		//kv = append(kv, fmt.Sprintf("%s:%s", k, m[k]))
 		kv[i] = fmt.Sprintf("%s:%s", k, m[k])
 	}
 	return kv

@@ -17,7 +17,7 @@ func (c Copy) Template() string {
   {{- range $index, $label := .Labels }}
   <store>
     @type relabel
-    @label {{labelName $label }}
+    @label {{ $label }}
   </store>
   {{- end }}
 </match>
