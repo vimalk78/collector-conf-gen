@@ -14,9 +14,9 @@ func (g *Generator) Concat() []Element {
 					TemplateStr:  ConcatLines,
 				},
 				Relabel{
-					Desc:     "Kubernetes Logs go to INGRESS pipeline",
-					Pattern:  "kubernetes.**",
-					OutLabel: "INGRESS",
+					Desc:      "Kubernetes Logs go to INGRESS pipeline",
+					MatchTags: "kubernetes.**",
+					OutLabel:  "INGRESS",
 				},
 			},
 		},
@@ -76,7 +76,7 @@ func (g *Generator) Ingress(spec *logging.ClusterLogForwarderSpec) []Element {
 					TemplateStr:  GenElasticsearchID,
 				},
 			},
-				g.SourceToInput(spec)),
+				g.SourcesToInputs(spec)),
 		},
 	}
 }

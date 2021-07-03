@@ -7,41 +7,6 @@ import (
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
 )
 
-type CopySourceTypeToPipeline struct {
-	SourceType string
-	Pipelines  []string
-	Desc       string
-}
-
-func (c CopySourceTypeToPipeline) Name() string {
-	return "copySourceTypeToPipeline"
-}
-
-func (c CopySourceTypeToPipeline) Template() string {
-	return `{{define "` + c.Name() + `"  -}}
-# {{.Desc}}
-<label {{sourceTypelabelName .SourceType}}>
-  <match **>
-    @type copy
-    {{- range $index, $pipeline := .Pipelines }}
-    <store>
-      @type relabel
-      @label {{labelName $pipeline }}
-    </store>
-    {{- end }}
-  </match>
-</label>
-{{end}}`
-}
-
-func (c CopySourceTypeToPipeline) Create(t *template.Template) *template.Template {
-	return template.Must(t.Parse(c.Template()))
-}
-
-func (c CopySourceTypeToPipeline) Data() interface{} {
-	return c
-}
-
 type ApplicationToPipeline struct {
 	// Labels is an array of "<key>:<value>" strings
 	Labels     []string
@@ -87,22 +52,37 @@ func (a ApplicationsToPipelines) Data() interface{} {
 	return a
 }
 
-func (g *Generator) CopySourceTypeToPipeline(sourceType string, spec *logging.ClusterLogForwarderSpec) Element {
-	c := CopySourceTypeToPipeline{
-		SourceType: sourceType,
-		Desc:       fmt.Sprintf("Copying %s source type to pipeline", sourceType),
-	}
+func (g *Generator) SourceTypeToPipeline(sourceType string, spec *logging.ClusterLogForwarderSpec) Element {
+	c := Copy{}
 	for _, pipeline := range spec.Pipelines {
 		for _, inRef := range pipeline.InputRefs {
 			if inRef == sourceType {
-				c.Pipelines = append(c.Pipelines, pipeline.Name)
+				c.Labels = append(c.Labels, pipeline.Name)
 			}
 		}
 	}
-	if len(c.Pipelines) == 0 {
+	if len(c.Labels) == 0 {
 		return _Nil
 	}
-	return c
+	if len(c.Labels) == 1 {
+		return FromLabel{
+			Desc:    fmt.Sprintf("Sending %s source type to pipeline", sourceType),
+			InLabel: sourceTypeLabelName(sourceType),
+			SubElements: []Element{
+				Relabel{
+					MatchTags: "**",
+					OutLabel:  labelName(c.Labels[0]),
+				},
+			},
+		}
+	}
+	return FromLabel{
+		Desc:    fmt.Sprintf("Copying %s source type to pipeline", sourceType),
+		InLabel: sourceTypeLabelName(sourceType),
+		SubElements: []Element{
+			c,
+		},
+	}
 }
 
 func (g *Generator) InputsToPipeline(spec *logging.ClusterLogForwarderSpec) []Element {
@@ -116,10 +96,7 @@ func (g *Generator) InputsToPipeline(spec *logging.ClusterLogForwarderSpec) []El
 func (g *Generator) ApplicationToPipeline(spec *logging.ClusterLogForwarderSpec) []Element {
 	userDefined := spec.InputMap()
 	p := ApplicationsToPipelines{}
-	c := CopySourceTypeToPipeline{
-		SourceType: "APPLICATION_ALL",
-		Desc:       "Copying unrouted \"application\" to pipelines",
-	}
+	c := Copy{}
 	for _, pipeline := range spec.Pipelines {
 		for _, inRef := range pipeline.InputRefs {
 			if input, ok := userDefined[inRef]; ok {
@@ -146,26 +123,33 @@ func (g *Generator) ApplicationToPipeline(spec *logging.ClusterLogForwarderSpec)
 					if a != nil {
 						p = append(p, *a)
 					} else {
-						c.Pipelines = append(c.Pipelines, pipeline.Name)
+						c.Labels = append(c.Labels, pipeline.Name)
 					}
 				}
 			} else if inRef == logging.InputNameApplication {
-				c.Pipelines = append(c.Pipelines, pipeline.Name)
+				c.Labels = append(c.Labels, pipeline.Name)
 			}
 		}
 	}
 	if len(p) == 0 {
 		return []Element{
-			g.CopySourceTypeToPipeline(logging.InputNameApplication, spec),
+			g.SourceTypeToPipeline(logging.InputNameApplication, spec),
 		}
 	}
-	if len(c.Pipelines) != 0 {
+	l := FromLabel{
+		Desc:    "Copying unrouted \"application\" to pipelines",
+		InLabel: sourceTypeLabelName("APPLICATION_ALL"),
+		SubElements: []Element{
+			c,
+		},
+	}
+	if len(c.Labels) != 0 {
 		p = append(p, ApplicationToPipeline{
 			Pipeline: "_APPLICATION_ALL",
 		})
 		return []Element{
 			p,
-			c,
+			l,
 		}
 	} else {
 		return []Element{
@@ -176,12 +160,12 @@ func (g *Generator) ApplicationToPipeline(spec *logging.ClusterLogForwarderSpec)
 
 func (g *Generator) AuditToPipeline(spec *logging.ClusterLogForwarderSpec) []Element {
 	return []Element{
-		g.CopySourceTypeToPipeline(logging.InputNameAudit, spec),
+		g.SourceTypeToPipeline(logging.InputNameAudit, spec),
 	}
 }
 
 func (g *Generator) InfraToPipeline(spec *logging.ClusterLogForwarderSpec) []Element {
 	return []Element{
-		g.CopySourceTypeToPipeline(logging.InputNameInfrastructure, spec),
+		g.SourceTypeToPipeline(logging.InputNameInfrastructure, spec),
 	}
 }

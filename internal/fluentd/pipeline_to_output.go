@@ -25,10 +25,12 @@ func (p PipelineToOutputs) Template() string {
 	return `{{define "` + p.Name() + `"  -}}
 # {{.Desc}}
 <label {{labelName .Pipeline}}>
-{{- with $x := generate .Labels}}
-{{$x | indent 2 -}}
+
+{{- with $x := compose .Labels}}
+{{$x |indent 2 -}}
 {{- end}}
-{{- with $x := generate .JsonParse}}
+
+{{- with $x := compose .JsonParse}}
 {{$x |indent 2 -}}
 {{- end}}
   <match **>

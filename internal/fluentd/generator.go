@@ -25,8 +25,8 @@ type MultiElement interface {
 	Elements() []Element
 }
 
-type InLabel string
-type OutLabel string
+type InLabel = string
+type OutLabel = string
 
 var Header = `
 ## CLO GENERATED CONFIGURATION ###
@@ -75,6 +75,7 @@ func generate(es []Element) (string, error) {
 	t := template.New("generate")
 	t.Funcs(template.FuncMap{
 		"generate":            generate,
+		"compose":             generate,
 		"indent":              indent,
 		"applicationTag":      applicationTag,
 		"labelName":           labelName,
@@ -95,7 +96,7 @@ func generate(es []Element) (string, error) {
 			b.Write([]byte("\n"))
 		}
 	}
-	return b.String(), nil
+	return strings.TrimSpace(b.String()), nil
 }
 
 func MergeElements(eles ...[]Element) []Element {
@@ -112,4 +113,8 @@ func MergeSections(sections []Section) []Element {
 		merged = append(merged, s.Elements...)
 	}
 	return merged
+}
+
+type Generator struct {
+	// keep no state in generator
 }

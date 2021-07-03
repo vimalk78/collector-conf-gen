@@ -7,10 +7,6 @@ import (
 
 var clo CLO
 
-type Generator struct {
-	// keep no state in generator
-}
-
 func MakeGenerator() *Generator {
 	return &Generator{}
 }

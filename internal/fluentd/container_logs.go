@@ -1,17 +1,14 @@
 package fluentd
 
-import "text/template"
+import (
+	"text/template"
+)
 
 type ContainerLogs struct {
 	OutLabel
-	Desc  string
-	Paths []string
-}
-
-func NewInputContainerLogs(Paths []string) Element {
-	return ContainerLogs{
-		Paths: Paths,
-	}
+	Desc         string
+	Paths        string
+	ExcludePaths string
 }
 
 func (cl ContainerLogs) Name() string {
@@ -24,8 +21,8 @@ func (cl ContainerLogs) Template() string {
 <source>
   @type tail
   @id container-input
-  path "/var/log/containers/*.log"
-  exclude_path ["/var/log/containers/{{.CollectorPodNamePrefix}}-*_{{.LoggingNamespace}}_*.log", "/var/log/containers/{{.LogStorePodNamePrefix}}-*_{{.LoggingNamespace}}_*.log", "/var/log/containers/{{.VisualizationPodNamePrefix}}-*_{{.LoggingNamespace}}_*.log"]
+  path {{.Paths}}
+  exclude_path {{.ExcludePaths}}
   pos_file "/var/log/es-containers.log.pos"
   refresh_interval 5
   rotate_wait 5
@@ -56,20 +53,4 @@ func (cl ContainerLogs) Create(t *template.Template) *template.Template {
 
 func (cl ContainerLogs) Data() interface{} {
 	return cl
-}
-
-func (cl ContainerLogs) LoggingNamespace() string {
-	return "openshift-logging"
-}
-
-func (cl ContainerLogs) CollectorPodNamePrefix() string {
-	return "fluentd"
-}
-
-func (cl ContainerLogs) LogStorePodNamePrefix() string {
-	return "elasticlearch"
-}
-
-func (cl ContainerLogs) VisualizationPodNamePrefix() string {
-	return "kibana"
 }

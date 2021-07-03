@@ -2,50 +2,50 @@ package fluentd
 
 import logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
 
-func (g *Generator) SourceToInput(spec *logging.ClusterLogForwarderSpec) []Element {
+func (g *Generator) SourcesToInputs(spec *logging.ClusterLogForwarderSpec) []Element {
 	var el []Element = make([]Element, 0)
 	types := clo.GatherSources(spec)
-	ApplicationPattern := "kubernetes.**"
+	ApplicationTags := "kubernetes.**"
 	if types.Has(logging.InputNameApplication) {
 		el = append(el, Relabel{
-			Desc:     "Dont discard Application logs",
-			Pattern:  ApplicationPattern,
-			OutLabel: "_APPLICATION",
+			Desc:      "Dont discard Application logs",
+			MatchTags: ApplicationTags,
+			OutLabel:  sourceTypeLabelName(logging.InputNameApplication),
 		})
 	} else {
 		el = append(el, ConfLiteral{
 			Desc:         "Discard Application logs",
-			Pattern:      ApplicationPattern,
+			Pattern:      ApplicationTags,
 			TemplateName: "discardMatched",
 			TemplateStr:  DiscardMatched,
 		})
 	}
-	InfraPattern := "**_default_** **_kube-*_** **_openshift-*_** **_openshift_** journal.** system.var.log**"
+	InfraTags := "**_default_** **_kube-*_** **_openshift-*_** **_openshift_** journal.** system.var.log**"
 	if types.Has(logging.InputNameInfrastructure) {
 		el = append(el, Relabel{
-			Desc:     "Dont discard Infrastructure logs",
-			Pattern:  InfraPattern,
-			OutLabel: "_INFRASTRUCTURE",
+			Desc:      "Dont discard Infrastructure logs",
+			MatchTags: InfraTags,
+			OutLabel:  sourceTypeLabelName(logging.InputNameInfrastructure),
 		})
 	} else {
 		el = append(el, ConfLiteral{
 			Desc:         "Discard Infrastructure logs",
-			Pattern:      InfraPattern,
+			Pattern:      InfraTags,
 			TemplateName: "discardMatched",
 			TemplateStr:  DiscardMatched,
 		})
 	}
-	AuditPattern := "linux-audit.log** k8s-audit.log** openshift-audit.log**"
+	AuditTags := "linux-audit.log** k8s-audit.log** openshift-audit.log**"
 	if types.Has(logging.InputNameAudit) {
 		el = append(el, Relabel{
-			Desc:     "Dont discard Audit logs",
-			Pattern:  AuditPattern,
-			OutLabel: "_AUDIT",
+			Desc:      "Dont discard Audit logs",
+			MatchTags: AuditTags,
+			OutLabel:  sourceTypeLabelName(logging.InputNameAudit),
 		})
 	} else {
 		el = append(el, ConfLiteral{
 			Desc:         "Discard Audit logs",
-			Pattern:      AuditPattern,
+			Pattern:      AuditTags,
 			TemplateName: "discardMatched",
 			TemplateStr:  DiscardMatched,
 		})
@@ -54,7 +54,7 @@ func (g *Generator) SourceToInput(spec *logging.ClusterLogForwarderSpec) []Eleme
 		Desc:         "Send any remaining unmatched tags to stdout",
 		TemplateName: "toStdout",
 		TemplateStr: `
-{{define "toStdout" -}}
+{{define "toStdout"}}
 # {{.Desc}}
 <match **>
  @type stdout
@@ -65,10 +65,8 @@ func (g *Generator) SourceToInput(spec *logging.ClusterLogForwarderSpec) []Eleme
 }
 
 var DiscardMatched string = `
-{{define "discardMatched" -}}
+{{define "discardMatched"}}
 # {{.Desc}}
 <match kubernetes.**>
   @type null
-</match>
-{{end}}
-`
+</match>{{end}}`

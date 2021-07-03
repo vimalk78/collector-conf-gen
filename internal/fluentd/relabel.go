@@ -5,7 +5,7 @@ import "text/template"
 type Relabel struct {
 	Desc string
 	OutLabel
-	Pattern string
+	MatchTags string
 }
 
 func (r Relabel) Name() string {
@@ -14,13 +14,14 @@ func (r Relabel) Name() string {
 
 func (r Relabel) Template() string {
 	return `{{define "` + r.Name() + `"  -}}
+{{- if .Desc}}
 # {{.Desc}}
-<match {{.Pattern}}>
+{{- end}}
+<match {{.MatchTags}}>
   @type relabel
-  @label @{{.OutLabel}}
+  @label {{.OutLabel}}
 </match>
-{{end}}
-`
+{{- end}}`
 }
 
 func (r Relabel) Create(t *template.Template) *template.Template {

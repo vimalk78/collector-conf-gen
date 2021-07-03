@@ -13,8 +13,9 @@ This test case includes only the dynamic parts of Fluentd conf. This leaves out 
 var source_to_pipline = Describe("Testing Config Generation", func() {
 	var f = func(g *Generator, spec logging.ClusterLogForwarderSpec) []Element {
 		return MergeElements(
-			g.SourceToInput(&spec),
-			g.InputsToPipeline(&spec))
+			g.SourcesToInputs(&spec),
+			g.InputsToPipeline(&spec),
+		)
 	}
 	DescribeTable("Source(s) to Pipeline(s)", TestGenerateConfWith(f),
 		Entry("Send all log types to output by name", ConfGenerateTest{
@@ -24,7 +25,8 @@ var source_to_pipline = Describe("Testing Config Generation", func() {
 						InputRefs: []string{
 							logging.InputNameApplication,
 							logging.InputNameInfrastructure,
-							logging.InputNameAudit},
+							logging.InputNameAudit,
+						},
 						OutputRefs: []string{logging.OutputNameDefault},
 						Name:       "pipeline",
 					},
@@ -54,36 +56,27 @@ var source_to_pipline = Describe("Testing Config Generation", func() {
  @type stdout
 </match>
 
-# Copying application source type to pipeline
+# Sending application source type to pipeline
 <label @_APPLICATION>
   <match **>
-    @type copy
-    <store>
-      @type relabel
-      @label @PIPELINE
-    </store>
+    @type relabel
+    @label @PIPELINE
   </match>
 </label>
 
-# Copying infrastructure source type to pipeline
+# Sending infrastructure source type to pipeline
 <label @_INFRASTRUCTURE>
   <match **>
-    @type copy
-    <store>
-      @type relabel
-      @label @PIPELINE
-    </store>
+    @type relabel
+    @label @PIPELINE
   </match>
 </label>
 
-# Copying audit source type to pipeline
+# Sending audit source type to pipeline
 <label @_AUDIT>
   <match **>
-    @type copy
-    <store>
-      @type relabel
-      @label @PIPELINE
-    </store>
+    @type relabel
+    @label @PIPELINE
   </match>
 </label>`,
 		}),
