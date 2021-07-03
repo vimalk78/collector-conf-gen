@@ -122,5 +122,5 @@ var EmitMetrics string = `
   @type record_transformer
   remove_keys msg_size
 </filter>
-{{end}}
+{{- end}}
 `

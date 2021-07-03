@@ -88,7 +88,7 @@ var SetEncoding string = `
   @type record_modifier
   char_encoding utf-8
 </filter>
-{{end}}
+{{- end}}
 `
 
 var FilterJournalPRIORITY string = `
@@ -101,7 +101,7 @@ var FilterJournalPRIORITY string = `
     pattern ^7$
   </exclude>
 </filter>
-{{end}}
+{{- end}}
 `
 
 var RetagJournalLogs string = `
@@ -177,7 +177,7 @@ var RetagJournalLogs string = `
 	tag journal.system
   </rule>
 </match>
-{{end}}
+{{- end}}
 `
 
 var KubernetesMetadataPlugin string = `
@@ -191,7 +191,7 @@ var KubernetesMetadataPlugin string = `
   use_journal 'nil'
   ssl_partial_chain 'true'
 </filter>
-{{end}}
+{{- end}}
 `
 
 var ParseJsonFields string = `
@@ -217,7 +217,7 @@ var ParseJsonFields string = `
   preserve_json_log true
   json_fields 'log,MESSAGE'
 </filter>
-{{end}}
+{{- end}}
 `
 
 var CleanKibanaLogs string = `
@@ -231,7 +231,7 @@ var CleanKibanaLogs string = `
   </record>
   remove_keys req,res,msg,name,level,v,pid,err
 </filter>
-{{end}}
+{{- end}}
 `
 
 var FixAuditLevel string = `
@@ -331,7 +331,7 @@ var GenElasticsearchID string = `
   alt_key kubernetes.event.metadata.uid
   alt_tags 'kubernetes.var.log.containers.logging-eventrouter-*.** kubernetes.var.log.containers.eventrouter-*.** kubernetes.var.log.containers.cluster-logging-eventrouter-*.** kubernetes.journal.container._default_.kubernetes-event'
 </filter>
-{{end}}
+{{- end}}
 `
 
 var ConcatLines string = `
@@ -348,5 +348,5 @@ var ConcatLines string = `
   @type relabel
   @label @INGRESS
 </match>
-{{end}}
+{{- end}}
 `
