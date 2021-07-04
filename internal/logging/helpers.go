@@ -1,4 +1,4 @@
-package fluentd
+package logging
 
 import (
 	"fmt"
@@ -24,10 +24,6 @@ func labelNames(names []string) []string {
 
 func sourceTypeLabelName(name string) string {
 	return strings.ToUpper(fmt.Sprintf("@_%s", replacer.Replace(name)))
-}
-
-func comma_separated(arr []string) string {
-	return strings.Join(arr, ",")
 }
 
 func LabelsKV(ls *metav1.LabelSelector) []string {

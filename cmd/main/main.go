@@ -5,7 +5,8 @@ import (
 	"fmt"
 
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
-	"github.com/vimalk78/collector-conf-gen/internal/fluentd"
+	"github.com/vimalk78/collector-conf-gen/internal/generator"
+	loggen "github.com/vimalk78/collector-conf-gen/internal/logging"
 )
 
 func PrintJson(v interface{}) string {
@@ -26,10 +27,9 @@ func test() {
 			},
 		},
 	}
-	g := fluentd.MakeGenerator()
-	s := g.MakeLoggingConf(&spec)
-	e := fluentd.MergeSections(s)
-	conf, _ := fluentd.GenerateConf(e...)
+	conf, _ := generator.GenerateConf(
+		generator.MergeSections(
+			loggen.MakeGenerator().MakeLoggingConf(&spec))...)
 	fmt.Printf("conf:\n%s\n", conf)
 }
 

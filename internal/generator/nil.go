@@ -1,4 +1,4 @@
-package fluentd
+package generator
 
 import "text/template"
 
@@ -20,5 +20,5 @@ func (n NilElement) Data() interface{} {
 	return n
 }
 
-var _Nil NilElement
-var _Nils []Element = []Element{_Nil}
+var Nil NilElement
+var Nils []Element = []Element{Nil}

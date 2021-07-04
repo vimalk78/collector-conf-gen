@@ -1,9 +1,10 @@
-package fluentd
+package logging
 
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
+	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 )
 
 var log_sources_test = Describe("Testing Config Generation", func() {

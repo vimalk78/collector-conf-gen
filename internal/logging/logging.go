@@ -1,11 +1,16 @@
-package fluentd
+package logging
 
 import (
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
+	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 	"k8s.io/apimachinery/pkg/util/sets"
 )
 
 var clo CLO
+
+type Generator struct {
+	// keep no state in generator
+}
 
 func MakeGenerator() *Generator {
 	return &Generator{}

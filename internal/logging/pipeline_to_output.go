@@ -1,4 +1,4 @@
-package fluentd
+package logging
 
 import (
 	"encoding/json"
@@ -7,6 +7,7 @@ import (
 	"text/template"
 
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
+	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 )
 
 type PipelineToOutputs struct {
@@ -24,7 +25,7 @@ func (p PipelineToOutputs) Name() string {
 func (p PipelineToOutputs) Template() string {
 	return `{{define "` + p.Name() + `"  -}}
 # {{.Desc}}
-<label {{labelName .Pipeline}}>
+<label {{.Pipeline}}>
 {{- with $x := compose .Labels}}
 {{$x |indent 2 -}}
 {{- end}}
@@ -78,9 +79,9 @@ func (g *Generator) PipelineToOutputs(spec *logging.ClusterLogForwarderSpec) []E
 	for _, p := range pipelines {
 		po := PipelineToOutputs{
 			Desc:      fmt.Sprintf("Copying pipeline %s to outputs", p.Name),
-			Pipeline:  p.Name,
-			JsonParse: _Nils,
-			Labels:    _Nils,
+			Pipeline:  labelName(p.Name),
+			JsonParse: Nils,
+			Labels:    Nils,
 		}
 		if p.Labels != nil && len(p.Labels) != 0 {
 			// ignoring error, because pre-check stage already checked if Labels can be marshalled

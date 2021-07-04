@@ -1,10 +1,11 @@
-package fluentd
+package logging
 
 import (
 	"fmt"
 	"strings"
 
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
+	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 )
 
 func (g *Generator) MetricSources(spec *logging.ClusterLogForwarderSpec) []Element {

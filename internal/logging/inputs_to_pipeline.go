@@ -1,10 +1,11 @@
-package fluentd
+package logging
 
 import (
 	"fmt"
 	"text/template"
 
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
+	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 )
 
 type ApplicationToPipeline struct {
@@ -63,7 +64,7 @@ func (g *Generator) SourceTypeToPipeline(sourceType string, spec *logging.Cluste
 	}
 	switch len(srcTypePipeline) {
 	case 0:
-		return _Nil
+		return Nil
 	case 1:
 		return FromLabel{
 			Desc:    fmt.Sprintf("Sending %s source type to pipeline", sourceType),

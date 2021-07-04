@@ -1,4 +1,4 @@
-package fluentd
+package logging
 
 import (
 	"encoding/json"
@@ -10,6 +10,7 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
+	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 )
 
 //TODO: Use a detailed CLF spec

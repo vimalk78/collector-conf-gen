@@ -1,4 +1,4 @@
-package fluentd
+package generator
 
 import "text/template"
 

@@ -1,6 +1,9 @@
-package fluentd
+package logging
 
-import logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
+import (
+	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
+	. "github.com/vimalk78/collector-conf-gen/internal/generator"
+)
 
 func (g *Generator) Concat() []Element {
 	return []Element{

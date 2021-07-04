@@ -1,9 +1,10 @@
-package fluentd
+package logging
 
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
+	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -79,6 +80,83 @@ var source_to_pipline = Describe("Testing Config Generation", func() {
     @label @PIPELINE
   </match>
 </label>`,
+		}),
+		Entry("", ConfGenerateTest{
+			Spec: logging.ClusterLogForwarderSpec{
+				Pipelines: []logging.PipelineSpec{
+					{
+						InputRefs: []string{
+							logging.InputNameApplication,
+							logging.InputNameInfrastructure,
+							logging.InputNameAudit,
+						},
+						OutputRefs: []string{logging.OutputNameDefault},
+						Name:       "pipeline1",
+					},
+					{
+						InputRefs: []string{
+							logging.InputNameApplication,
+						},
+						OutputRefs: []string{logging.OutputNameDefault},
+						Name:       "pipeline2",
+					},
+				},
+			},
+			ExpectedConf: `
+# Dont discard Application logs
+<match kubernetes.**>
+  @type relabel
+  @label @_APPLICATION
+</match>
+
+# Dont discard Infrastructure logs
+<match **_default_** **_kube-*_** **_openshift-*_** **_openshift_** journal.** system.var.log**>
+  @type relabel
+  @label @_INFRASTRUCTURE
+</match>
+
+# Dont discard Audit logs
+<match linux-audit.log** k8s-audit.log** openshift-audit.log**>
+  @type relabel
+  @label @_AUDIT
+</match>
+
+# Send any remaining unmatched tags to stdout
+<match **>
+ @type stdout
+</match>
+
+# Copying application source type to pipeline
+<label @_APPLICATION>
+  <match **>
+    @type copy
+    <store>
+      @type relabel
+      @label @PIPELINE1
+    </store>
+    <store>
+      @type relabel
+      @label @PIPELINE2
+    </store>
+  </match>
+</label>
+
+# Sending infrastructure source type to pipeline
+<label @_INFRASTRUCTURE>
+  <match **>
+    @type relabel
+    @label @PIPELINE1
+  </match>
+</label>
+
+# Sending audit source type to pipeline
+<label @_AUDIT>
+  <match **>
+    @type relabel
+    @label @PIPELINE1
+  </match>
+</label>
+`,
 		}),
 		Entry("Route Logs by Namespace(s)", ConfGenerateTest{
 			Spec: logging.ClusterLogForwarderSpec{

@@ -1,5 +1,3 @@
-
-
 .PHONY: force
 
 EXE=collector-conf-gen
@@ -13,7 +11,7 @@ generate: build
 	./bin/collector-conf-gen
 
 test:
-	go test -cover ./internal/fluentd/... $(COVER)
+	go test -cover ./internal/... $(COVER)
 
 cover: COVER=-coverprofile=coverage.out
 cover: test

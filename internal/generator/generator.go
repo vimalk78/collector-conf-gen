@@ -1,4 +1,4 @@
-package fluentd
+package generator
 
 import (
 	"bytes"
@@ -45,6 +45,10 @@ func indent(length int, in string) string {
 	return pad + strings.Replace(in, "\n", "\n"+pad, -1)
 }
 
+func comma_separated(arr []string) string {
+	return strings.Join(arr, ",")
+}
+
 func GenerateConfWithHeader(es ...Element) (string, error) {
 	conf, err := generate(es)
 	if err != nil {
@@ -74,17 +78,17 @@ func GenerateRec(t *template.Template, e Element, b *bytes.Buffer) error {
 func generate(es []Element) (string, error) {
 	t := template.New("generate")
 	t.Funcs(template.FuncMap{
-		"generate":            generate,
-		"compose":             generate,
-		"indent":              indent,
-		"labelName":           labelName,
-		"sourceTypelabelName": sourceTypeLabelName,
-		"comma_separated":     comma_separated,
+		"generate": generate,
+		"compose":  generate,
+		"indent":   indent,
+		//		"labelName":           labelName,
+		//		"sourceTypelabelName": sourceTypeLabelName,
+		"comma_separated": comma_separated,
 	})
 	b := &bytes.Buffer{}
 	for i, e := range es {
 		if e == nil {
-			e = _Nil
+			e = Nil
 		}
 		if err := GenerateRec(t, e, b); err != nil {
 			fmt.Printf("error occured %v\n", err)
@@ -111,8 +115,4 @@ func MergeSections(sections []Section) []Element {
 		merged = append(merged, s.Elements...)
 	}
 	return merged
-}
-
-type Generator struct {
-	// keep no state in generator
 }
