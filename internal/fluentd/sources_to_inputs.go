@@ -53,13 +53,8 @@ func (g *Generator) SourcesToInputs(spec *logging.ClusterLogForwarderSpec) []Ele
 	el = append(el, ConfLiteral{
 		Desc:         "Send any remaining unmatched tags to stdout",
 		TemplateName: "toStdout",
-		TemplateStr: `
-{{define "toStdout"}}
-# {{.Desc}}
-<match **>
- @type stdout
-</match>
-{{end -}}`,
+		Pattern:      "**",
+		TemplateStr:  ToStdOut,
 	})
 	return el
 }

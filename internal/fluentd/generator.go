@@ -77,10 +77,8 @@ func generate(es []Element) (string, error) {
 		"generate":            generate,
 		"compose":             generate,
 		"indent":              indent,
-		"applicationTag":      applicationTag,
 		"labelName":           labelName,
 		"sourceTypelabelName": sourceTypeLabelName,
-		"routeMapValues":      routeMapValues,
 		"comma_separated":     comma_separated,
 	})
 	b := &bytes.Buffer{}

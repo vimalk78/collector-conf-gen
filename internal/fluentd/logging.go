@@ -67,22 +67,3 @@ func (CLO) GatherSources(forwarder *logging.ClusterLogForwarderSpec) sets.String
 	}
 	return types
 }
-
-func (CLO) InputsToPipelines(fwdspec *logging.ClusterLogForwarderSpec) logging.RouteMap {
-	result := logging.RouteMap{}
-	inputs := fwdspec.InputMap()
-	for _, pipeline := range fwdspec.Pipelines {
-		for _, inRef := range pipeline.InputRefs {
-			if input, ok := inputs[inRef]; ok {
-				// User defined input spec, unwrap.
-				for t := range input.Types() {
-					result.Insert(t, pipeline.Name)
-				}
-			} else {
-				// Not a user defined type, insert direct.
-				result.Insert(inRef, pipeline.Name)
-			}
-		}
-	}
-	return result
-}

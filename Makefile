@@ -13,4 +13,8 @@ generate: build
 	./bin/collector-conf-gen
 
 test:
-	go test ./internal/fluentd/...
+	go test -cover ./internal/fluentd/... $(COVER)
+
+cover: COVER=-coverprofile=coverage.out
+cover: test
+	go tool cover -html=coverage.out
