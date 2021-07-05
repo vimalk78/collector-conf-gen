@@ -1,4 +1,4 @@
-package logging
+package assembler
 
 var ToStdOut = `
 {{define "toStdout"}}

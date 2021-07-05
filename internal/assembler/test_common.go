@@ -1,4 +1,4 @@
-package logging
+package assembler
 
 import (
 	"encoding/json"
@@ -17,12 +17,12 @@ type ConfGenerateTest struct {
 	ExpectedConf string
 }
 
-type GenerateFunc func(*Generator, logging.ClusterLogForwarderSpec) []Element
+type GenerateFunc func(Assembler, logging.ClusterLogForwarderSpec) []Element
 
 func TestGenerateConfWith(gf GenerateFunc) func(ConfGenerateTest) {
 	return func(testcase ConfGenerateTest) {
-		g := MakeGenerator()
-		e := gf(g, testcase.Spec)
+		a := MakeAssembler()
+		e := gf(a, testcase.Spec)
 		conf, err := GenerateConf(e...)
 		Expect(err).To(BeNil())
 		diff := cmp.Diff(

@@ -1,4 +1,4 @@
-package logging
+package assembler
 
 import (
 	"fmt"
@@ -53,7 +53,7 @@ func (a ApplicationsToPipelines) Data() interface{} {
 	return a
 }
 
-func (g *Generator) SourceTypeToPipeline(sourceType string, spec *logging.ClusterLogForwarderSpec) Element {
+func (a Assembler) SourceTypeToPipeline(sourceType string, spec *logging.ClusterLogForwarderSpec) Element {
 	srcTypePipeline := []string{}
 	for _, pipeline := range spec.Pipelines {
 		for _, inRef := range pipeline.InputRefs {
@@ -89,15 +89,15 @@ func (g *Generator) SourceTypeToPipeline(sourceType string, spec *logging.Cluste
 	}
 }
 
-func (g *Generator) InputsToPipeline(spec *logging.ClusterLogForwarderSpec) []Element {
+func (a Assembler) InputsToPipeline(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return MergeElements(
-		g.ApplicationToPipeline(spec),
-		g.InfraToPipeline(spec),
-		g.AuditToPipeline(spec),
+		a.ApplicationToPipeline(spec, o),
+		a.InfraToPipeline(spec, o),
+		a.AuditToPipeline(spec, o),
 	)
 }
 
-func (g *Generator) ApplicationToPipeline(spec *logging.ClusterLogForwarderSpec) []Element {
+func (a Assembler) ApplicationToPipeline(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	userDefined := spec.InputMap()
 	routedPipelines := ApplicationsToPipelines{}
 	unRoutedPipelines := []string{}
@@ -137,7 +137,7 @@ func (g *Generator) ApplicationToPipeline(spec *logging.ClusterLogForwarderSpec)
 	}
 	if len(routedPipelines) == 0 {
 		return []Element{
-			g.SourceTypeToPipeline(logging.InputNameApplication, spec),
+			a.SourceTypeToPipeline(logging.InputNameApplication, spec),
 		}
 	}
 	switch len(unRoutedPipelines) {
@@ -181,14 +181,14 @@ func (g *Generator) ApplicationToPipeline(spec *logging.ClusterLogForwarderSpec)
 	}
 }
 
-func (g *Generator) AuditToPipeline(spec *logging.ClusterLogForwarderSpec) []Element {
+func (a Assembler) AuditToPipeline(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return []Element{
-		g.SourceTypeToPipeline(logging.InputNameAudit, spec),
+		a.SourceTypeToPipeline(logging.InputNameAudit, spec),
 	}
 }
 
-func (g *Generator) InfraToPipeline(spec *logging.ClusterLogForwarderSpec) []Element {
+func (a Assembler) InfraToPipeline(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return []Element{
-		g.SourceTypeToPipeline(logging.InputNameInfrastructure, spec),
+		a.SourceTypeToPipeline(logging.InputNameInfrastructure, spec),
 	}
 }

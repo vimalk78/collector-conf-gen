@@ -1,4 +1,4 @@
-package logging
+package assembler
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -8,9 +8,9 @@ import (
 )
 
 var pipeline_to_outputs = Describe("Testing Config Generation", func() {
-	var f = func(g *Generator, spec logging.ClusterLogForwarderSpec) []Element {
+	var f = func(a Assembler, spec logging.ClusterLogForwarderSpec) []Element {
 		return MergeElements(
-			g.PipelineToOutputs(&spec),
+			a.PipelineToOutputs(&spec, &Options{}),
 		)
 	}
 	DescribeTable("Pipelines(s) to Output(s)", TestGenerateConfWith(f),

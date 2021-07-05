@@ -1,4 +1,4 @@
-package logging
+package assembler
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 )
 
-func (g *Generator) MetricSources(spec *logging.ClusterLogForwarderSpec) []Element {
+func (a Assembler) MetricSources(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return []Element{
 		PrometheusMonitor{
 			Desc: "Prometheus Monitoring",
@@ -16,14 +16,17 @@ func (g *Generator) MetricSources(spec *logging.ClusterLogForwarderSpec) []Eleme
 	}
 }
 
-func (g *Generator) Sources(spec *logging.ClusterLogForwarderSpec) []Element {
+func (a Assembler) Sources(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return MergeElements(
-		g.MetricSources(spec),
-		g.LogSources(spec),
+		a.MetricSources(spec, o),
+		a.LogSources(spec, o),
 	)
 }
 
-func (g *Generator) LogSources(spec *logging.ClusterLogForwarderSpec) []Element {
+//TODO: handle the following options here
+// - includeLegacyForwardConfig
+// - includeLegacySyslogConfig
+func (a Assembler) LogSources(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	var el []Element = make([]Element, 0)
 	types := clo.GatherSources(spec)
 	if types.Has(logging.InputNameApplication) || types.Has(logging.InputNameInfrastructure) {

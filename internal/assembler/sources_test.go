@@ -1,4 +1,4 @@
-package logging
+package assembler
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -8,9 +8,9 @@ import (
 )
 
 var log_sources_test = Describe("Testing Config Generation", func() {
-	var f = func(g *Generator, spec logging.ClusterLogForwarderSpec) []Element {
+	var f = func(a Assembler, spec logging.ClusterLogForwarderSpec) []Element {
 		return MergeElements(
-			g.LogSources(&spec),
+			a.LogSources(&spec, &Options{}),
 		)
 	}
 	DescribeTable("Source(s)", TestGenerateConfWith(f),
@@ -285,9 +285,9 @@ var log_sources_test = Describe("Testing Config Generation", func() {
 })
 
 var metric_sources_test = Describe("Testing Config Generation", func() {
-	var f = func(g *Generator, spec logging.ClusterLogForwarderSpec) []Element {
+	var f = func(a Assembler, spec logging.ClusterLogForwarderSpec) []Element {
 		return MergeElements(
-			g.MetricSources(&spec),
+			a.MetricSources(&spec, &Options{}),
 		)
 	}
 	DescribeTable("Metric Source(s)", TestGenerateConfWith(f),

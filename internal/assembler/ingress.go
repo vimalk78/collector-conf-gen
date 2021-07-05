@@ -1,11 +1,11 @@
-package logging
+package assembler
 
 import (
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 )
 
-func (g *Generator) Concat(spec *logging.ClusterLogForwarderSpec) []Element {
+func (a *Assembler) Concat(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return []Element{
 		Pipeline{
 			InLabel: "CONCAT",
@@ -26,7 +26,7 @@ func (g *Generator) Concat(spec *logging.ClusterLogForwarderSpec) []Element {
 	}
 }
 
-func (g *Generator) Ingress(spec *logging.ClusterLogForwarderSpec) []Element {
+func (a Assembler) Ingress(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return []Element{
 		Pipeline{
 			InLabel: "INGRESS",
@@ -79,7 +79,7 @@ func (g *Generator) Ingress(spec *logging.ClusterLogForwarderSpec) []Element {
 					TemplateStr:  GenElasticsearchID,
 				},
 			},
-				g.SourcesToInputs(spec)),
+				a.SourcesToInputs(spec, o)),
 		},
 	}
 }

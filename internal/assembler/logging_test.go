@@ -1,4 +1,4 @@
-package logging
+package assembler
 
 import (
 	"encoding/json"
@@ -16,8 +16,8 @@ import (
 //TODO: Use a detailed CLF spec
 var logging_test = Describe("Testing Complete Config Generation", func() {
 	var f = func(testcase ConfGenerateTest) {
-		g := MakeGenerator()
-		e := MergeSections(g.MakeLoggingConf(&testcase.Spec))
+		a := MakeAssembler()
+		e := MergeSections(a.AssembleConf(&testcase.Spec))
 		conf, err := GenerateConfWithHeader(e...)
 		Expect(err).To(BeNil())
 		diff := cmp.Diff(

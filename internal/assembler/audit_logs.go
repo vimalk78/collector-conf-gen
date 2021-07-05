@@ -1,4 +1,4 @@
-package logging
+package assembler
 
 import (
 	"text/template"

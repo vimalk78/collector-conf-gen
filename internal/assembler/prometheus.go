@@ -1,4 +1,4 @@
-package logging
+package assembler
 
 import (
 	"text/template"
@@ -57,7 +57,7 @@ func (p PrometheusMonitor) Data() interface{} {
 	return p
 }
 
-func (g *Generator) PrometheusMetrics(spec *logging.ClusterLogForwarderSpec) []Element {
+func (a Assembler) PrometheusMetrics(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return []Element{
 		Pipeline{
 			InLabel: "MEASURE",

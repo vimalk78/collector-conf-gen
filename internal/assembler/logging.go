@@ -1,4 +1,4 @@
-package logging
+package assembler
 
 import (
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
@@ -8,39 +8,44 @@ import (
 
 var clo CLO
 
-type Generator struct {
-	// keep no state in generator
+// keep no state in Assembler
+type Assembler int
+
+func MakeAssembler() Assembler {
+	return Assembler(0)
 }
 
-func MakeGenerator() *Generator {
-	return &Generator{}
+type Options map[string]string
+
+func (a Assembler) AssembleConf(spec *logging.ClusterLogForwarderSpec) []Section {
+	return a.AssembleConfWithOptions(spec, &Options{})
 }
 
-func (g *Generator) MakeLoggingConf(spec *logging.ClusterLogForwarderSpec) []Section {
+func (a Assembler) AssembleConfWithOptions(spec *logging.ClusterLogForwarderSpec, o *Options) []Section {
 	return []Section{
 		{
-			g.Sources(spec),
+			a.Sources(spec, o),
 			"Set of all input sources",
 		},
 		{
-			g.PrometheusMetrics(spec),
+			a.PrometheusMetrics(spec, o),
 			"Section to add measurement, and dispatch to Concat or Ingress pipelines",
 		},
 		{
-			g.Concat(spec),
+			a.Concat(spec, o),
 			`Concat pipeline 
 			section`,
 		},
 		{
-			g.Ingress(spec),
+			a.Ingress(spec, o),
 			"Ingress pipeline",
 		},
 		{
-			g.InputsToPipeline(spec),
+			a.InputsToPipeline(spec, o),
 			"Inputs go to pipelines",
 		},
 		{
-			g.PipelineToOutputs(spec),
+			a.PipelineToOutputs(spec, o),
 			"Pipeline to Outputs",
 		},
 	}
