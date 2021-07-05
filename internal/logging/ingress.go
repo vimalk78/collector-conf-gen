@@ -5,7 +5,7 @@ import (
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 )
 
-func (g *Generator) Concat() []Element {
+func (g *Generator) Concat(spec *logging.ClusterLogForwarderSpec) []Element {
 	return []Element{
 		Pipeline{
 			InLabel: "CONCAT",
@@ -30,7 +30,7 @@ func (g *Generator) Ingress(spec *logging.ClusterLogForwarderSpec) []Element {
 	return []Element{
 		Pipeline{
 			InLabel: "INGRESS",
-			Desc:    "Concat log lines of container logs",
+			Desc:    "Ingress pipeline",
 			SubElements: MergeElements([]Element{
 				ConfLiteral{
 					Desc:         "Set Encodeing",

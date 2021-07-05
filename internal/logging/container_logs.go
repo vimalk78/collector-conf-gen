@@ -11,6 +11,7 @@ type ContainerLogs struct {
 	Desc         string
 	Paths        string
 	ExcludePaths string
+	PosFile      string
 }
 
 func (cl ContainerLogs) Name() string {
@@ -25,7 +26,7 @@ func (cl ContainerLogs) Template() string {
   @id container-input
   path {{.Paths}}
   exclude_path {{.ExcludePaths}}
-  pos_file "/var/log/es-containers.log.pos"
+  pos_file "{{.PosFile}}"
   refresh_interval 5
   rotate_wait 5
   tag kubernetes.*

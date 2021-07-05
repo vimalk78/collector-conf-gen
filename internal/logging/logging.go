@@ -23,11 +23,11 @@ func (g *Generator) MakeLoggingConf(spec *logging.ClusterLogForwarderSpec) []Sec
 			"Set of all input sources",
 		},
 		{
-			g.PrometheusMetrics(),
+			g.PrometheusMetrics(spec),
 			"Section to add measurement, and dispatch to Concat or Ingress pipelines",
 		},
 		{
-			g.Concat(),
+			g.Concat(spec),
 			`Concat pipeline 
 			section`,
 		},

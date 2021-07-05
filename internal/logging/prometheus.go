@@ -3,6 +3,7 @@ package logging
 import (
 	"text/template"
 
+	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 )
 
@@ -56,7 +57,7 @@ func (p PrometheusMonitor) Data() interface{} {
 	return p
 }
 
-func (g *Generator) PrometheusMetrics() []Element {
+func (g *Generator) PrometheusMetrics(spec *logging.ClusterLogForwarderSpec) []Element {
 	return []Element{
 		Pipeline{
 			InLabel: "MEASURE",

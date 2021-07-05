@@ -259,7 +259,7 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
   </match>
 </label>
 
-# Concat log lines of container logs
+# Ingress pipeline
 <label INGRESS>
   # Set Encodeing
   <filter **>

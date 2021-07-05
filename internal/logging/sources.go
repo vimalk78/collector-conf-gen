@@ -32,6 +32,7 @@ func (g *Generator) LogSources(spec *logging.ClusterLogForwarderSpec) []Element 
 				Desc:         "Logs from containers (including openshift containers)",
 				Paths:        ContainerLogPaths(),
 				ExcludePaths: ExcludeContainerPaths(),
+				PosFile:      "/var/log/es-containers.log.pos",
 				OutLabel:     "MEASURE",
 			})
 	}
