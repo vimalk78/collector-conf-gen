@@ -1,6 +1,8 @@
 package generator
 
-import "text/template"
+import (
+	"text/template"
+)
 
 type Copy struct {
 	Labels []string
@@ -24,8 +26,8 @@ func (c Copy) Template() string {
 {{- end}}`
 }
 
-func (c Copy) Create(t *template.Template) *template.Template {
-	return template.Must(t.Parse(c.Template()))
+func (c Copy) Create(t *template.Template, ct CollectorConfType) *template.Template {
+	return template.Must(t.Parse(SelectTemplate(c, ct)))
 }
 
 func (c Copy) Data() interface{} {

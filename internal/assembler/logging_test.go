@@ -17,8 +17,9 @@ import (
 var logging_test = Describe("Testing Complete Config Generation", func() {
 	var f = func(testcase ConfGenerateTest) {
 		a := MakeAssembler()
+		g := MakeGenerator(CollectorConfFluentd)
 		e := MergeSections(a.AssembleConf(&testcase.Spec))
-		conf, err := GenerateConfWithHeader(e...)
+		conf, err := g.GenerateConfWithHeader(e...)
 		Expect(err).To(BeNil())
 		diff := cmp.Diff(
 			strings.Split(strings.TrimSpace(testcase.ExpectedConf), "\n"),

@@ -19,8 +19,8 @@ func (b ConfLiteral) Template() string {
 	return b.TemplateStr
 }
 
-func (b ConfLiteral) Create(t *template.Template) *template.Template {
-	return template.Must(t.Parse(b.Template()))
+func (b ConfLiteral) Create(t *template.Template, ct CollectorConfType) *template.Template {
+	return template.Must(t.Parse(SelectTemplate(b, ct)))
 }
 
 func (b ConfLiteral) Data() interface{} {

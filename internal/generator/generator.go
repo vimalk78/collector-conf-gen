@@ -10,7 +10,7 @@ import (
 type Element interface {
 	Name() string
 	Template() string
-	Create(*template.Template) *template.Template
+	Create(*template.Template, CollectorConfType) *template.Template
 	Data() interface{}
 }
 
@@ -39,34 +39,34 @@ var Header = `
 
 `
 
-//indent helper function to prefix each line of the output by N spaces
-func indent(length int, in string) string {
-	pad := strings.Repeat(" ", length)
-	return pad + strings.Replace(in, "\n", "\n"+pad, -1)
+type Generator struct {
+	t CollectorConfType
 }
 
-func comma_separated(arr []string) string {
-	return strings.Join(arr, ",")
+func MakeGenerator(t CollectorConfType) *Generator {
+	return &Generator{
+		t: t,
+	}
 }
 
-func GenerateConfWithHeader(es ...Element) (string, error) {
-	conf, err := generate(es)
+func (g *Generator) GenerateConfWithHeader(es ...Element) (string, error) {
+	conf, err := g.generate(es)
 	if err != nil {
 		return "", err
 	}
 	return strings.Join([]string{Header, conf}, "\n"), nil
 }
 
-func GenerateConf(es ...Element) (string, error) {
-	conf, err := generate(es)
+func (g *Generator) GenerateConf(es ...Element) (string, error) {
+	conf, err := g.generate(es)
 	if err != nil {
 		return "", err
 	}
 	return strings.TrimSpace(conf), nil
 }
 
-func GenerateRec(t *template.Template, e Element, b *bytes.Buffer) error {
-	t = e.Create(t)
+func (g *Generator) GenerateRec(t *template.Template, e Element, b *bytes.Buffer) error {
+	t = e.Create(t, g.t)
 	err := t.ExecuteTemplate(b, e.Name(), e.Data())
 	if err != nil {
 		fmt.Printf("error occured %v\n", err)
@@ -75,14 +75,12 @@ func GenerateRec(t *template.Template, e Element, b *bytes.Buffer) error {
 	return nil
 }
 
-func generate(es []Element) (string, error) {
+func (g *Generator) generate(es []Element) (string, error) {
 	t := template.New("generate")
 	t.Funcs(template.FuncMap{
-		"generate": generate,
-		"compose":  generate,
-		"indent":   indent,
-		//		"labelName":           labelName,
-		//		"sourceTypelabelName": sourceTypeLabelName,
+		"generate":        g.generate,
+		"compose":         g.generate,
+		"indent":          indent,
 		"comma_separated": comma_separated,
 	})
 	b := &bytes.Buffer{}
@@ -90,7 +88,7 @@ func generate(es []Element) (string, error) {
 		if e == nil {
 			e = Nil
 		}
-		if err := GenerateRec(t, e, b); err != nil {
+		if err := g.GenerateRec(t, e, b); err != nil {
 			fmt.Printf("error occured %v\n", err)
 			return "", err
 		}
@@ -115,4 +113,14 @@ func MergeSections(sections []Section) []Element {
 		merged = append(merged, s.Elements...)
 	}
 	return merged
+}
+
+//indent helper function to prefix each line of the output by N spaces
+func indent(length int, in string) string {
+	pad := strings.Repeat(" ", length)
+	return pad + strings.Replace(in, "\n", "\n"+pad, -1)
+}
+
+func comma_separated(arr []string) string {
+	return strings.Join(arr, ",")
 }

@@ -12,8 +12,8 @@ func (r NilElement) Template() string {
 	return `{{- define "` + r.Name() + `"  -}}{{- end -}}`
 }
 
-func (n NilElement) Create(t *template.Template) *template.Template {
-	return template.Must(t.Parse(n.Template()))
+func (n NilElement) Create(t *template.Template, ct CollectorConfType) *template.Template {
+	return template.Must(t.Parse(SelectTemplate(n, ct)))
 }
 
 func (n NilElement) Data() interface{} {

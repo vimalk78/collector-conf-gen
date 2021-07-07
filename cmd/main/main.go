@@ -14,7 +14,7 @@ func PrintJson(v interface{}) string {
 	return string(b)
 }
 
-func test() {
+func testFluentd() {
 	spec := logging.ClusterLogForwarderSpec{
 		Pipelines: []logging.PipelineSpec{
 			{
@@ -27,12 +27,34 @@ func test() {
 			},
 		},
 	}
-	conf, _ := generator.GenerateConf(
+	g := generator.MakeGenerator(generator.CollectorConfFluentd)
+	conf, _ := g.GenerateConf(
+		generator.MergeSections(
+			assembler.MakeAssembler().AssembleConf(&spec))...)
+	fmt.Printf("conf:\n%s\n", conf)
+}
+
+func testVector() {
+	spec := logging.ClusterLogForwarderSpec{
+		Pipelines: []logging.PipelineSpec{
+			{
+				InputRefs: []string{
+					logging.InputNameApplication,
+					logging.InputNameInfrastructure,
+					logging.InputNameAudit},
+				OutputRefs: []string{logging.OutputNameDefault},
+				Name:       "pipeline",
+			},
+		},
+	}
+	g := generator.MakeGenerator(generator.CollectorConfVector)
+	conf, _ := g.GenerateConf(
 		generator.MergeSections(
 			assembler.MakeAssembler().AssembleConf(&spec))...)
 	fmt.Printf("conf:\n%s\n", conf)
 }
 
 func main() {
-	test()
+	testFluentd()
+	//testVector()
 }

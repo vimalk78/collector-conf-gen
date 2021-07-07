@@ -50,8 +50,27 @@ func (cl ContainerLogs) Template() string {
 {{end}}`
 }
 
-func (cl ContainerLogs) Create(t *template.Template) *template.Template {
-	return template.Must(t.Parse(cl.Template()))
+func (cl ContainerLogs) TemplateVector() string {
+	return `{{define "` + cl.Name() + `" -}}
+[sources.{{.OutLabel}}]
+  type = "file" # required
+  ignore_older_secs = 600
+  include = [{{.Paths}}]
+  exclude = {{.ExcludePaths}}
+  read_from = "beginning"
+  data_dir = {{.PosFile}}
+{{end}}
+`
+}
+
+func (cl ContainerLogs) Create(t *template.Template, ct CollectorConfType) *template.Template {
+	var tmpl string
+	if ct == CollectorConfVector {
+		tmpl = cl.TemplateVector()
+	} else {
+		tmpl = cl.Template()
+	}
+	return template.Must(t.Parse(tmpl))
 }
 
 func (cl ContainerLogs) Data() interface{} {

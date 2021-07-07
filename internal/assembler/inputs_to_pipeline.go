@@ -45,8 +45,8 @@ func (a ApplicationsToPipelines) Template() string {
 {{end}}`
 }
 
-func (a ApplicationsToPipelines) Create(t *template.Template) *template.Template {
-	return template.Must(t.Parse(a.Template()))
+func (a ApplicationsToPipelines) Create(t *template.Template, ct CollectorConfType) *template.Template {
+	return template.Must(t.Parse(SelectTemplate(a, ct)))
 }
 
 func (a ApplicationsToPipelines) Data() interface{} {

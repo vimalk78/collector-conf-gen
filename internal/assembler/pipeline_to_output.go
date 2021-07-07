@@ -41,8 +41,8 @@ func (p PipelineToOutputs) Data() interface{} {
 	return p
 }
 
-func (p PipelineToOutputs) Create(t *template.Template) *template.Template {
-	return template.Must(t.Parse(p.Template()))
+func (p PipelineToOutputs) Create(t *template.Template, ct CollectorConfType) *template.Template {
+	return template.Must(t.Parse(SelectTemplate(p, ct)))
 }
 
 var PipelineLabels = `
