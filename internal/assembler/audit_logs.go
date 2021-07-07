@@ -1,22 +1,11 @@
 package assembler
 
 import (
-	"text/template"
-
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 )
 
-type HostAuditLog struct {
-	OutLabel
-	Desc string
-}
-
-func (h HostAuditLog) Name() string {
-	return "inputSourceHostAuditTemplate"
-}
-
-func (h HostAuditLog) Template() string {
-	return `{{define "` + h.Name() + `"  -}}
+var HostAuditLogTemplate = `
+{{define "inputSourceHostAuditTemplate" -}}
 # {{.Desc}}
 <source>
   @type tail
@@ -30,27 +19,11 @@ func (h HostAuditLog) Template() string {
   </parse>
 </source>
 {{end}}`
-}
 
-func (h HostAuditLog) Create(t *template.Template) *template.Template {
-	return template.Must(t.Parse(h.Template()))
-}
+type HostAuditLog = ConfLiteral
 
-func (h HostAuditLog) Data() interface{} {
-	return h
-}
-
-type OpenshiftAuditLog struct {
-	OutLabel
-	Desc string
-}
-
-func (o OpenshiftAuditLog) Name() string {
-	return "inputSourceOpenShiftAuditTemplate"
-}
-
-func (o OpenshiftAuditLog) Template() string {
-	return `{{define "` + o.Name() + `"  -}}
+var OpenshiftAuditLogTemplate = `
+{{define "inputSourceOpenShiftAuditTemplate" -}}
 # {{.Desc}}
 <source>
   @type tail
@@ -67,28 +40,13 @@ func (o OpenshiftAuditLog) Template() string {
     time_format %Y-%m-%dT%H:%M:%S.%N%z
   </parse>
 </source>
-{{end}}`
-}
+{{end}}
+`
 
-func (o OpenshiftAuditLog) Create(t *template.Template) *template.Template {
-	return template.Must(t.Parse(o.Template()))
-}
+type OpenshiftAuditLog = ConfLiteral
 
-func (o OpenshiftAuditLog) Data() interface{} {
-	return o
-}
-
-type K8sAuditLog struct {
-	OutLabel
-	Desc string
-}
-
-func (k K8sAuditLog) Name() string {
-	return "inputSourceK8sAuditTemplate"
-}
-
-func (k K8sAuditLog) Template() string {
-	return `{{define "` + k.Name() + `"  -}}
+var K8sAuditLogTemplate = `
+{{define "inputSourceK8sAuditTemplate" -}}
 # {{.Desc}}
 <source>
   @type tail
@@ -105,13 +63,7 @@ func (k K8sAuditLog) Template() string {
     time_format %Y-%m-%dT%H:%M:%S.%N%z
   </parse>
 </source>
-{{end}}`
-}
+{{end}}
+`
 
-func (k K8sAuditLog) Create(t *template.Template) *template.Template {
-	return template.Must(t.Parse(k.Template()))
-}
-
-func (k K8sAuditLog) Data() interface{} {
-	return k
-}
+type K8sAuditLog = ConfLiteral

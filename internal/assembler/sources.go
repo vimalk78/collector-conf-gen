@@ -11,7 +11,9 @@ import (
 func (a Assembler) MetricSources(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return []Element{
 		PrometheusMonitor{
-			Desc: "Prometheus Monitoring",
+			Desc:         "Prometheus Monitoring",
+			TemplateName: "PrometheusMonitor",
+			TemplateStr:  PrometheusMonitorTemplate,
 		},
 	}
 }
@@ -42,23 +44,31 @@ func (a Assembler) LogSources(spec *logging.ClusterLogForwarderSpec, o *Options)
 	if types.Has(logging.InputNameInfrastructure) {
 		el = append(el,
 			JournalLog{
-				Desc:     "Logs from linux journal",
-				OutLabel: "MEASURE",
+				Desc:         "Logs from linux journal",
+				OutLabel:     "MEASURE",
+				TemplateName: "inputSourceJournalTemplate",
+				TemplateStr:  JournalLogTemplate,
 			})
 	}
 	if types.Has(logging.InputNameAudit) {
 		el = append(el,
 			HostAuditLog{
-				Desc:     "Logs from host audit",
-				OutLabel: "MEASURE",
+				Desc:         "Logs from host audit",
+				OutLabel:     "MEASURE",
+				TemplateName: "inputSourceHostAuditTemplate",
+				TemplateStr:  HostAuditLogTemplate,
 			},
 			K8sAuditLog{
-				Desc:     "Logs from kubernetes audit",
-				OutLabel: "MEASURE",
+				Desc:         "Logs from kubernetes audit",
+				OutLabel:     "MEASURE",
+				TemplateName: "inputSourceK8sAuditTemplate",
+				TemplateStr:  K8sAuditLogTemplate,
 			},
 			OpenshiftAuditLog{
-				Desc:     "Logs from openshift audit",
-				OutLabel: "MEASURE",
+				Desc:         "Logs from openshift audit",
+				OutLabel:     "MEASURE",
+				TemplateName: "inputSourceOpenShiftAuditTemplate",
+				TemplateStr:  OpenshiftAuditLogTemplate,
 			})
 	}
 	return el

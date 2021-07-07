@@ -1,22 +1,12 @@
 package assembler
 
 import (
-	"text/template"
-
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 )
 
-type PrometheusMonitor struct {
-	Desc string
-}
-
-func (p PrometheusMonitor) Name() string {
-	return "inputSourceHostAuditTemplate"
-}
-
-func (p PrometheusMonitor) Template() string {
-	return `{{define "` + p.Name() + `"  -}}
+var PrometheusMonitorTemplate = `
+{{define "PrometheusMonitor" -}}
 # {{.Desc}}
 <source>
   @type prometheus
@@ -46,16 +36,10 @@ func (p PrometheusMonitor) Template() string {
     hostname ${hostname}
   </labels>
 </source>
-{{end}}`
-}
+{{end}}
+`
 
-func (p PrometheusMonitor) Create(t *template.Template) *template.Template {
-	return template.Must(t.Parse(p.Template()))
-}
-
-func (p PrometheusMonitor) Data() interface{} {
-	return p
-}
+type PrometheusMonitor = ConfLiteral
 
 func (a Assembler) PrometheusMetrics(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return []Element{
