@@ -8,18 +8,19 @@ import (
 func (a *Assembler) Concat(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return []Element{
 		Pipeline{
-			InLabel: "CONCAT",
+			InLabel: labelName("CONCAT"),
 			Desc:    "Concat log lines of container logs",
 			SubElements: []Element{
 				ConfLiteral{
 					Desc:         "Concat container lines",
 					TemplateName: "concatLines",
 					TemplateStr:  ConcatLines,
+					OutLabel:     labelName("INGRESS"),
 				},
 				Relabel{
 					Desc:      "Kubernetes Logs go to INGRESS pipeline",
 					MatchTags: "kubernetes.**",
-					OutLabel:  "INGRESS",
+					OutLabel:  labelName("INGRESS"),
 				},
 			},
 		},
@@ -29,7 +30,7 @@ func (a *Assembler) Concat(spec *logging.ClusterLogForwarderSpec, o *Options) []
 func (a Assembler) Ingress(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return []Element{
 		Pipeline{
-			InLabel: "INGRESS",
+			InLabel: labelName("INGRESS"),
 			Desc:    "Ingress pipeline",
 			SubElements: MergeElements([]Element{
 				ConfLiteral{
@@ -120,64 +121,64 @@ var RetagJournalLogs string = `
   # k8s_kibana.a67f366_logging-kibana-1-d90e3_logging_26c51a61-2835-11e6-ad29-fa163e4944d5_f0db49a2
   # we filter these logs through the kibana_transform.conf filter
   <rule>
-	key CONTAINER_NAME
-	pattern ^k8s_kibana\.
-	tag kubernetes.journal.container.kibana
+    key CONTAINER_NAME
+    pattern ^k8s_kibana\.
+    tag kubernetes.journal.container.kibana
   </rule>
 
   <rule>
-	key CONTAINER_NAME
-	pattern ^k8s_[^_]+_logging-eventrouter-[^_]+_
-	tag kubernetes.journal.container._default_.kubernetes-event
+    key CONTAINER_NAME
+    pattern ^k8s_[^_]+_logging-eventrouter-[^_]+_
+    tag kubernetes.journal.container._default_.kubernetes-event
   </rule>
 
   # mark logs from default namespace for processing as k8s logs but stored as system logs
   <rule>
-	key CONTAINER_NAME
-	pattern ^k8s_[^_]+_[^_]+_default_
-	tag kubernetes.journal.container._default_
+    key CONTAINER_NAME
+    pattern ^k8s_[^_]+_[^_]+_default_
+    tag kubernetes.journal.container._default_
   </rule>
 
   # mark logs from kube-* namespaces for processing as k8s logs but stored as system logs
   <rule>
-	key CONTAINER_NAME
-	pattern ^k8s_[^_]+_[^_]+_kube-(.+)_
-	tag kubernetes.journal.container._kube-$1_
+    key CONTAINER_NAME
+    pattern ^k8s_[^_]+_[^_]+_kube-(.+)_
+    tag kubernetes.journal.container._kube-$1_
   </rule>
 
   # mark logs from openshift-* namespaces for processing as k8s logs but stored as system logs
   <rule>
-	key CONTAINER_NAME
-	pattern ^k8s_[^_]+_[^_]+_openshift-(.+)_
-	tag kubernetes.journal.container._openshift-$1_
+    key CONTAINER_NAME
+    pattern ^k8s_[^_]+_[^_]+_openshift-(.+)_
+    tag kubernetes.journal.container._openshift-$1_
   </rule>
 
   # mark logs from openshift namespace for processing as k8s logs but stored as system logs
   <rule>
-	key CONTAINER_NAME
-	pattern ^k8s_[^_]+_[^_]+_openshift_
-	tag kubernetes.journal.container._openshift_
+    key CONTAINER_NAME
+    pattern ^k8s_[^_]+_[^_]+_openshift_
+    tag kubernetes.journal.container._openshift_
   </rule>
 
   # mark fluentd container logs
   <rule>
-	key CONTAINER_NAME
-	pattern ^k8s_.*fluentd
-	tag kubernetes.journal.container.fluentd
+    key CONTAINER_NAME
+    pattern ^k8s_.*fluentd
+    tag kubernetes.journal.container.fluentd
   </rule>
 
   # this is a kubernetes container
   <rule>
-	key CONTAINER_NAME
-	pattern ^k8s_
-	tag kubernetes.journal.container
+    key CONTAINER_NAME
+    pattern ^k8s_
+    tag kubernetes.journal.container
   </rule>
 
   # not kubernetes - assume a system log or system container log
   <rule>
-	key _TRANSPORT
-	pattern .+
-	tag journal.system
+    key _TRANSPORT
+    pattern .+
+    tag journal.system
   </rule>
 </match>
 {{- end}}
@@ -230,7 +231,7 @@ var CleanKibanaLogs string = `
   @type record_transformer
   enable_ruby
   <record>
-	log ${record['err'] || record['msg'] || record['MESSAGE'] || record['log']}
+    log ${record['err'] || record['msg'] || record['MESSAGE'] || record['log']}
   </record>
   remove_keys req,res,msg,name,level,v,pid,err
 </filter>
@@ -243,15 +244,15 @@ var FixAuditLevel string = `
 <filter k8s-audit.log**>
   @type record_modifier
   <record>
-	k8s_audit_level ${record['level']}
-	level info
+    k8s_audit_level ${record['level']}
+    level info
   </record>
 </filter>
 <filter openshift-audit.log**>
   @type record_modifier
   <record>
-	openshift_audit_level ${record['level']}
-	level info
+    openshift_audit_level ${record['level']}
+    level info
   </record>
 </filter>
 {{end}}
@@ -278,48 +279,48 @@ var ViaQDataModel string = `
   undefined_max_num_fields '-1'
   process_kubernetes_events 'false'
   <formatter>
-	tag "system.var.log**"
-	type sys_var_log
-	remove_keys host,pid,ident
+    tag "system.var.log**"
+    type sys_var_log
+    remove_keys host,pid,ident
   </formatter>
   <formatter>
-	tag "journal.system**"
-	type sys_journal
-	remove_keys log,stream,MESSAGE,_SOURCE_REALTIME_TIMESTAMP,__REALTIME_TIMESTAMP,CONTAINER_ID,CONTAINER_ID_FULL,CONTAINER_NAME,PRIORITY,_BOOT_ID,_CAP_EFFECTIVE,_CMDLINE,_COMM,_EXE,_GID,_HOSTNAME,_MACHINE_ID,_PID,_SELINUX_CONTEXT,_SYSTEMD_CGROUP,_SYSTEMD_SLICE,_SYSTEMD_UNIT,_TRANSPORT,_UID,_AUDIT_LOGINUID,_AUDIT_SESSION,_SYSTEMD_OWNER_UID,_SYSTEMD_SESSION,_SYSTEMD_USER_UNIT,CODE_FILE,CODE_FUNCTION,CODE_LINE,ERRNO,MESSAGE_ID,RESULT,UNIT,_KERNEL_DEVICE,_KERNEL_SUBSYSTEM,_UDEV_SYSNAME,_UDEV_DEVNODE,_UDEV_DEVLINK,SYSLOG_FACILITY,SYSLOG_IDENTIFIER,SYSLOG_PID
+    tag "journal.system**"
+    type sys_journal
+    remove_keys log,stream,MESSAGE,_SOURCE_REALTIME_TIMESTAMP,__REALTIME_TIMESTAMP,CONTAINER_ID,CONTAINER_ID_FULL,CONTAINER_NAME,PRIORITY,_BOOT_ID,_CAP_EFFECTIVE,_CMDLINE,_COMM,_EXE,_GID,_HOSTNAME,_MACHINE_ID,_PID,_SELINUX_CONTEXT,_SYSTEMD_CGROUP,_SYSTEMD_SLICE,_SYSTEMD_UNIT,_TRANSPORT,_UID,_AUDIT_LOGINUID,_AUDIT_SESSION,_SYSTEMD_OWNER_UID,_SYSTEMD_SESSION,_SYSTEMD_USER_UNIT,CODE_FILE,CODE_FUNCTION,CODE_LINE,ERRNO,MESSAGE_ID,RESULT,UNIT,_KERNEL_DEVICE,_KERNEL_SUBSYSTEM,_UDEV_SYSNAME,_UDEV_DEVNODE,_UDEV_DEVLINK,SYSLOG_FACILITY,SYSLOG_IDENTIFIER,SYSLOG_PID
   </formatter>
   <formatter>
-	tag "kubernetes.journal.container**"
-	type k8s_journal
-	remove_keys 'log,stream,MESSAGE,_SOURCE_REALTIME_TIMESTAMP,__REALTIME_TIMESTAMP,CONTAINER_ID,CONTAINER_ID_FULL,CONTAINER_NAME,PRIORITY,_BOOT_ID,_CAP_EFFECTIVE,_CMDLINE,_COMM,_EXE,_GID,_HOSTNAME,_MACHINE_ID,_PID,_SELINUX_CONTEXT,_SYSTEMD_CGROUP,_SYSTEMD_SLICE,_SYSTEMD_UNIT,_TRANSPORT,_UID,_AUDIT_LOGINUID,_AUDIT_SESSION,_SYSTEMD_OWNER_UID,_SYSTEMD_SESSION,_SYSTEMD_USER_UNIT,CODE_FILE,CODE_FUNCTION,CODE_LINE,ERRNO,MESSAGE_ID,RESULT,UNIT,_KERNEL_DEVICE,_KERNEL_SUBSYSTEM,_UDEV_SYSNAME,_UDEV_DEVNODE,_UDEV_DEVLINK,SYSLOG_FACILITY,SYSLOG_IDENTIFIER,SYSLOG_PID'
+    tag "kubernetes.journal.container**"
+    type k8s_journal
+    remove_keys 'log,stream,MESSAGE,_SOURCE_REALTIME_TIMESTAMP,__REALTIME_TIMESTAMP,CONTAINER_ID,CONTAINER_ID_FULL,CONTAINER_NAME,PRIORITY,_BOOT_ID,_CAP_EFFECTIVE,_CMDLINE,_COMM,_EXE,_GID,_HOSTNAME,_MACHINE_ID,_PID,_SELINUX_CONTEXT,_SYSTEMD_CGROUP,_SYSTEMD_SLICE,_SYSTEMD_UNIT,_TRANSPORT,_UID,_AUDIT_LOGINUID,_AUDIT_SESSION,_SYSTEMD_OWNER_UID,_SYSTEMD_SESSION,_SYSTEMD_USER_UNIT,CODE_FILE,CODE_FUNCTION,CODE_LINE,ERRNO,MESSAGE_ID,RESULT,UNIT,_KERNEL_DEVICE,_KERNEL_SUBSYSTEM,_UDEV_SYSNAME,_UDEV_DEVNODE,_UDEV_DEVLINK,SYSLOG_FACILITY,SYSLOG_IDENTIFIER,SYSLOG_PID'
   </formatter>
   <formatter>
-	tag "kubernetes.var.log.containers.eventrouter-** kubernetes.var.log.containers.cluster-logging-eventrouter-** k8s-audit.log** openshift-audit.log**"
-	type k8s_json_file
-	remove_keys log,stream,CONTAINER_ID_FULL,CONTAINER_NAME
-	process_kubernetes_events 'true'
+    tag "kubernetes.var.log.containers.eventrouter-** kubernetes.var.log.containers.cluster-logging-eventrouter-** k8s-audit.log** openshift-audit.log**"
+    type k8s_json_file
+    remove_keys log,stream,CONTAINER_ID_FULL,CONTAINER_NAME
+    process_kubernetes_events 'true'
   </formatter>
   <formatter>
-	tag "kubernetes.var.log.containers**"
-	type k8s_json_file
-	remove_keys log,stream,CONTAINER_ID_FULL,CONTAINER_NAME
+    tag "kubernetes.var.log.containers**"
+    type k8s_json_file
+    remove_keys log,stream,CONTAINER_ID_FULL,CONTAINER_NAME
   </formatter>
   <elasticsearch_index_name>
-	enabled 'true'
-	tag "journal.system** system.var.log** **_default_** **_kube-*_** **_openshift-*_** **_openshift_**"
-	name_type static
-	static_index_name infra-write
+    enabled 'true'
+    tag "journal.system** system.var.log** **_default_** **_kube-*_** **_openshift-*_** **_openshift_**"
+    name_type static
+    static_index_name infra-write
   </elasticsearch_index_name>
   <elasticsearch_index_name>
-	enabled 'true'
-	tag "linux-audit.log** k8s-audit.log** openshift-audit.log**"
-	name_type static
-	static_index_name audit-write
+    enabled 'true'
+    tag "linux-audit.log** k8s-audit.log** openshift-audit.log**"
+    name_type static
+    static_index_name audit-write
   </elasticsearch_index_name>
   <elasticsearch_index_name>
-	enabled 'true'
-	tag "**"
-	name_type static
-	static_index_name app-write
+    enabled 'true'
+    tag "**"
+    name_type static
+    static_index_name app-write
   </elasticsearch_index_name>
 </filter>
 {{end}}
@@ -347,9 +348,5 @@ var ConcatLines string = `
   partial_value P
   separator ''
 </filter>
-<match kubernetes.**>
-  @type relabel
-  @label @INGRESS
-</match>
 {{- end}}
 `

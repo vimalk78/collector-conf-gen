@@ -87,7 +87,7 @@ func ExcludeContainerPaths() string {
 			//fmt.Sprintf("%q", fmt.Sprintf(LogStoreLogsPath(), LokiLogStorePodNamePrefix())),
 			fmt.Sprintf("%q", VisualizationLogsPath()),
 		},
-		",",
+		", ",
 	))
 }
 

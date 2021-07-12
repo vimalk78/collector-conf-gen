@@ -44,7 +44,7 @@ type PrometheusMonitor = ConfLiteral
 func (a Assembler) PrometheusMetrics(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return []Element{
 		Pipeline{
-			InLabel: "MEASURE",
+			InLabel: labelName("MEASURE"),
 			Desc:    "Increment Prometheus metrics",
 			SubElements: []Element{
 				ConfLiteral{
@@ -55,17 +55,17 @@ func (a Assembler) PrometheusMetrics(spec *logging.ClusterLogForwarderSpec, o *O
 				Relabel{
 					Desc:      "Journal Logs go to INGRESS pipeline",
 					MatchTags: "journal",
-					OutLabel:  "INGRESS",
+					OutLabel:  labelName("INGRESS"),
 				},
 				Relabel{
 					Desc:      "Audit Logs go to INGRESS pipeline",
-					MatchTags: "*.audit.log",
-					OutLabel:  "INGRESS",
+					MatchTags: "*audit.log",
+					OutLabel:  labelName("INGRESS"),
 				},
 				Relabel{
 					Desc:      "Kubernetes Logs go to CONCAT pipeline",
 					MatchTags: "kubernetes.**",
-					OutLabel:  "CONCAT",
+					OutLabel:  labelName("CONCAT"),
 				},
 			},
 		},
@@ -79,32 +79,32 @@ var EmitMetrics string = `
   @type record_transformer
   enable_ruby
   <record>
-	msg_size ${record.to_s.length}
+    msg_size ${record.to_s.length}
   </record>
 </filter>
 <filter **>
   @type prometheus
   <metric>
-	name cluster_logging_collector_input_record_total
-	type counter
-	desc The total number of incoming records
-	<labels>
-	  tag ${tag}
-	  hostname ${hostname}
-	</labels>
+    name cluster_logging_collector_input_record_total
+    type counter
+    desc The total number of incoming records
+    <labels>
+      tag ${tag}
+      hostname ${hostname}
+    </labels>
   </metric>
 </filter>
 <filter **>
   @type prometheus
   <metric>
-	name cluster_logging_collector_input_record_bytes
-	type counter
-	desc The total bytes of incoming records
-	key msg_size
-	<labels>
-	  tag ${tag}
-	  hostname ${hostname}
-	</labels>
+    name cluster_logging_collector_input_record_bytes
+    type counter
+    desc The total bytes of incoming records
+    key msg_size
+    <labels>
+      tag ${tag}
+      hostname ${hostname}
+    </labels>
   </metric>
 </filter>
 <filter **>

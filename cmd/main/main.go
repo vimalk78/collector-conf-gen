@@ -20,15 +20,14 @@ func testFluentd() {
 			{
 				InputRefs: []string{
 					logging.InputNameApplication,
-					logging.InputNameInfrastructure,
-					logging.InputNameAudit},
+				},
 				OutputRefs: []string{logging.OutputNameDefault},
 				Name:       "pipeline",
 			},
 		},
 	}
 	g := generator.MakeGenerator(generator.CollectorConfFluentd)
-	conf, _ := g.GenerateConf(
+	conf, _ := g.GenerateConfWithHeader(
 		generator.MergeSections(
 			assembler.MakeAssembler().AssembleConf(&spec))...)
 	fmt.Printf("conf:\n%s\n", conf)
