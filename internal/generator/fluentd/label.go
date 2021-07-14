@@ -25,8 +25,8 @@ func (f FromLabel) Template() string {
 {{end}}`
 }
 
-func (f FromLabel) Create(t *template.Template, ct CollectorConfType) *template.Template {
-	return template.Must(t.Parse(SelectTemplate(f, ct)))
+func (f FromLabel) Create(t *template.Template) *template.Template {
+	return template.Must(t.Parse(f.Template()))
 }
 
 func (f FromLabel) Data() interface{} {

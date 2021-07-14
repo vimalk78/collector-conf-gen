@@ -10,7 +10,7 @@ import (
 type Element interface {
 	Name() string
 	Template() string
-	Create(*template.Template, CollectorConfType) *template.Template
+	Create(*template.Template) *template.Template
 	Data() interface{}
 }
 
@@ -40,13 +40,10 @@ var Header = `
 `
 
 type Generator struct {
-	t CollectorConfType
 }
 
-func MakeGenerator(t CollectorConfType) *Generator {
-	return &Generator{
-		t: t,
-	}
+func MakeGenerator() *Generator {
+	return &Generator{}
 }
 
 func (g *Generator) GenerateConfWithHeader(es ...Element) (string, error) {
@@ -66,7 +63,7 @@ func (g *Generator) GenerateConf(es ...Element) (string, error) {
 }
 
 func (g *Generator) GenerateRec(t *template.Template, e Element, b *bytes.Buffer) error {
-	t = e.Create(t, g.t)
+	t = e.Create(t)
 	err := t.ExecuteTemplate(b, e.Name(), e.Data())
 	if err != nil {
 		fmt.Printf("error occured %v\n", err)

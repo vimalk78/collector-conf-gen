@@ -8,7 +8,6 @@ import (
 	"github.com/google/go-cmp/cmp"
 	. "github.com/onsi/gomega"
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
-	"github.com/vimalk78/collector-conf-gen/internal/generator"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 )
 
@@ -22,7 +21,7 @@ type GenerateFunc func(Conf, logging.ClusterLogForwarderSpec) []Element
 
 func TestGenerateConfWith(gf GenerateFunc) func(ConfGenerateTest) {
 	return func(testcase ConfGenerateTest) {
-		g := generator.MakeGenerator(CollectorConfFluentd)
+		g := MakeGenerator()
 		a := MakeConf()
 		e := gf(a, testcase.Spec)
 		conf, err := g.GenerateConf(e...)

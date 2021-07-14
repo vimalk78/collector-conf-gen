@@ -17,7 +17,7 @@ import (
 var logging_test = Describe("Testing Complete Config Generation", func() {
 	var f = func(testcase ConfGenerateTest) {
 		a := MakeConf()
-		g := MakeGenerator(CollectorConfFluentd)
+		g := MakeGenerator()
 		e := MergeSections(a.Assemble(&testcase.Spec))
 		conf, err := g.GenerateConfWithHeader(e...)
 		Expect(err).To(BeNil())

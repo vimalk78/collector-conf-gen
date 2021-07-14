@@ -28,8 +28,8 @@ func (r Relabel) Template() string {
 {{- end}}`
 }
 
-func (r Relabel) Create(t *template.Template, ct CollectorConfType) *template.Template {
-	return template.Must(t.Parse(SelectTemplate(r, ct)))
+func (r Relabel) Create(t *template.Template) *template.Template {
+	return template.Must(t.Parse(r.Template()))
 }
 
 func (r Relabel) Data() interface{} {

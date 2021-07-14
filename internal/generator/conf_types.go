@@ -1,13 +1,13 @@
 package generator
 
-type CollectorConfType int
+type CollectorConfType1 int
 
 const (
-	CollectorConfFluentd CollectorConfType = iota
+	CollectorConfFluentd CollectorConfType1 = iota
 	CollectorConfVector
 )
 
-func SelectTemplate(e Element, ct CollectorConfType) string {
+func SelectTemplate(e Element, ct CollectorConfType1) string {
 	if ct == CollectorConfVector {
 		return `{{- define "` + e.Name() + `"  -}}{{- end -}}`
 	} else {

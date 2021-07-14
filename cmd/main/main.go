@@ -26,7 +26,7 @@ func testFluentd() {
 			},
 		},
 	}
-	g := generator.MakeGenerator(generator.CollectorConfFluentd)
+	g := generator.MakeGenerator()
 	conf, _ := g.GenerateConfWithHeader(
 		generator.MergeSections(
 			fluentd.MakeConf().Assemble(&spec))...)
