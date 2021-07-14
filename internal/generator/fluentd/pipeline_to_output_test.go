@@ -8,7 +8,8 @@ import (
 )
 
 var pipeline_to_outputs = Describe("Testing Config Generation", func() {
-	var f = func(a Conf, spec logging.ClusterLogForwarderSpec) []Element {
+	var f = func(spec logging.ClusterLogForwarderSpec) []Element {
+		a := MakeConf()
 		return MergeElements(
 			a.PipelineToOutputs(&spec, &Options{}),
 		)

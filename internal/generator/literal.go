@@ -3,6 +3,7 @@ package generator
 import "text/template"
 
 type ConfLiteral struct {
+	ComponentID
 	TemplateName string
 	Desc         string
 	InLabel

@@ -1,4 +1,4 @@
-package fluentd
+package generator
 
 import (
 	"encoding/json"
@@ -8,7 +8,6 @@ import (
 	"github.com/google/go-cmp/cmp"
 	. "github.com/onsi/gomega"
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
-	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 )
 
 type ConfGenerateTest struct {
@@ -17,13 +16,12 @@ type ConfGenerateTest struct {
 	ExpectedConf string
 }
 
-type GenerateFunc func(Conf, logging.ClusterLogForwarderSpec) []Element
+type GenerateFunc func(logging.ClusterLogForwarderSpec) []Element
 
 func TestGenerateConfWith(gf GenerateFunc) func(ConfGenerateTest) {
 	return func(testcase ConfGenerateTest) {
 		g := MakeGenerator()
-		a := MakeConf()
-		e := gf(a, testcase.Spec)
+		e := gf(testcase.Spec)
 		conf, err := g.GenerateConf(e...)
 		Expect(err).To(BeNil())
 		diff := cmp.Diff(

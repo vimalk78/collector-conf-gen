@@ -1,4 +1,4 @@
-package fluentd
+package vector
 
 import (
 	"fmt"
@@ -6,47 +6,31 @@ import (
 
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
-	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/source"
+	"github.com/vimalk78/collector-conf-gen/internal/generator/vector/source"
 )
-
-func (a Conf) MetricSources(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
-	return []Element{
-		PrometheusMonitor{
-			Desc:         "Prometheus Monitoring",
-			TemplateName: "PrometheusMonitor",
-			TemplateStr:  PrometheusMonitorTemplate,
-		},
-	}
-}
 
 func (a Conf) Sources(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return MergeElements(
-		a.MetricSources(spec, o),
 		a.LogSources(spec, o),
 	)
 }
 
-//TODO: handle the following options here
-// - includeLegacyForwardConfig
-// - includeLegacySyslogConfig
 func (a Conf) LogSources(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	var el []Element = make([]Element, 0)
 	types := Clo.GatherSources(spec)
 	if types.Has(logging.InputNameApplication) || types.Has(logging.InputNameInfrastructure) {
 		el = append(el,
-			source.ContainerLogs{
+			source.KubernetesLogs{
+				ComponentID:  "container_logs",
 				Desc:         "Logs from containers (including openshift containers)",
-				Paths:        ContainerLogPaths(),
 				ExcludePaths: ExcludeContainerPaths(),
-				PosFile:      "/var/log/es-containers.log.pos",
-				OutLabel:     "MEASURE",
 			})
 	}
 	if types.Has(logging.InputNameInfrastructure) {
 		el = append(el,
 			source.JournalLog{
+				ComponentID:  "journal_logs",
 				Desc:         "Logs from linux journal",
-				OutLabel:     "MEASURE",
 				TemplateName: "inputSourceJournalTemplate",
 				TemplateStr:  source.JournalLogTemplate,
 			})
@@ -54,20 +38,20 @@ func (a Conf) LogSources(spec *logging.ClusterLogForwarderSpec, o *Options) []El
 	if types.Has(logging.InputNameAudit) {
 		el = append(el,
 			source.HostAuditLog{
+				ComponentID:  "host_audit_logs",
 				Desc:         "Logs from host audit",
-				OutLabel:     "MEASURE",
 				TemplateName: "inputSourceHostAuditTemplate",
 				TemplateStr:  source.HostAuditLogTemplate,
 			},
 			source.K8sAuditLog{
+				ComponentID:  "k8s_audit_logs",
 				Desc:         "Logs from kubernetes audit",
-				OutLabel:     "MEASURE",
 				TemplateName: "inputSourceK8sAuditTemplate",
 				TemplateStr:  source.K8sAuditLogTemplate,
 			},
 			source.OpenshiftAuditLog{
+				ComponentID:  "openshift_audit_logs",
 				Desc:         "Logs from openshift audit",
-				OutLabel:     "MEASURE",
 				TemplateName: "inputSourceOpenShiftAuditTemplate",
 				TemplateStr:  source.OpenshiftAuditLogTemplate,
 			})
@@ -82,10 +66,8 @@ func ContainerLogPaths() string {
 func ExcludeContainerPaths() string {
 	return fmt.Sprintf("[%s]", strings.Join(
 		[]string{
-			fmt.Sprintf("%q", fmt.Sprintf(CollectorLogsPath(), FluentdCollectorPodNamePrefix())),
-			//fmt.Sprintf("%q", fmt.Sprintf(CollectorLogsPath(), FluentBitCollectorPodNamePrefix())),
+			fmt.Sprintf("%q", fmt.Sprintf(CollectorLogsPath(), VectorCollectorPodNamePrefix())),
 			fmt.Sprintf("%q", fmt.Sprintf(LogStoreLogsPath(), ESLogStorePodNamePrefix())),
-			//fmt.Sprintf("%q", fmt.Sprintf(LogStoreLogsPath(), LokiLogStorePodNamePrefix())),
 			fmt.Sprintf("%q", VisualizationLogsPath()),
 		},
 		", ",

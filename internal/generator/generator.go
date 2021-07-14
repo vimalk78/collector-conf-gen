@@ -27,6 +27,7 @@ type MultiElement interface {
 
 type InLabel = string
 type OutLabel = string
+type ComponentID = string
 
 var Header = `
 ## CLO GENERATED CONFIGURATION ###

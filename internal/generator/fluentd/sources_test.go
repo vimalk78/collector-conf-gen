@@ -8,7 +8,8 @@ import (
 )
 
 var log_sources_test = Describe("Testing Config Generation", func() {
-	var f = func(a Conf, spec logging.ClusterLogForwarderSpec) []Element {
+	var f = func(spec logging.ClusterLogForwarderSpec) []Element {
+		a := MakeConf()
 		return MergeElements(
 			a.LogSources(&spec, &Options{}),
 		)
@@ -285,7 +286,8 @@ var log_sources_test = Describe("Testing Config Generation", func() {
 })
 
 var metric_sources_test = Describe("Testing Config Generation", func() {
-	var f = func(a Conf, spec logging.ClusterLogForwarderSpec) []Element {
+	var f = func(spec logging.ClusterLogForwarderSpec) []Element {
+		a := MakeConf()
 		return MergeElements(
 			a.MetricSources(&spec, &Options{}),
 		)

@@ -1,4 +1,4 @@
-package fluentd
+package vector
 
 import (
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
@@ -23,27 +23,6 @@ func (a Conf) AssembleConfWithOptions(spec *logging.ClusterLogForwarderSpec, o *
 		{
 			a.Sources(spec, o),
 			"Set of all input sources",
-		},
-		{
-			a.PrometheusMetrics(spec, o),
-			"Section to add measurement, and dispatch to Concat or Ingress pipelines",
-		},
-		{
-			a.Concat(spec, o),
-			`Concat pipeline 
-			section`,
-		},
-		{
-			a.Ingress(spec, o),
-			"Ingress pipeline",
-		},
-		{
-			a.InputsToPipeline(spec, o),
-			"Inputs go to pipelines",
-		},
-		{
-			a.PipelineToOutputs(spec, o),
-			"Pipeline to Outputs",
 		},
 	}
 }
