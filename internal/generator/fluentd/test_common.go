@@ -1,4 +1,4 @@
-package assembler
+package fluentd
 
 import (
 	"encoding/json"
@@ -18,12 +18,12 @@ type ConfGenerateTest struct {
 	ExpectedConf string
 }
 
-type GenerateFunc func(Assembler, logging.ClusterLogForwarderSpec) []Element
+type GenerateFunc func(Conf, logging.ClusterLogForwarderSpec) []Element
 
 func TestGenerateConfWith(gf GenerateFunc) func(ConfGenerateTest) {
 	return func(testcase ConfGenerateTest) {
 		g := generator.MakeGenerator(CollectorConfFluentd)
-		a := MakeAssembler()
+		a := MakeConf()
 		e := gf(a, testcase.Spec)
 		conf, err := g.GenerateConf(e...)
 		Expect(err).To(BeNil())

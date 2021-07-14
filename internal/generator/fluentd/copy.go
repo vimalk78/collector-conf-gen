@@ -1,7 +1,9 @@
-package generator
+package fluentd
 
 import (
 	"text/template"
+
+	"github.com/vimalk78/collector-conf-gen/internal/generator"
 )
 
 type Copy struct {
@@ -26,8 +28,8 @@ func (c Copy) Template() string {
 {{- end}}`
 }
 
-func (c Copy) Create(t *template.Template, ct CollectorConfType) *template.Template {
-	return template.Must(t.Parse(SelectTemplate(c, ct)))
+func (c Copy) Create(t *template.Template, ct generator.CollectorConfType) *template.Template {
+	return template.Must(t.Parse(generator.SelectTemplate(c, ct)))
 }
 
 func (c Copy) Data() interface{} {

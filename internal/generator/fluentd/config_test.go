@@ -1,4 +1,4 @@
-package assembler
+package fluentd
 
 import (
 	"encoding/json"
@@ -16,9 +16,9 @@ import (
 //TODO: Use a detailed CLF spec
 var logging_test = Describe("Testing Complete Config Generation", func() {
 	var f = func(testcase ConfGenerateTest) {
-		a := MakeAssembler()
+		a := MakeConf()
 		g := MakeGenerator(CollectorConfFluentd)
-		e := MergeSections(a.AssembleConf(&testcase.Spec))
+		e := MergeSections(a.Assemble(&testcase.Spec))
 		conf, err := g.GenerateConfWithHeader(e...)
 		Expect(err).To(BeNil())
 		diff := cmp.Diff(

@@ -1,4 +1,4 @@
-package assembler
+package fluentd
 
 import (
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
@@ -8,20 +8,20 @@ import (
 
 var clo CLO
 
-// keep no state in Assembler
-type Assembler int
+// keep no state in Conf
+type Conf int
 
-func MakeAssembler() Assembler {
-	return Assembler(0)
+func MakeConf() Conf {
+	return Conf(0)
 }
 
 type Options map[string]string
 
-func (a Assembler) AssembleConf(spec *logging.ClusterLogForwarderSpec) []Section {
+func (a Conf) Assemble(spec *logging.ClusterLogForwarderSpec) []Section {
 	return a.AssembleConfWithOptions(spec, &Options{})
 }
 
-func (a Assembler) AssembleConfWithOptions(spec *logging.ClusterLogForwarderSpec, o *Options) []Section {
+func (a Conf) AssembleConfWithOptions(spec *logging.ClusterLogForwarderSpec, o *Options) []Section {
 	return []Section{
 		{
 			a.Sources(spec, o),

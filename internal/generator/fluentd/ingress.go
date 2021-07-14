@@ -1,11 +1,11 @@
-package assembler
+package fluentd
 
 import (
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 )
 
-func (a *Assembler) Concat(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
+func (a Conf) Concat(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return []Element{
 		Pipeline{
 			InLabel: labelName("CONCAT"),
@@ -27,7 +27,7 @@ func (a *Assembler) Concat(spec *logging.ClusterLogForwarderSpec, o *Options) []
 	}
 }
 
-func (a Assembler) Ingress(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
+func (a Conf) Ingress(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return []Element{
 		Pipeline{
 			InLabel: labelName("INGRESS"),

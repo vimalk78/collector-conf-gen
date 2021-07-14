@@ -1,4 +1,4 @@
-package assembler
+package fluentd
 
 import (
 	"encoding/json"
@@ -70,7 +70,7 @@ var JsonParseTemplate = `{{define "JsonParse" -}}
 </filter>
 {{- end}}`
 
-func (a Assembler) PipelineToOutputs(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
+func (a Conf) PipelineToOutputs(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	var e []Element = []Element{}
 	pipelines := spec.Pipelines
 	sort.Slice(pipelines, func(i, j int) bool {

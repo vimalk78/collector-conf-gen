@@ -1,4 +1,4 @@
-package assembler
+package fluentd
 
 import (
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
@@ -41,7 +41,7 @@ var PrometheusMonitorTemplate = `
 
 type PrometheusMonitor = ConfLiteral
 
-func (a Assembler) PrometheusMetrics(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
+func (a Conf) PrometheusMetrics(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return []Element{
 		Pipeline{
 			InLabel: labelName("MEASURE"),

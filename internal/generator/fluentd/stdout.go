@@ -1,4 +1,4 @@
-package assembler
+package fluentd
 
 var ToStdOut = `
 {{define "toStdout"}}

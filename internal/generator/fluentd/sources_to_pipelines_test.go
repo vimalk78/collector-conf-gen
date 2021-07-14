@@ -1,4 +1,4 @@
-package assembler
+package fluentd
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -12,7 +12,7 @@ import (
 This test case includes only the dynamic parts of Fluentd conf. This leaves out the static parts which do not change with CLF spec.
 **/
 var source_to_pipline = Describe("Testing Config Generation", func() {
-	var f = func(a Assembler, spec logging.ClusterLogForwarderSpec) []Element {
+	var f = func(a Conf, spec logging.ClusterLogForwarderSpec) []Element {
 		return MergeElements(
 			a.SourcesToInputs(&spec, &Options{}),
 			a.InputsToPipeline(&spec, &Options{}),

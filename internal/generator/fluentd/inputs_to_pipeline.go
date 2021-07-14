@@ -1,4 +1,4 @@
-package assembler
+package fluentd
 
 import (
 	"fmt"
@@ -53,7 +53,7 @@ func (a ApplicationsToPipelines) Data() interface{} {
 	return a
 }
 
-func (a Assembler) SourceTypeToPipeline(sourceType string, spec *logging.ClusterLogForwarderSpec) Element {
+func (a Conf) SourceTypeToPipeline(sourceType string, spec *logging.ClusterLogForwarderSpec) Element {
 	srcTypePipeline := []string{}
 	for _, pipeline := range spec.Pipelines {
 		for _, inRef := range pipeline.InputRefs {
@@ -89,7 +89,7 @@ func (a Assembler) SourceTypeToPipeline(sourceType string, spec *logging.Cluster
 	}
 }
 
-func (a Assembler) InputsToPipeline(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
+func (a Conf) InputsToPipeline(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return MergeElements(
 		a.ApplicationToPipeline(spec, o),
 		a.InfraToPipeline(spec, o),
@@ -97,7 +97,7 @@ func (a Assembler) InputsToPipeline(spec *logging.ClusterLogForwarderSpec, o *Op
 	)
 }
 
-func (a Assembler) ApplicationToPipeline(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
+func (a Conf) ApplicationToPipeline(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	userDefined := spec.InputMap()
 	routedPipelines := ApplicationsToPipelines{}
 	unRoutedPipelines := []string{}
@@ -181,13 +181,13 @@ func (a Assembler) ApplicationToPipeline(spec *logging.ClusterLogForwarderSpec, 
 	}
 }
 
-func (a Assembler) AuditToPipeline(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
+func (a Conf) AuditToPipeline(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return []Element{
 		a.SourceTypeToPipeline(logging.InputNameAudit, spec),
 	}
 }
 
-func (a Assembler) InfraToPipeline(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
+func (a Conf) InfraToPipeline(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return []Element{
 		a.SourceTypeToPipeline(logging.InputNameInfrastructure, spec),
 	}

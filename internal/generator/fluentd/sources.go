@@ -1,4 +1,4 @@
-package assembler
+package fluentd
 
 import (
 	"fmt"
@@ -6,9 +6,10 @@ import (
 
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
+	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/source"
 )
 
-func (a Assembler) MetricSources(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
+func (a Conf) MetricSources(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return []Element{
 		PrometheusMonitor{
 			Desc:         "Prometheus Monitoring",
@@ -18,7 +19,7 @@ func (a Assembler) MetricSources(spec *logging.ClusterLogForwarderSpec, o *Optio
 	}
 }
 
-func (a Assembler) Sources(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
+func (a Conf) Sources(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return MergeElements(
 		a.MetricSources(spec, o),
 		a.LogSources(spec, o),
@@ -28,12 +29,12 @@ func (a Assembler) Sources(spec *logging.ClusterLogForwarderSpec, o *Options) []
 //TODO: handle the following options here
 // - includeLegacyForwardConfig
 // - includeLegacySyslogConfig
-func (a Assembler) LogSources(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
+func (a Conf) LogSources(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	var el []Element = make([]Element, 0)
 	types := clo.GatherSources(spec)
 	if types.Has(logging.InputNameApplication) || types.Has(logging.InputNameInfrastructure) {
 		el = append(el,
-			ContainerLogs{
+			source.ContainerLogs{
 				Desc:         "Logs from containers (including openshift containers)",
 				Paths:        ContainerLogPaths(),
 				ExcludePaths: ExcludeContainerPaths(),
@@ -43,32 +44,32 @@ func (a Assembler) LogSources(spec *logging.ClusterLogForwarderSpec, o *Options)
 	}
 	if types.Has(logging.InputNameInfrastructure) {
 		el = append(el,
-			JournalLog{
+			source.JournalLog{
 				Desc:         "Logs from linux journal",
 				OutLabel:     "MEASURE",
 				TemplateName: "inputSourceJournalTemplate",
-				TemplateStr:  JournalLogTemplate,
+				TemplateStr:  source.JournalLogTemplate,
 			})
 	}
 	if types.Has(logging.InputNameAudit) {
 		el = append(el,
-			HostAuditLog{
+			source.HostAuditLog{
 				Desc:         "Logs from host audit",
 				OutLabel:     "MEASURE",
 				TemplateName: "inputSourceHostAuditTemplate",
-				TemplateStr:  HostAuditLogTemplate,
+				TemplateStr:  source.HostAuditLogTemplate,
 			},
-			K8sAuditLog{
+			source.K8sAuditLog{
 				Desc:         "Logs from kubernetes audit",
 				OutLabel:     "MEASURE",
 				TemplateName: "inputSourceK8sAuditTemplate",
-				TemplateStr:  K8sAuditLogTemplate,
+				TemplateStr:  source.K8sAuditLogTemplate,
 			},
-			OpenshiftAuditLog{
+			source.OpenshiftAuditLog{
 				Desc:         "Logs from openshift audit",
 				OutLabel:     "MEASURE",
 				TemplateName: "inputSourceOpenShiftAuditTemplate",
-				TemplateStr:  OpenshiftAuditLogTemplate,
+				TemplateStr:  source.OpenshiftAuditLogTemplate,
 			})
 	}
 	return el

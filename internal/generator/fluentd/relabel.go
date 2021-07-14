@@ -1,6 +1,10 @@
-package generator
+package fluentd
 
-import "text/template"
+import (
+	"text/template"
+
+	. "github.com/vimalk78/collector-conf-gen/internal/generator"
+)
 
 type Relabel struct {
 	Desc string

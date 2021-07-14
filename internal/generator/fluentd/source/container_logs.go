@@ -1,4 +1,4 @@
-package assembler
+package source
 
 import (
 	"text/template"
