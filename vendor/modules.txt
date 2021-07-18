@@ -81,7 +81,7 @@ github.com/onsi/gomega/matchers/support/goraph/edge
 github.com/onsi/gomega/matchers/support/goraph/node
 github.com/onsi/gomega/matchers/support/goraph/util
 github.com/onsi/gomega/types
-# github.com/openshift/cluster-logging-operator v0.0.0-20210527005634-0f70df48d34e
+# github.com/openshift/cluster-logging-operator v0.0.0-20210714221000-fcfa24454f14
 ## explicit
 github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1
 github.com/openshift/cluster-logging-operator/pkg/status

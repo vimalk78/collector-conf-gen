@@ -673,8 +673,8 @@ github.com/opencontainers/runtime-spec v0.1.2-0.20190507144316-5b71a03e2700/go.m
 github.com/opencontainers/runtime-tools v0.0.0-20181011054405-1d69bd0f9c39/go.mod h1:r3f7wjNzSs2extwzU3Y+6pKfobzPh+kKFJ3ofN+3nfs=
 github.com/openshift/api v0.0.0-20200602204738-768b7001fe69/go.mod h1:l6TGeqJ92DrZBuWMNKcot1iZUHfbYSJyBWHGgg6Dn6s=
 github.com/openshift/build-machinery-go v0.0.0-20200424080330-082bf86082cc/go.mod h1:1CkcsT3aVebzRBzVTSbiKSkJMsC/CASqxesfqEMfJEc=
-github.com/openshift/cluster-logging-operator v0.0.0-20210527005634-0f70df48d34e h1:PIPHOj/WMkYSmj/UICmjk6K4voERHcIta8fuB+q6Upk=
-github.com/openshift/cluster-logging-operator v0.0.0-20210527005634-0f70df48d34e/go.mod h1:9VGMGHiQIBwCLJxlkoEFXb+fqWde0e+9CGt3dtsN6dI=
+github.com/openshift/cluster-logging-operator v0.0.0-20210714221000-fcfa24454f14 h1:MYQY6t4wptCZmtWLbWddCYDjISvSyOzy0zLfaD5yGSo=
+github.com/openshift/cluster-logging-operator v0.0.0-20210714221000-fcfa24454f14/go.mod h1:9VGMGHiQIBwCLJxlkoEFXb+fqWde0e+9CGt3dtsN6dI=
 github.com/openshift/elasticsearch-operator v0.0.0-20200722044541-14fae5dcddfd h1:bcpKEl7oq2JffVenX9N07lvnBJhJ6zZpJ0lIP9w9W0I=
 github.com/openshift/elasticsearch-operator v0.0.0-20200722044541-14fae5dcddfd/go.mod h1:Vir+Zs5Fq5UveEoo5dLMAv4HxSc5pcCB4GPneAIqhFs=
 github.com/openshift/origin v0.0.0-20160503220234-8f127d736703/go.mod h1:0Rox5r9C8aQn6j1oAOQ0c1uC86mYbUFObzjBRvUKHII=

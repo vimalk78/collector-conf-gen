@@ -12,16 +12,16 @@ import (
 This test case includes only the dynamic parts of Fluentd conf. This leaves out the static parts which do not change with CLF spec.
 **/
 var source_to_pipline = Describe("Testing Config Generation", func() {
-	var f = func(spec logging.ClusterLogForwarderSpec) []Element {
+	var f = func(clspec logging.ClusterLoggingSpec, clfspec logging.ClusterLogForwarderSpec) []Element {
 		a := MakeConf()
 		return MergeElements(
-			a.SourcesToInputs(&spec, &Options{}),
-			a.InputsToPipeline(&spec, &Options{}),
+			a.SourcesToInputs(&clfspec, &Options{}),
+			a.InputsToPipeline(&clfspec, &Options{}),
 		)
 	}
 	DescribeTable("Source(s) to Pipeline(s)", TestGenerateConfWith(f),
 		Entry("Send all log types to output by name", ConfGenerateTest{
-			Spec: logging.ClusterLogForwarderSpec{
+			CLFSpec: logging.ClusterLogForwarderSpec{
 				Pipelines: []logging.PipelineSpec{
 					{
 						InputRefs: []string{
@@ -83,7 +83,7 @@ var source_to_pipline = Describe("Testing Config Generation", func() {
 </label>`,
 		}),
 		Entry("", ConfGenerateTest{
-			Spec: logging.ClusterLogForwarderSpec{
+			CLFSpec: logging.ClusterLogForwarderSpec{
 				Pipelines: []logging.PipelineSpec{
 					{
 						InputRefs: []string{
@@ -160,7 +160,7 @@ var source_to_pipline = Describe("Testing Config Generation", func() {
 `,
 		}),
 		Entry("Route Logs by Namespace(s)", ConfGenerateTest{
-			Spec: logging.ClusterLogForwarderSpec{
+			CLFSpec: logging.ClusterLogForwarderSpec{
 				Inputs: []logging.InputSpec{
 					{
 						Name: "myapplogs",
@@ -213,7 +213,7 @@ var source_to_pipline = Describe("Testing Config Generation", func() {
 </label>`,
 		}),
 		Entry("Route Logs by Labels(s)", ConfGenerateTest{
-			Spec: logging.ClusterLogForwarderSpec{
+			CLFSpec: logging.ClusterLogForwarderSpec{
 				Inputs: []logging.InputSpec{
 					{
 						Name: "myapplogs",
@@ -271,7 +271,7 @@ var source_to_pipline = Describe("Testing Config Generation", func() {
 </label>`,
 		}),
 		Entry("Route Logs by Namespaces(s), and Labels(s)", ConfGenerateTest{
-			Spec: logging.ClusterLogForwarderSpec{
+			CLFSpec: logging.ClusterLogForwarderSpec{
 				Inputs: []logging.InputSpec{
 					{
 						Name: "myapplogs",
@@ -331,7 +331,7 @@ var source_to_pipline = Describe("Testing Config Generation", func() {
 </label>`,
 		}),
 		Entry("Send Logs by custom selection, and direct", ConfGenerateTest{
-			Spec: logging.ClusterLogForwarderSpec{
+			CLFSpec: logging.ClusterLogForwarderSpec{
 				Inputs: []logging.InputSpec{
 					{
 						Name: "myapplogs",
@@ -410,7 +410,7 @@ var source_to_pipline = Describe("Testing Config Generation", func() {
 		}),
 		Entry("Complex Case", ConfGenerateTest{
 			Desc: "Complex Case",
-			Spec: logging.ClusterLogForwarderSpec{
+			CLFSpec: logging.ClusterLogForwarderSpec{
 				Inputs: []logging.InputSpec{
 					{
 						Name:        "myapplogs1",

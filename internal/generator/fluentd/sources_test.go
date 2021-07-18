@@ -8,15 +8,15 @@ import (
 )
 
 var log_sources_test = Describe("Testing Config Generation", func() {
-	var f = func(spec logging.ClusterLogForwarderSpec) []Element {
+	var f = func(clspec logging.ClusterLoggingSpec, clfspec logging.ClusterLogForwarderSpec) []Element {
 		a := MakeConf()
 		return MergeElements(
-			a.LogSources(&spec, &Options{}),
+			a.LogSources(&clfspec, &Options{}),
 		)
 	}
 	DescribeTable("Source(s)", TestGenerateConfWith(f),
 		Entry("Only Application", ConfGenerateTest{
-			Spec: logging.ClusterLogForwarderSpec{
+			CLFSpec: logging.ClusterLogForwarderSpec{
 				Pipelines: []logging.PipelineSpec{
 					{
 						InputRefs: []string{
@@ -57,7 +57,7 @@ var log_sources_test = Describe("Testing Config Generation", func() {
 </source>`,
 		}),
 		Entry("Only Infrastructure", ConfGenerateTest{
-			Spec: logging.ClusterLogForwarderSpec{
+			CLFSpec: logging.ClusterLogForwarderSpec{
 				Pipelines: []logging.PipelineSpec{
 					{
 						InputRefs: []string{
@@ -116,7 +116,7 @@ var log_sources_test = Describe("Testing Config Generation", func() {
 </source>`,
 		}),
 		Entry("Only Audit", ConfGenerateTest{
-			Spec: logging.ClusterLogForwarderSpec{
+			CLFSpec: logging.ClusterLogForwarderSpec{
 				Pipelines: []logging.PipelineSpec{
 					{
 						InputRefs: []string{
@@ -176,7 +176,7 @@ var log_sources_test = Describe("Testing Config Generation", func() {
 </source>`,
 		}),
 		Entry("All Log Sources", ConfGenerateTest{
-			Spec: logging.ClusterLogForwarderSpec{
+			CLFSpec: logging.ClusterLogForwarderSpec{
 				Pipelines: []logging.PipelineSpec{
 					{
 						InputRefs: []string{
@@ -286,15 +286,15 @@ var log_sources_test = Describe("Testing Config Generation", func() {
 })
 
 var metric_sources_test = Describe("Testing Config Generation", func() {
-	var f = func(spec logging.ClusterLogForwarderSpec) []Element {
+	var f = func(clspec logging.ClusterLoggingSpec, clfspec logging.ClusterLogForwarderSpec) []Element {
 		a := MakeConf()
 		return MergeElements(
-			a.MetricSources(&spec, &Options{}),
+			a.MetricSources(&clfspec, &Options{}),
 		)
 	}
 	DescribeTable("Metric Source(s)", TestGenerateConfWith(f),
 		Entry("Any Input", ConfGenerateTest{
-			Spec: logging.ClusterLogForwarderSpec{
+			CLFSpec: logging.ClusterLogForwarderSpec{
 				Pipelines: []logging.PipelineSpec{
 					{
 						InputRefs:  []string{},

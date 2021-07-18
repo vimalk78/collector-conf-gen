@@ -8,15 +8,15 @@ import (
 )
 
 var pipeline_to_outputs = Describe("Testing Config Generation", func() {
-	var f = func(spec logging.ClusterLogForwarderSpec) []Element {
+	var f = func(clspec logging.ClusterLoggingSpec, clfspec logging.ClusterLogForwarderSpec) []Element {
 		a := MakeConf()
 		return MergeElements(
-			a.PipelineToOutputs(&spec, &Options{}),
+			a.PipelineToOutputs(&clfspec, &Options{}),
 		)
 	}
 	DescribeTable("Pipelines(s) to Output(s)", TestGenerateConfWith(f),
 		Entry("Application to single output", ConfGenerateTest{
-			Spec: logging.ClusterLogForwarderSpec{
+			CLFSpec: logging.ClusterLogForwarderSpec{
 				Pipelines: []logging.PipelineSpec{
 					{
 						InputRefs:  []string{logging.InputNameApplication},
@@ -35,7 +35,7 @@ var pipeline_to_outputs = Describe("Testing Config Generation", func() {
 </label>`,
 		}),
 		Entry("Application to multiple outputs", ConfGenerateTest{
-			Spec: logging.ClusterLogForwarderSpec{
+			CLFSpec: logging.ClusterLogForwarderSpec{
 				Pipelines: []logging.PipelineSpec{
 					{
 						InputRefs:  []string{logging.InputNameApplication},
@@ -80,7 +80,7 @@ var pipeline_to_outputs = Describe("Testing Config Generation", func() {
 </label>`,
 		}),
 		Entry("Application to default output with Labels", ConfGenerateTest{
-			Spec: logging.ClusterLogForwarderSpec{
+			CLFSpec: logging.ClusterLogForwarderSpec{
 				Pipelines: []logging.PipelineSpec{
 					{
 						InputRefs:  []string{logging.InputNameApplication},
@@ -117,7 +117,7 @@ var pipeline_to_outputs = Describe("Testing Config Generation", func() {
 </label>`,
 		}),
 		Entry("Application to default output with Json Parsing", ConfGenerateTest{
-			Spec: logging.ClusterLogForwarderSpec{
+			CLFSpec: logging.ClusterLogForwarderSpec{
 				Pipelines: []logging.PipelineSpec{
 					{
 						InputRefs:  []string{logging.InputNameApplication},

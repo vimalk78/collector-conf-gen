@@ -8,15 +8,15 @@ import (
 )
 
 var log_sources_test = Describe("Vector Config Generation", func() {
-	var f = func(spec logging.ClusterLogForwarderSpec) []Element {
+	var f = func(clspec logging.ClusterLoggingSpec, clfspec logging.ClusterLogForwarderSpec) []Element {
 		a := MakeConf()
 		return MergeElements(
-			a.LogSources(&spec, &Options{}),
+			a.LogSources(&clfspec, &Options{}),
 		)
 	}
 	DescribeTable("Source(s)", TestGenerateConfWith(f),
 		Entry("Only Application", ConfGenerateTest{
-			Spec: logging.ClusterLogForwarderSpec{
+			CLFSpec: logging.ClusterLogForwarderSpec{
 				Pipelines: []logging.PipelineSpec{
 					{
 						InputRefs: []string{
@@ -35,7 +35,7 @@ var log_sources_test = Describe("Vector Config Generation", func() {
 `,
 		}),
 		Entry("Only Infrastructure", ConfGenerateTest{
-			Spec: logging.ClusterLogForwarderSpec{
+			CLFSpec: logging.ClusterLogForwarderSpec{
 				Pipelines: []logging.PipelineSpec{
 					{
 						InputRefs: []string{
@@ -57,7 +57,7 @@ var log_sources_test = Describe("Vector Config Generation", func() {
 `,
 		}),
 		Entry("Only Audit", ConfGenerateTest{
-			Spec: logging.ClusterLogForwarderSpec{
+			CLFSpec: logging.ClusterLogForwarderSpec{
 				Pipelines: []logging.PipelineSpec{
 					{
 						InputRefs: []string{
@@ -89,7 +89,7 @@ var log_sources_test = Describe("Vector Config Generation", func() {
 `,
 		}),
 		Entry("All Log Sources", ConfGenerateTest{
-			Spec: logging.ClusterLogForwarderSpec{
+			CLFSpec: logging.ClusterLogForwarderSpec{
 				Pipelines: []logging.PipelineSpec{
 					{
 						InputRefs: []string{

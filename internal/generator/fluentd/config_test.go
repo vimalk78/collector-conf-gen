@@ -18,7 +18,7 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
 	var f = func(testcase ConfGenerateTest) {
 		a := MakeConf()
 		g := MakeGenerator()
-		e := MergeSections(a.Assemble(&testcase.Spec))
+		e := MergeSections(a.Assemble(&testcase.CLFSpec))
 		conf, err := g.GenerateConfWithHeader(e...)
 		Expect(err).To(BeNil())
 		diff := cmp.Diff(
@@ -34,7 +34,7 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
 	}
 	DescribeTable("Generate full fluent.conf", f,
 		Entry("", ConfGenerateTest{
-			Spec: logging.ClusterLogForwarderSpec{
+			CLFSpec: logging.ClusterLogForwarderSpec{
 				Pipelines: []logging.PipelineSpec{
 					{
 						InputRefs: []string{

@@ -12,16 +12,17 @@ import (
 
 type ConfGenerateTest struct {
 	Desc         string
-	Spec         logging.ClusterLogForwarderSpec
+	CLFSpec      logging.ClusterLogForwarderSpec
+	CLSpec       logging.ClusterLoggingSpec
 	ExpectedConf string
 }
 
-type GenerateFunc func(logging.ClusterLogForwarderSpec) []Element
+type GenerateFunc func(logging.ClusterLoggingSpec, logging.ClusterLogForwarderSpec) []Element
 
 func TestGenerateConfWith(gf GenerateFunc) func(ConfGenerateTest) {
 	return func(testcase ConfGenerateTest) {
 		g := MakeGenerator()
-		e := gf(testcase.Spec)
+		e := gf(testcase.CLSpec, testcase.CLFSpec)
 		conf, err := g.GenerateConf(e...)
 		Expect(err).To(BeNil())
 		diff := cmp.Diff(
