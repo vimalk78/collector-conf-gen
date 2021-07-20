@@ -9,10 +9,7 @@ import (
 
 var log_sources_test = Describe("Testing Config Generation", func() {
 	var f = func(clspec logging.ClusterLoggingSpec, clfspec logging.ClusterLogForwarderSpec) []Element {
-		a := MakeConf()
-		return MergeElements(
-			a.LogSources(&clfspec, &Options{}),
-		)
+		return LogSources(&clfspec, &Options{})
 	}
 	DescribeTable("Source(s)", TestGenerateConfWith(f),
 		Entry("Only Application", ConfGenerateTest{
@@ -287,10 +284,7 @@ var log_sources_test = Describe("Testing Config Generation", func() {
 
 var metric_sources_test = Describe("Testing Config Generation", func() {
 	var f = func(clspec logging.ClusterLoggingSpec, clfspec logging.ClusterLogForwarderSpec) []Element {
-		a := MakeConf()
-		return MergeElements(
-			a.MetricSources(&clfspec, &Options{}),
-		)
+		return MetricSources(&clfspec, &Options{})
 	}
 	DescribeTable("Metric Source(s)", TestGenerateConfWith(f),
 		Entry("Any Input", ConfGenerateTest{

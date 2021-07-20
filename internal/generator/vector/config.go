@@ -12,8 +12,6 @@ func MakeConf() Conf {
 	return Conf(0)
 }
 
-type Options map[string]string
-
 func (a Conf) Assemble(spec *logging.ClusterLogForwarderSpec) []Section {
 	return a.AssembleConfWithOptions(spec, &Options{})
 }

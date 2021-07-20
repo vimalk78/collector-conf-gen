@@ -9,7 +9,14 @@ import (
 	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/source"
 )
 
-func (a Conf) MetricSources(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
+func Sources(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
+	return MergeElements(
+		MetricSources(spec, o),
+		LogSources(spec, o),
+	)
+}
+
+func MetricSources(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return []Element{
 		PrometheusMonitor{
 			Desc:         "Prometheus Monitoring",
@@ -19,17 +26,10 @@ func (a Conf) MetricSources(spec *logging.ClusterLogForwarderSpec, o *Options) [
 	}
 }
 
-func (a Conf) Sources(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
-	return MergeElements(
-		a.MetricSources(spec, o),
-		a.LogSources(spec, o),
-	)
-}
-
 //TODO: handle the following options here
 // - includeLegacyForwardConfig
 // - includeLegacySyslogConfig
-func (a Conf) LogSources(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
+func LogSources(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	var el []Element = make([]Element, 0)
 	types := Clo.GatherSources(spec)
 	if types.Has(logging.InputNameApplication) || types.Has(logging.InputNameInfrastructure) {

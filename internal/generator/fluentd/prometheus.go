@@ -41,7 +41,7 @@ var PrometheusMonitorTemplate = `
 
 type PrometheusMonitor = ConfLiteral
 
-func (a Conf) PrometheusMetrics(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
+func PrometheusMetrics(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return []Element{
 		Pipeline{
 			InLabel: labelName("MEASURE"),

@@ -29,6 +29,8 @@ type InLabel = string
 type OutLabel = string
 type ComponentID = string
 
+type Options map[string]string
+
 var Header = `
 ## CLO GENERATED CONFIGURATION ###
 # This file is a copy of the fluentd configuration entrypoint

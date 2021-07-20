@@ -13,10 +13,9 @@ This test case includes only the dynamic parts of Fluentd conf. This leaves out 
 **/
 var source_to_pipline = Describe("Testing Config Generation", func() {
 	var f = func(clspec logging.ClusterLoggingSpec, clfspec logging.ClusterLogForwarderSpec) []Element {
-		a := MakeConf()
 		return MergeElements(
-			a.SourcesToInputs(&clfspec, &Options{}),
-			a.InputsToPipeline(&clfspec, &Options{}),
+			SourcesToInputs(&clfspec, &Options{}),
+			InputsToPipeline(&clfspec, &Options{}),
 		)
 	}
 	DescribeTable("Source(s) to Pipeline(s)", TestGenerateConfWith(f),

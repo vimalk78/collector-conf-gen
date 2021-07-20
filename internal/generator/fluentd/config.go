@@ -6,44 +6,47 @@ import (
 )
 
 // keep no state in Conf
-type Conf int
+//type Conf int
 
-func MakeConf() Conf {
-	return Conf(0)
-}
+//func MakeConf() Conf {
+//	return Conf(0)
+//}
 
-type Options map[string]string
-
-func (a Conf) Assemble(spec *logging.ClusterLogForwarderSpec) []Section {
-	return a.AssembleConfWithOptions(spec, &Options{})
-}
-
-func (a Conf) AssembleConfWithOptions(spec *logging.ClusterLogForwarderSpec, o *Options) []Section {
+//func (a Conf) Assemble(spec *logging.ClusterLogForwarderSpec, o *Options) []Section {
+func Conf(spec *logging.ClusterLogForwarderSpec, o *Options) []Section {
 	return []Section{
 		{
-			a.Sources(spec, o),
+			Sources(spec, o),
 			"Set of all input sources",
 		},
 		{
-			a.PrometheusMetrics(spec, o),
+			PrometheusMetrics(spec, o),
 			"Section to add measurement, and dispatch to Concat or Ingress pipelines",
 		},
 		{
-			a.Concat(spec, o),
+			Concat(spec, o),
 			`Concat pipeline 
 			section`,
 		},
 		{
-			a.Ingress(spec, o),
+			Ingress(spec, o),
 			"Ingress pipeline",
 		},
+		// input ends
+		// give a hook here
 		{
-			a.InputsToPipeline(spec, o),
+			InputsToPipeline(spec, o),
 			"Inputs go to pipelines",
 		},
 		{
-			a.PipelineToOutputs(spec, o),
+			PipelineToOutputs(spec, o),
 			"Pipeline to Outputs",
+		},
+		// output begins here
+		// give a hook here
+		{
+			Outputs(spec, o),
+			"Outputs",
 		},
 	}
 }

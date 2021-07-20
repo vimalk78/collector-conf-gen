@@ -1,4 +1,4 @@
-package fluentd
+package output
 
 import (
 	"fmt"
@@ -6,7 +6,6 @@ import (
 
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
-	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/output"
 )
 
 const (
@@ -32,17 +31,17 @@ const (
 	fluentdForwardFlushInterval  = "5s"
 )
 
-func (c Conf) RetryBuffer(bufkeys []string, bufspec *logging.FluentdBufferSpec, os *logging.OutputSpec) []Element {
-	return c.MakeBuffer(bufkeys, bufspec, os, true)
+func RetryBuffer(bufkeys []string, bufspec *logging.FluentdBufferSpec, os *logging.OutputSpec) []Element {
+	return MakeBuffer(bufkeys, bufspec, os, true)
 }
 
-func (c Conf) Buffer(bufkeys []string, bufspec *logging.FluentdBufferSpec, os *logging.OutputSpec) []Element {
-	return c.MakeBuffer(bufkeys, bufspec, os, false)
+func Buffer(bufkeys []string, bufspec *logging.FluentdBufferSpec, os *logging.OutputSpec) []Element {
+	return MakeBuffer(bufkeys, bufspec, os, false)
 }
 
-func (c Conf) MakeBuffer(bufkeys []string, bufspec *logging.FluentdBufferSpec, os *logging.OutputSpec, retry bool) []Element {
+func MakeBuffer(bufkeys []string, bufspec *logging.FluentdBufferSpec, os *logging.OutputSpec, retry bool) []Element {
 	return []Element{
-		output.BufferConfig{
+		BufferConfig{
 			BufferKeys:           bufkeys,
 			BufferPath:           BufferPath(os, bufspec, retry),
 			FlushMode:            FlushMode(bufspec),
@@ -65,6 +64,7 @@ func BufferPath(os *logging.OutputSpec, bufspec *logging.FluentdBufferSpec, retr
 	if retry {
 		prefix = "retry_"
 	}
+	var replacer = strings.NewReplacer(" ", "_", "-", "_", ".", "_")
 	store := strings.ToLower(fmt.Sprintf("%v%v", prefix, replacer.Replace(os.Name)))
 	return fmt.Sprintf("/var/lib/fluentd/%s", store)
 }

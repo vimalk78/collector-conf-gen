@@ -5,7 +5,7 @@ import (
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 )
 
-func (a Conf) SourcesToInputs(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
+func SourcesToInputs(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	var el []Element = make([]Element, 0)
 	types := Clo.GatherSources(spec)
 	ApplicationTags := "kubernetes.**"

@@ -5,20 +5,19 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
-	. "github.com/vimalk78/collector-conf-gen/internal/generator/fluentd"
+	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/output"
 )
 
-var buffer_test = Describe("", func() {
+var buffer_test = Describe("Generate fluentd conf", func() {
 	var f = func(clspec logging.ClusterLoggingSpec, clfspec logging.ClusterLogForwarderSpec) []Element {
-		a := MakeConf()
 		es := make([][]Element, len(clfspec.Outputs))
 		for i := range clfspec.Outputs {
-			es[i] = a.Buffer([]string{"time", "tag"}, clspec.Forwarder.Fluentd.Buffer, &clfspec.Outputs[i])
+			es[i] = output.Buffer([]string{"time", "tag"}, clspec.Forwarder.Fluentd.Buffer, &clfspec.Outputs[i])
 		}
 		return MergeElements(es...)
 	}
 	DescribeTable("Buffers", TestGenerateConfWith(f),
-		Entry("With no tuning parameters", ConfGenerateTest{
+		Entry("With tuning parameters", ConfGenerateTest{
 			CLFSpec: logging.ClusterLogForwarderSpec{
 				Outputs: []logging.OutputSpec{
 					{
@@ -66,15 +65,14 @@ var buffer_test = Describe("", func() {
 
 var retry_buffer_test = Describe("", func() {
 	var f = func(clspec logging.ClusterLoggingSpec, clfspec logging.ClusterLogForwarderSpec) []Element {
-		a := MakeConf()
 		es := make([][]Element, len(clfspec.Outputs))
 		for i := range clfspec.Outputs {
-			es[i] = a.RetryBuffer([]string{}, clspec.Forwarder.Fluentd.Buffer, &clfspec.Outputs[i])
+			es[i] = output.RetryBuffer([]string{}, clspec.Forwarder.Fluentd.Buffer, &clfspec.Outputs[i])
 		}
 		return MergeElements(es...)
 	}
 	DescribeTable("Buffers", TestGenerateConfWith(f),
-		Entry("", ConfGenerateTest{
+		Entry("With no tuning parameters", ConfGenerateTest{
 			CLFSpec: logging.ClusterLogForwarderSpec{
 				Pipelines: []logging.PipelineSpec{
 					{

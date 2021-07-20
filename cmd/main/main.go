@@ -29,7 +29,7 @@ func testFluentd() {
 	g := generator.MakeGenerator()
 	conf, _ := g.GenerateConfWithHeader(
 		generator.MergeSections(
-			fluentd.MakeConf().Assemble(&spec))...)
+			fluentd.Conf(&spec, &generator.Options{}))...)
 	fmt.Printf("conf:\n%s\n", conf)
 }
 

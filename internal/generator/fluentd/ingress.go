@@ -5,7 +5,7 @@ import (
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 )
 
-func (a Conf) Concat(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
+func Concat(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return []Element{
 		Pipeline{
 			InLabel: labelName("CONCAT"),
@@ -27,7 +27,7 @@ func (a Conf) Concat(spec *logging.ClusterLogForwarderSpec, o *Options) []Elemen
 	}
 }
 
-func (a Conf) Ingress(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
+func Ingress(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return []Element{
 		Pipeline{
 			InLabel: labelName("INGRESS"),
@@ -80,7 +80,7 @@ func (a Conf) Ingress(spec *logging.ClusterLogForwarderSpec, o *Options) []Eleme
 					TemplateStr:  GenElasticsearchID,
 				},
 			},
-				a.SourcesToInputs(spec, o)),
+				SourcesToInputs(spec, o)),
 		},
 	}
 }
