@@ -10,10 +10,7 @@ import (
 
 var pipeline_to_outputs = Describe("Testing Config Generation", func() {
 	var f = func(clspec logging.ClusterLoggingSpec, secrets map[string]*corev1.Secret, clfspec logging.ClusterLogForwarderSpec, op Options) []Element {
-		//a := MakeConf()
-		return MergeElements(
-			PipelineToOutputs(&clfspec, &Options{}),
-		)
+		return PipelineToOutputs(&clfspec, &Options{})
 	}
 	DescribeTable("Pipelines(s) to Output(s)", TestGenerateConfWith(f),
 		Entry("Application to single output", ConfGenerateTest{

@@ -30,6 +30,9 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
 						Type: logging.OutputTypeElasticsearch,
 						Name: "es-1",
 						URL:  "https://es.svc.infra.cluster:9999",
+						Secret: &logging.OutputSecretSpec{
+							Name: "es-1",
+						},
 					},
 				},
 			},
@@ -42,6 +45,7 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
 				},
 			},
 			ExpectedConf: `
+# Elasticsearch store
 <store>
   @type elasticsearch
   @id es_1
@@ -49,7 +53,7 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
   port 9999
   scheme https
   ssl_version TLSv1_2
-  username "#{File.exists?('/var/run/ocp-collector/secrets/username') ? open('/var/run/ocp-collector/secrets/username','r') do |f|f.read end : ''}" 
+  username "#{File.exists?('/var/run/ocp-collector/secrets/username') ? open('/var/run/ocp-collector/secrets/username','r') do |f|f.read end : ''}"
   password "#{File.exists?('/var/run/ocp-collector/secrets/password') ? open('/var/run/ocp-collector/secrets/password','r') do |f|f.read end : ''}"
   verify_es_version_at_startup false
   target_index_key viaq_index_name
@@ -92,6 +96,9 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
 						Type: logging.OutputTypeElasticsearch,
 						Name: "es-1",
 						URL:  "https://es.svc.infra.cluster:9999",
+						Secret: &logging.OutputSecretSpec{
+							Name: "es-1",
+						},
 					},
 				},
 			},
@@ -105,6 +112,7 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
 				},
 			},
 			ExpectedConf: `
+# Elasticsearch store
 <store>
   @type elasticsearch
   @id es_1
@@ -156,11 +164,15 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
 						Type: logging.OutputTypeElasticsearch,
 						Name: "es-1",
 						URL:  "http://es.svc.infra.cluster:9999",
+						Secret: &logging.OutputSecretSpec{
+							Name: "es-1",
+						},
 					},
 				},
 			},
 			Secrets: security.NoSecrets,
 			ExpectedConf: `
+# Elasticsearch store
 <store>
   @type elasticsearch
   @id es_1

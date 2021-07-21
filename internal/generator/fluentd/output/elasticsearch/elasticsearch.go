@@ -21,6 +21,7 @@ const (
 )
 
 type Elasticsearch struct {
+	Desc           string
 	StoreID        string
 	Host           string
 	Port           string
@@ -34,6 +35,7 @@ func (e Elasticsearch) Name() string {
 
 func (e Elasticsearch) Template() string {
 	return `{{define "` + e.Name() + `" -}}
+# {{.Desc}}
 <store>
   @type elasticsearch
   @id {{.StoreID}}
@@ -79,11 +81,12 @@ func Store(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o logging.
 	prefix := ""
 	return []Element{
 		Elasticsearch{
+			Desc:           "Elasticsearch store",
 			StoreID:        strings.ToLower(fmt.Sprintf("%v%v", prefix, helpers.Replacer.Replace(o.Name))),
 			Host:           u.Hostname(),
 			Port:           port,
 			SecurityConfig: SecurityConfig(o, secret),
-			BufferConfig:   output.Buffer(output.NOKEYS, nil, &o),
+			BufferConfig:   output.Buffer(output.NOKEYS, bufspec, &o),
 		},
 	}
 }

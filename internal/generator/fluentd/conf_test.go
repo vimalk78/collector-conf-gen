@@ -11,14 +11,14 @@ import (
 	. "github.com/onsi/gomega"
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
+	corev1 "k8s.io/api/core/v1"
 )
 
 //TODO: Use a detailed CLF spec
 var logging_test = Describe("Testing Complete Config Generation", func() {
 	var f = func(testcase ConfGenerateTest) {
-		//		a := MakeConf()
 		g := MakeGenerator()
-		e := MergeSections(Conf(nil, nil, &testcase.CLFSpec, &Options{}))
+		e := MergeSections(Conf(&testcase.CLSpec, testcase.Secrets, &testcase.CLFSpec, &Options{}))
 		conf, err := g.GenerateConfWithHeader(e...)
 		Expect(err).To(BeNil())
 		diff := cmp.Diff(
@@ -34,6 +34,17 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
 	}
 	DescribeTable("Generate full fluent.conf", f,
 		Entry("", ConfGenerateTest{
+			CLSpec: logging.ClusterLoggingSpec{
+				Forwarder: &logging.ForwarderSpec{
+					Fluentd: &logging.FluentdForwarderSpec{
+						Buffer: &logging.FluentdBufferSpec{
+							ChunkLimitSize: "8m",
+							TotalLimitSize: "800000000",
+							OverflowAction: "throw_exception",
+						},
+					},
+				},
+			},
 			CLFSpec: logging.ClusterLogForwarderSpec{
 				Pipelines: []logging.PipelineSpec{
 					{
@@ -41,8 +52,27 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
 							logging.InputNameApplication,
 							logging.InputNameInfrastructure,
 							logging.InputNameAudit},
-						OutputRefs: []string{logging.OutputNameDefault},
+						OutputRefs: []string{"es-1"},
 						Name:       "pipeline",
+					},
+				},
+				Outputs: []logging.OutputSpec{
+					{
+						Name: "es-1",
+						Type: logging.OutputTypeElasticsearch,
+						URL:  "https://es.svc.infra.cluster:9999",
+						Secret: &logging.OutputSecretSpec{
+							Name: "es-1",
+						},
+					},
+				},
+			},
+			Secrets: map[string]*corev1.Secret{
+				"es-1": &corev1.Secret{
+					Data: map[string][]byte{
+						"tls.key":       []byte("junk"),
+						"tls.crt":       []byte("junk"),
+						"ca-bundle.crt": []byte("junk"),
 					},
 				},
 			},
@@ -526,9 +556,58 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
 <label @PIPELINE>
   <match **>
     @type relabel
-    @label @DEFAULT
+    @label @ES_1
   </match>
-</label>`,
+</label>
+# Output to elasticsearch
+<label @ES_1>
+  <match **>
+    # Elasticsearch store
+    <store>
+      @type elasticsearch
+      @id es_1
+      host es.svc.infra.cluster
+      port 9999
+      scheme https
+      ssl_version TLSv1_2
+      client_key /var/run/ocp-collector/secrets/tls.key
+      client_cert /var/run/ocp-collector/secrets/tls.crt
+      ca_file /var/run/ocp-collector/secrets/ca-bundle.crt
+      verify_es_version_at_startup false
+      target_index_key viaq_index_name
+      id_key viaq_msg_id
+      remove_keys viaq_index_name
+      type_name _doc
+      http_backend typhoeus
+      write_operation create
+      reload_connections 'true'
+      # https://github.com/uken/fluent-plugin-elasticsearch#reload-after
+      reload_after '200'
+      # https://github.com/uken/fluent-plugin-elasticsearch#sniffer-class-name
+      sniffer_class_name 'Fluent::Plugin::ElasticsearchSimpleSniffer'
+      reload_on_failure false
+      # 2 ^ 31
+      request_timeout 2147483648
+      <buffer>
+        @type file
+        path '/var/lib/fluentd/es_1'
+        flush_mode interval
+        flush_interval 1s
+        flush_thread_count 2
+        flush_at_shutdown true
+        retry_type exponential_backoff
+        retry_wait 1s
+        retry_max_interval 60s
+        retry_timeout 60m
+        queued_chunks_limit_size "#{ENV['BUFFER_QUEUE_LIMIT'] || '32'}"
+        total_limit_size 800000000
+        chunk_limit_size 8m
+        overflow_action throw_exception
+      </buffer>
+    </store>
+  </match>
+</label>
+`,
 		}),
 	)
 })

@@ -20,7 +20,16 @@ func Outputs(clspec *logging.ClusterLoggingSpec, secrets map[string]*corev1.Secr
 		secret := secrets[o.Name]
 		switch o.Type {
 		case logging.OutputTypeElasticsearch:
-			outputs = MergeElements(outputs, elasticsearch.Store(bufspec, secret, o, op))
+			outputs = append(outputs, FromLabel{
+				Desc:    "Output to elasticsearch",
+				InLabel: labelName(o.Name),
+				SubElements: []Element{
+					Match{
+						MatchTags: "**",
+						Elements:  elasticsearch.Store(bufspec, secret, o, op),
+					},
+				},
+			})
 		case logging.OutputTypeFluentdForward:
 		}
 	}

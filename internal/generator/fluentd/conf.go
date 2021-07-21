@@ -6,14 +6,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// keep no state in Conf
-//type Conf int
-
-//func MakeConf() Conf {
-//	return Conf(0)
-//}
-
-//func (a Conf) Assemble(spec *logging.ClusterLogForwarderSpec, o *Options) []Section {
 func Conf(clspec *logging.ClusterLoggingSpec, secrets map[string]*corev1.Secret, clfspec *logging.ClusterLogForwarderSpec, op *Options) []Section {
 	return []Section{
 		{
