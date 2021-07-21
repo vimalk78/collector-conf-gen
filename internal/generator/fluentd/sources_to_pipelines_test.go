@@ -5,6 +5,7 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
+	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -12,7 +13,7 @@ import (
 This test case includes only the dynamic parts of Fluentd conf. This leaves out the static parts which do not change with CLF spec.
 **/
 var source_to_pipline = Describe("Testing Config Generation", func() {
-	var f = func(clspec logging.ClusterLoggingSpec, clfspec logging.ClusterLogForwarderSpec) []Element {
+	var f = func(clspec logging.ClusterLoggingSpec, secrets map[string]*corev1.Secret, clfspec logging.ClusterLogForwarderSpec, op Options) []Element {
 		return MergeElements(
 			SourcesToInputs(&clfspec, &Options{}),
 			InputsToPipeline(&clfspec, &Options{}),

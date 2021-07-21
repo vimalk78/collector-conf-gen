@@ -8,21 +8,24 @@ import (
 	"github.com/google/go-cmp/cmp"
 	. "github.com/onsi/gomega"
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
+	corev1 "k8s.io/api/core/v1"
 )
 
 type ConfGenerateTest struct {
 	Desc         string
 	CLFSpec      logging.ClusterLogForwarderSpec
 	CLSpec       logging.ClusterLoggingSpec
+	Secrets      map[string]*corev1.Secret
+	Options      Options
 	ExpectedConf string
 }
 
-type GenerateFunc func(logging.ClusterLoggingSpec, logging.ClusterLogForwarderSpec) []Element
+type GenerateFunc func(logging.ClusterLoggingSpec, map[string]*corev1.Secret, logging.ClusterLogForwarderSpec, Options) []Element
 
 func TestGenerateConfWith(gf GenerateFunc) func(ConfGenerateTest) {
 	return func(testcase ConfGenerateTest) {
 		g := MakeGenerator()
-		e := gf(testcase.CLSpec, testcase.CLFSpec)
+		e := gf(testcase.CLSpec, testcase.Secrets, testcase.CLFSpec, testcase.Options)
 		conf, err := g.GenerateConf(e...)
 		Expect(err).To(BeNil())
 		diff := cmp.Diff(

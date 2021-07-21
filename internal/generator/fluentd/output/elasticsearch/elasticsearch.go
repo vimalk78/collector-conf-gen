@@ -1,12 +1,23 @@
 package elasticsearch
 
 import (
+	"fmt"
+	"strings"
 	"text/template"
 
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
+	corev1 "k8s.io/api/core/v1"
 
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/output"
+	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/output/security"
+	"github.com/vimalk78/collector-conf-gen/internal/generator/helpers"
+	"github.com/vimalk78/collector-conf-gen/internal/generator/url"
+	urlhelper "github.com/vimalk78/collector-conf-gen/internal/generator/url"
+)
+
+const (
+	defaultElasticsearchPort = "9200"
 )
 
 type Elasticsearch struct {
@@ -58,10 +69,54 @@ func (e Elasticsearch) Data() interface{} {
 	return e
 }
 
-func Store(o logging.OutputSpec, op *Options) []Element {
+func Store(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o logging.OutputSpec, op *Options) []Element {
+	// URL is parasable, checked at input sanitization
+	u, _ := urlhelper.Parse(o.URL)
+	port := u.Port()
+	if port == "" {
+		port = defaultElasticsearchPort
+	}
+	prefix := ""
 	return []Element{
 		Elasticsearch{
-			BufferConfig: output.Buffer([]string{}, nil, &o),
+			StoreID:        strings.ToLower(fmt.Sprintf("%v%v", prefix, helpers.Replacer.Replace(o.Name))),
+			Host:           u.Hostname(),
+			Port:           port,
+			SecurityConfig: SecurityConfig(o, secret),
+			BufferConfig:   output.Buffer(output.NOKEYS, nil, &o),
 		},
 	}
+}
+
+func SecurityConfig(o logging.OutputSpec, secret *corev1.Secret) []Element {
+	// URL is parasable, checked at input sanitization
+	u, _ := urlhelper.Parse(o.URL)
+	tls := TLS(url.IsTLSScheme(u.Scheme) || secret != nil)
+	conf := []Element{
+		tls,
+	}
+	if security.HasUsernamePassword(secret) {
+		up := UserNamePass{
+			// TODO: use constants.ClientUsername
+			UsernamePath: security.SecretPath(secret, "username"),
+			PasswordPath: security.SecretPath(secret, "password"),
+		}
+		conf = append(conf, up)
+	}
+	if security.HasTLSKeyAndCrt(secret) {
+		kc := TLSKeyCert{
+			// TODO: use constants.ClientCertKey
+			KeyPath:  security.SecretPath(secret, "tls.key"),
+			CertPath: security.SecretPath(secret, "tls.crt"),
+		}
+		conf = append(conf, kc)
+	}
+	if security.HasCABundle(secret) {
+		ca := CAFile{
+			// TODO: use constants.TrustedCABundleKey
+			CAFilePath: security.SecretPath(secret, "ca-bundle.crt"),
+		}
+		conf = append(conf, ca)
+	}
+	return conf
 }

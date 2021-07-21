@@ -5,10 +5,11 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
+	corev1 "k8s.io/api/core/v1"
 )
 
 var log_sources_test = Describe("Testing Config Generation", func() {
-	var f = func(clspec logging.ClusterLoggingSpec, clfspec logging.ClusterLogForwarderSpec) []Element {
+	var f = func(clspec logging.ClusterLoggingSpec, secrets map[string]*corev1.Secret, clfspec logging.ClusterLogForwarderSpec, op Options) []Element {
 		return LogSources(&clfspec, &Options{})
 	}
 	DescribeTable("Source(s)", TestGenerateConfWith(f),
@@ -283,7 +284,7 @@ var log_sources_test = Describe("Testing Config Generation", func() {
 })
 
 var metric_sources_test = Describe("Testing Config Generation", func() {
-	var f = func(clspec logging.ClusterLoggingSpec, clfspec logging.ClusterLogForwarderSpec) []Element {
+	var f = func(clspec logging.ClusterLoggingSpec, secrets map[string]*corev1.Secret, clfspec logging.ClusterLogForwarderSpec, op Options) []Element {
 		return MetricSources(&clfspec, &Options{})
 	}
 	DescribeTable("Metric Source(s)", TestGenerateConfWith(f),

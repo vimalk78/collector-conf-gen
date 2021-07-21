@@ -3,17 +3,17 @@ package elasticsearch
 import (
 	"text/template"
 
-	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/output"
+	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/output/security"
 )
 
-type CAFile output.CAFile
+type CAFile security.CAFile
 
 func (ca CAFile) Name() string {
 	return "elasticsearchCAFileTemplate"
 }
 
 func (ca CAFile) Template() string {
-	return `{{define "` + ca.Name() + `
+	return `{{define "` + ca.Name() + `" -}}
 ca_file {{.CAFilePath}}
 {{- end}}
 `

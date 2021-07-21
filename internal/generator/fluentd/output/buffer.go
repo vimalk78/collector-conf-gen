@@ -31,6 +31,8 @@ const (
 	fluentdForwardFlushInterval  = "5s"
 )
 
+var NOKEYS = []string{}
+
 func RetryBuffer(bufkeys []string, bufspec *logging.FluentdBufferSpec, os *logging.OutputSpec) []Element {
 	return MakeBuffer(bufkeys, bufspec, os, true)
 }

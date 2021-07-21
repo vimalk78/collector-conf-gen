@@ -3,6 +3,7 @@ package fluentd
 import (
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
+	corev1 "k8s.io/api/core/v1"
 )
 
 // keep no state in Conf
@@ -13,39 +14,39 @@ import (
 //}
 
 //func (a Conf) Assemble(spec *logging.ClusterLogForwarderSpec, o *Options) []Section {
-func Conf(spec *logging.ClusterLogForwarderSpec, o *Options) []Section {
+func Conf(clspec *logging.ClusterLoggingSpec, secrets map[string]*corev1.Secret, clfspec *logging.ClusterLogForwarderSpec, op *Options) []Section {
 	return []Section{
 		{
-			Sources(spec, o),
+			Sources(clfspec, op),
 			"Set of all input sources",
 		},
 		{
-			PrometheusMetrics(spec, o),
+			PrometheusMetrics(clfspec, op),
 			"Section to add measurement, and dispatch to Concat or Ingress pipelines",
 		},
 		{
-			Concat(spec, o),
+			Concat(clfspec, op),
 			`Concat pipeline 
 			section`,
 		},
 		{
-			Ingress(spec, o),
+			Ingress(clfspec, op),
 			"Ingress pipeline",
 		},
 		// input ends
 		// give a hook here
 		{
-			InputsToPipeline(spec, o),
+			InputsToPipeline(clfspec, op),
 			"Inputs go to pipelines",
 		},
 		{
-			PipelineToOutputs(spec, o),
+			PipelineToOutputs(clfspec, op),
 			"Pipeline to Outputs",
 		},
 		// output begins here
 		// give a hook here
 		{
-			Outputs(spec, o),
+			Outputs(clspec, secrets, clfspec, op),
 			"Outputs",
 		},
 	}

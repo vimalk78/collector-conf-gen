@@ -3,10 +3,10 @@ package fluentdforward
 import (
 	"text/template"
 
-	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/output"
+	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/output/security"
 )
 
-type UserNamePass output.UserNamePass
+type UserNamePass security.UserNamePass
 
 func (up UserNamePass) Name() string {
 	return "forwardUsernamePasswordTemplate"

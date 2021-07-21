@@ -18,7 +18,7 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
 	var f = func(testcase ConfGenerateTest) {
 		//		a := MakeConf()
 		g := MakeGenerator()
-		e := MergeSections(Conf(&testcase.CLFSpec, &Options{}))
+		e := MergeSections(Conf(nil, nil, &testcase.CLFSpec, &Options{}))
 		conf, err := g.GenerateConfWithHeader(e...)
 		Expect(err).To(BeNil())
 		diff := cmp.Diff(

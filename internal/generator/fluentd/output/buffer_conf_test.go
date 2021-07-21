@@ -6,10 +6,11 @@ import (
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/output"
+	corev1 "k8s.io/api/core/v1"
 )
 
 var buffer_test = Describe("Generate fluentd conf", func() {
-	var f = func(clspec logging.ClusterLoggingSpec, clfspec logging.ClusterLogForwarderSpec) []Element {
+	var f = func(clspec logging.ClusterLoggingSpec, secrets map[string]*corev1.Secret, clfspec logging.ClusterLogForwarderSpec, op Options) []Element {
 		es := make([][]Element, len(clfspec.Outputs))
 		for i := range clfspec.Outputs {
 			es[i] = output.Buffer([]string{"time", "tag"}, clspec.Forwarder.Fluentd.Buffer, &clfspec.Outputs[i])
@@ -64,7 +65,7 @@ var buffer_test = Describe("Generate fluentd conf", func() {
 })
 
 var retry_buffer_test = Describe("", func() {
-	var f = func(clspec logging.ClusterLoggingSpec, clfspec logging.ClusterLogForwarderSpec) []Element {
+	var f = func(clspec logging.ClusterLoggingSpec, secrets map[string]*corev1.Secret, clfspec logging.ClusterLogForwarderSpec, op Options) []Element {
 		es := make([][]Element, len(clfspec.Outputs))
 		for i := range clfspec.Outputs {
 			es[i] = output.RetryBuffer([]string{}, clspec.Forwarder.Fluentd.Buffer, &clfspec.Outputs[i])

@@ -3,10 +3,10 @@ package elasticsearch
 import (
 	"text/template"
 
-	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/output"
+	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/output/security"
 )
 
-type TLS output.TLS
+type TLS security.TLS
 
 func (t TLS) Name() string {
 	return "elasticsearchTLSTemplate"
