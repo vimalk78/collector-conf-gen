@@ -12,9 +12,10 @@ import (
 )
 
 type ConfGenerateTest struct {
-	Desc         string
-	CLFSpec      logging.ClusterLogForwarderSpec
-	CLSpec       logging.ClusterLoggingSpec
+	Desc    string
+	CLFSpec logging.ClusterLogForwarderSpec
+	CLSpec  logging.ClusterLoggingSpec
+	// key:Output Name, value: secret for the Output
 	Secrets      map[string]*corev1.Secret
 	Options      Options
 	ExpectedConf string
