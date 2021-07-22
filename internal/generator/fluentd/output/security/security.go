@@ -70,6 +70,18 @@ func HasCABundle(secret *corev1.Secret) bool {
 	return true
 }
 
+func HasSharedKey(secret *corev1.Secret) bool {
+	if secret == nil {
+		return false
+	}
+
+	// TODO: use constants.TrustedCABundleKey
+	if _, ok := secret.Data["shared_key"]; !ok {
+		return false
+	}
+	return true
+}
+
 func SecretPath(secret *corev1.Secret, file string) string {
 	if secret != nil {
 		// TODO use constants.CollectorSecretsDir
