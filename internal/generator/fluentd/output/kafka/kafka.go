@@ -40,7 +40,9 @@ func (k Kafka) Template() string {
   brokers {{.Brokers}}
   default_topic {{.Topics}}
   use_event_time true
-{{compose .SecurityConfig | indent 2}}
+{{- with $x := compose .SecurityConfig }}
+{{$x | indent 2}}
+{{- end}}
   <format>
     @type json
   </format>

@@ -70,9 +70,13 @@ func SourceTypeToPipeline(sourceType string, spec *logging.ClusterLogForwarderSp
 			Desc:    fmt.Sprintf("Sending %s source type to pipeline", sourceType),
 			InLabel: sourceTypeLabelName(sourceType),
 			SubElements: []Element{
-				Relabel{
+				Match{
 					MatchTags: "**",
-					OutLabel:  labelName(srcTypePipeline[0]),
+					Elements: []Element{
+						Relabel{
+							OutLabel: labelName(srcTypePipeline[0]),
+						},
+					},
 				},
 			},
 		}
@@ -155,9 +159,13 @@ func AppToPipeline(spec *logging.ClusterLogForwarderSpec, o *Options) []Element 
 				Desc:    "Sending unrouted application to pipelines",
 				InLabel: sourceTypeLabelName("APPLICATION_ALL"),
 				SubElements: []Element{
-					Relabel{
+					Match{
 						MatchTags: "**",
-						OutLabel:  labelName(unRoutedPipelines[0]),
+						Elements: []Element{
+							Relabel{
+								OutLabel: labelName(unRoutedPipelines[0]),
+							},
+						},
 					},
 				},
 			},

@@ -108,9 +108,13 @@ func PipelineToOutputs(spec *logging.ClusterLogForwarderSpec, o *Options) []Elem
 			// should not happen
 		case 1:
 			po.ToOutputs = []Element{
-				Relabel{
+				Match{
 					MatchTags: "**",
-					OutLabel:  labelName(p.OutputRefs[0]),
+					Elements: []Element{
+						Relabel{
+							OutLabel: labelName(p.OutputRefs[0]),
+						},
+					},
 				},
 			}
 		default:

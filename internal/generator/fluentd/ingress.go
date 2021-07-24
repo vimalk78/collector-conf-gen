@@ -17,10 +17,14 @@ func Concat(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 					TemplateStr:  ConcatLines,
 					OutLabel:     labelName("INGRESS"),
 				},
-				Relabel{
+				Match{
 					Desc:      "Kubernetes Logs go to INGRESS pipeline",
 					MatchTags: "kubernetes.**",
-					OutLabel:  labelName("INGRESS"),
+					Elements: []Element{
+						Relabel{
+							OutLabel: labelName("INGRESS"),
+						},
+					},
 				},
 			},
 		},

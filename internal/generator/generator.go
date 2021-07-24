@@ -78,6 +78,9 @@ func (g *Generator) GenerateRec(t *template.Template, e Element, b *bytes.Buffer
 }
 
 func (g *Generator) generate(es []Element) (string, error) {
+	if len(es) == 0 {
+		return "", nil
+	}
 	t := template.New("generate")
 	t.Funcs(template.FuncMap{
 		"generate":        g.generate,

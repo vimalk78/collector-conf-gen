@@ -7,6 +7,7 @@ import (
 )
 
 type Match struct {
+	Desc      string
 	MatchTags string
 	Elements  []Element
 }
@@ -17,10 +18,13 @@ func (m Match) Name() string {
 
 func (m Match) Template() string {
 	return `{{define "` + m.Name() + `"  -}}
+{{- if .Desc}}
+# {{.Desc}}
+{{- end}}
 <match {{.MatchTags}}>
 {{compose .Elements | indent 2}}
 </match>
-{{end}}`
+{{- end}}`
 }
 
 func (m Match) Create(t *template.Template) *template.Template {

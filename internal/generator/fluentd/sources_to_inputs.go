@@ -10,10 +10,14 @@ func SourcesToInputs(spec *logging.ClusterLogForwarderSpec, o *Options) []Elemen
 	types := Clo.GatherSources(spec)
 	ApplicationTags := "kubernetes.**"
 	if types.Has(logging.InputNameApplication) {
-		el = append(el, Relabel{
+		el = append(el, Match{
 			Desc:      "Dont discard Application logs",
 			MatchTags: ApplicationTags,
-			OutLabel:  sourceTypeLabelName(logging.InputNameApplication),
+			Elements: []Element{
+				Relabel{
+					OutLabel: sourceTypeLabelName(logging.InputNameApplication),
+				},
+			},
 		})
 	} else {
 		el = append(el, ConfLiteral{
@@ -25,10 +29,14 @@ func SourcesToInputs(spec *logging.ClusterLogForwarderSpec, o *Options) []Elemen
 	}
 	InfraTags := "**_default_** **_kube-*_** **_openshift-*_** **_openshift_** journal.** system.var.log**"
 	if types.Has(logging.InputNameInfrastructure) {
-		el = append(el, Relabel{
+		el = append(el, Match{
 			Desc:      "Dont discard Infrastructure logs",
 			MatchTags: InfraTags,
-			OutLabel:  sourceTypeLabelName(logging.InputNameInfrastructure),
+			Elements: []Element{
+				Relabel{
+					OutLabel: sourceTypeLabelName(logging.InputNameInfrastructure),
+				},
+			},
 		})
 	} else {
 		el = append(el, ConfLiteral{
@@ -40,10 +48,14 @@ func SourcesToInputs(spec *logging.ClusterLogForwarderSpec, o *Options) []Elemen
 	}
 	AuditTags := "linux-audit.log** k8s-audit.log** openshift-audit.log**"
 	if types.Has(logging.InputNameAudit) {
-		el = append(el, Relabel{
+		el = append(el, Match{
 			Desc:      "Dont discard Audit logs",
 			MatchTags: AuditTags,
-			OutLabel:  sourceTypeLabelName(logging.InputNameAudit),
+			Elements: []Element{
+				Relabel{
+					OutLabel: sourceTypeLabelName(logging.InputNameAudit),
+				},
+			},
 		})
 	} else {
 		el = append(el, ConfLiteral{

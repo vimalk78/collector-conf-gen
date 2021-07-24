@@ -7,9 +7,7 @@ import (
 )
 
 type Relabel struct {
-	Desc string
 	OutLabel
-	MatchTags string
 }
 
 func (r Relabel) Name() string {
@@ -18,13 +16,8 @@ func (r Relabel) Name() string {
 
 func (r Relabel) Template() string {
 	return `{{define "` + r.Name() + `"  -}}
-{{- if .Desc}}
-# {{.Desc}}
-{{- end}}
-<match {{.MatchTags}}>
-  @type relabel
-  @label {{.OutLabel}}
-</match>
+@type relabel
+@label {{.OutLabel}}
 {{- end}}`
 }
 

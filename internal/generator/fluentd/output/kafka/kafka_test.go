@@ -154,7 +154,6 @@ var kafka_store_test = Describe("Generate fluentd config", func() {
   brokers broker1-kafka.svc.messaging.cluster.local:9092
   default_topic topic
   use_event_time true
-  
   <format>
     @type json
   </format>
