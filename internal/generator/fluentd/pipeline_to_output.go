@@ -110,17 +110,18 @@ func PipelineToOutputs(spec *logging.ClusterLogForwarderSpec, o *Options) []Elem
 			po.ToOutputs = []Element{
 				Match{
 					MatchTags: "**",
-					Elements: []Element{
-						Relabel{
-							OutLabel: labelName(p.OutputRefs[0]),
-						},
+					MatchElement: Relabel{
+						OutLabel: labelName(p.OutputRefs[0]),
 					},
 				},
 			}
 		default:
 			po.ToOutputs = []Element{
-				Copy{
-					Labels: labelNames(p.OutputRefs),
+				Match{
+					MatchTags: "**",
+					MatchElement: Copy{
+						Stores: CopyToLabels(p.OutputRefs),
+					},
 				},
 			}
 		}

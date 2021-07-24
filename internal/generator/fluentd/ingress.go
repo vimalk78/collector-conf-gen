@@ -20,10 +20,8 @@ func Concat(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 				Match{
 					Desc:      "Kubernetes Logs go to INGRESS pipeline",
 					MatchTags: "kubernetes.**",
-					Elements: []Element{
-						Relabel{
-							OutLabel: labelName("INGRESS"),
-						},
+					MatchElement: Relabel{
+						OutLabel: labelName("INGRESS"),
 					},
 				},
 			},

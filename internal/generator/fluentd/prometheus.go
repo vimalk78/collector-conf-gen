@@ -55,28 +55,22 @@ func PrometheusMetrics(spec *logging.ClusterLogForwarderSpec, o *Options) []Elem
 				Match{
 					Desc:      "Journal Logs go to INGRESS pipeline",
 					MatchTags: "journal",
-					Elements: []Element{
-						Relabel{
-							OutLabel: labelName("INGRESS"),
-						},
+					MatchElement: Relabel{
+						OutLabel: labelName("INGRESS"),
 					},
 				},
 				Match{
 					Desc:      "Audit Logs go to INGRESS pipeline",
 					MatchTags: "*audit.log",
-					Elements: []Element{
-						Relabel{
-							OutLabel: labelName("INGRESS"),
-						},
+					MatchElement: Relabel{
+						OutLabel: labelName("INGRESS"),
 					},
 				},
 				Match{
 					Desc:      "Kubernetes Logs go to CONCAT pipeline",
 					MatchTags: "kubernetes.**",
-					Elements: []Element{
-						Relabel{
-							OutLabel: labelName("CONCAT"),
-						},
+					MatchElement: Relabel{
+						OutLabel: labelName("CONCAT"),
 					},
 				},
 			},

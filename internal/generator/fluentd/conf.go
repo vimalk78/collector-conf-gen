@@ -6,6 +6,17 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
+var Header = `
+## CLO GENERATED CONFIGURATION ###
+# This file is a copy of the fluentd configuration entrypoint
+# which should normally be supplied in a configmap.
+
+<system>
+  log_level "#{ENV['LOG_LEVEL'] || 'warn'}"
+</system>
+
+`
+
 func Conf(clspec *logging.ClusterLoggingSpec, secrets map[string]*corev1.Secret, clfspec *logging.ClusterLogForwarderSpec, op *Options) []Section {
 	return []Section{
 		{

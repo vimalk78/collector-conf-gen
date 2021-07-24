@@ -7,9 +7,9 @@ import (
 )
 
 type Match struct {
-	Desc      string
-	MatchTags string
-	Elements  []Element
+	Desc         string
+	MatchTags    string
+	MatchElement Element
 }
 
 func (m Match) Name() string {
@@ -22,7 +22,7 @@ func (m Match) Template() string {
 # {{.Desc}}
 {{- end}}
 <match {{.MatchTags}}>
-{{compose .Elements | indent 2}}
+{{compose_one .MatchElement | indent 2}}
 </match>
 {{- end}}`
 }

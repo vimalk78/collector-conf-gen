@@ -19,7 +19,7 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
 	var f = func(testcase ConfGenerateTest) {
 		g := MakeGenerator()
 		e := MergeSections(Conf(&testcase.CLSpec, testcase.Secrets, &testcase.CLFSpec, &Options{}))
-		conf, err := g.GenerateConfWithHeader(e...)
+		conf, err := g.GenerateConfWithHeader(Header, e...)
 		Expect(err).To(BeNil())
 		diff := cmp.Diff(
 			strings.Split(strings.TrimSpace(testcase.ExpectedConf), "\n"),
@@ -62,7 +62,7 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
 						Type: logging.OutputTypeElasticsearch,
 						URL:  "https://es.svc.infra.cluster:9999",
 						Secret: &logging.OutputSecretSpec{
-							Name: "es-1",
+							Name: "es-1-secret",
 						},
 					},
 				},
@@ -561,50 +561,93 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
 </label>
 # Output to elasticsearch
 <label @ES_1>
+  <match retry_es_1>
+    # Elasticsearch store
+    @type elasticsearch
+    @id retry_es_1
+    host es.svc.infra.cluster
+    port 9999
+    scheme https
+    ssl_version TLSv1_2
+    client_key /var/run/ocp-collector/secrets/tls.key
+    client_cert /var/run/ocp-collector/secrets/tls.crt
+    ca_file /var/run/ocp-collector/secrets/ca-bundle.crt
+    verify_es_version_at_startup false
+    target_index_key viaq_index_name
+    id_key viaq_msg_id
+    remove_keys viaq_index_name
+    type_name _doc
+    http_backend typhoeus
+    write_operation create
+    reload_connections 'true'
+    # https://github.com/uken/fluent-plugin-elasticsearch#reload-after
+    reload_after '200'
+    # https://github.com/uken/fluent-plugin-elasticsearch#sniffer-class-name
+    sniffer_class_name 'Fluent::Plugin::ElasticsearchSimpleSniffer'
+    reload_on_failure false
+    # 2 ^ 31
+    request_timeout 2147483648
+    <buffer>
+      @type file
+      path '/var/lib/fluentd/es_1'
+      flush_mode interval
+      flush_interval 1s
+      flush_thread_count 2
+      flush_at_shutdown true
+      retry_type exponential_backoff
+      retry_wait 1s
+      retry_max_interval 60s
+      retry_timeout 60m
+      queued_chunks_limit_size "#{ENV['BUFFER_QUEUE_LIMIT'] || '32'}"
+      total_limit_size 800000000
+      chunk_limit_size 8m
+      overflow_action throw_exception
+    </buffer>
+  </match>
+  
   <match **>
     # Elasticsearch store
-    <store>
-      @type elasticsearch
-      @id es_1
-      host es.svc.infra.cluster
-      port 9999
-      scheme https
-      ssl_version TLSv1_2
-      client_key /var/run/ocp-collector/secrets/tls.key
-      client_cert /var/run/ocp-collector/secrets/tls.crt
-      ca_file /var/run/ocp-collector/secrets/ca-bundle.crt
-      verify_es_version_at_startup false
-      target_index_key viaq_index_name
-      id_key viaq_msg_id
-      remove_keys viaq_index_name
-      type_name _doc
-      http_backend typhoeus
-      write_operation create
-      reload_connections 'true'
-      # https://github.com/uken/fluent-plugin-elasticsearch#reload-after
-      reload_after '200'
-      # https://github.com/uken/fluent-plugin-elasticsearch#sniffer-class-name
-      sniffer_class_name 'Fluent::Plugin::ElasticsearchSimpleSniffer'
-      reload_on_failure false
-      # 2 ^ 31
-      request_timeout 2147483648
-      <buffer>
-        @type file
-        path '/var/lib/fluentd/es_1'
-        flush_mode interval
-        flush_interval 1s
-        flush_thread_count 2
-        flush_at_shutdown true
-        retry_type exponential_backoff
-        retry_wait 1s
-        retry_max_interval 60s
-        retry_timeout 60m
-        queued_chunks_limit_size "#{ENV['BUFFER_QUEUE_LIMIT'] || '32'}"
-        total_limit_size 800000000
-        chunk_limit_size 8m
-        overflow_action throw_exception
-      </buffer>
-    </store>
+    @type elasticsearch
+    @id es_1
+    host es.svc.infra.cluster
+    port 9999
+    scheme https
+    ssl_version TLSv1_2
+    client_key /var/run/ocp-collector/secrets/tls.key
+    client_cert /var/run/ocp-collector/secrets/tls.crt
+    ca_file /var/run/ocp-collector/secrets/ca-bundle.crt
+    verify_es_version_at_startup false
+    target_index_key viaq_index_name
+    id_key viaq_msg_id
+    remove_keys viaq_index_name
+    type_name _doc
+    retry_tag retry_es_1
+    http_backend typhoeus
+    write_operation create
+    reload_connections 'true'
+    # https://github.com/uken/fluent-plugin-elasticsearch#reload-after
+    reload_after '200'
+    # https://github.com/uken/fluent-plugin-elasticsearch#sniffer-class-name
+    sniffer_class_name 'Fluent::Plugin::ElasticsearchSimpleSniffer'
+    reload_on_failure false
+    # 2 ^ 31
+    request_timeout 2147483648
+    <buffer>
+      @type file
+      path '/var/lib/fluentd/es_1'
+      flush_mode interval
+      flush_interval 1s
+      flush_thread_count 2
+      flush_at_shutdown true
+      retry_type exponential_backoff
+      retry_wait 1s
+      retry_max_interval 60s
+      retry_timeout 60m
+      queued_chunks_limit_size "#{ENV['BUFFER_QUEUE_LIMIT'] || '32'}"
+      total_limit_size 800000000
+      chunk_limit_size 8m
+      overflow_action throw_exception
+    </buffer>
   </match>
 </label>
 `,

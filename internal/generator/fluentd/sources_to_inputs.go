@@ -13,10 +13,8 @@ func SourcesToInputs(spec *logging.ClusterLogForwarderSpec, o *Options) []Elemen
 		el = append(el, Match{
 			Desc:      "Dont discard Application logs",
 			MatchTags: ApplicationTags,
-			Elements: []Element{
-				Relabel{
-					OutLabel: sourceTypeLabelName(logging.InputNameApplication),
-				},
+			MatchElement: Relabel{
+				OutLabel: sourceTypeLabelName(logging.InputNameApplication),
 			},
 		})
 	} else {
@@ -32,10 +30,8 @@ func SourcesToInputs(spec *logging.ClusterLogForwarderSpec, o *Options) []Elemen
 		el = append(el, Match{
 			Desc:      "Dont discard Infrastructure logs",
 			MatchTags: InfraTags,
-			Elements: []Element{
-				Relabel{
-					OutLabel: sourceTypeLabelName(logging.InputNameInfrastructure),
-				},
+			MatchElement: Relabel{
+				OutLabel: sourceTypeLabelName(logging.InputNameInfrastructure),
 			},
 		})
 	} else {
@@ -51,10 +47,8 @@ func SourcesToInputs(spec *logging.ClusterLogForwarderSpec, o *Options) []Elemen
 		el = append(el, Match{
 			Desc:      "Dont discard Audit logs",
 			MatchTags: AuditTags,
-			Elements: []Element{
-				Relabel{
-					OutLabel: sourceTypeLabelName(logging.InputNameAudit),
-				},
+			MatchElement: Relabel{
+				OutLabel: sourceTypeLabelName(logging.InputNameAudit),
 			},
 		})
 	} else {

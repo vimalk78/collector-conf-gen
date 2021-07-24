@@ -2,10 +2,12 @@ package fluentd
 
 import (
 	"text/template"
+
+	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 )
 
 type Copy struct {
-	Labels []string
+	Stores []Element
 }
 
 func (c Copy) Name() string {
@@ -14,15 +16,8 @@ func (c Copy) Name() string {
 
 func (c Copy) Template() string {
 	return `{{define "` + c.Name() + `"  -}}
-<match **>
-  @type copy
-  {{- range $index, $label := .Labels }}
-  <store>
-    @type relabel
-    @label {{ $label }}
-  </store>
-  {{- end }}
-</match>
+@type copy
+{{compose .Stores}}
 {{- end}}`
 }
 
@@ -32,4 +27,16 @@ func (c Copy) Create(t *template.Template) *template.Template {
 
 func (c Copy) Data() interface{} {
 	return c
+}
+
+func CopyToLabels(labels []string) []Element {
+	s := []Element{}
+	for _, l := range labelNames(labels) {
+		s = append(s, Store{
+			Element: Relabel{
+				OutLabel: l,
+			},
+		})
+	}
+	return s
 }

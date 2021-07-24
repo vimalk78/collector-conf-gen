@@ -20,7 +20,9 @@ var fluentforwardtest = Describe("fluentd conf generation", func() {
 			clspec.Forwarder.Fluentd.Buffer != nil {
 			bufspec = clspec.Forwarder.Fluentd.Buffer
 		}
-		return Store(bufspec, secrets[clfspec.Outputs[0].Name], clfspec.Outputs[0], &Options{})
+		return []Element{
+			Conf(bufspec, secrets[clfspec.Outputs[0].Name], clfspec.Outputs[0], &Options{}),
+		}
 	}
 	DescribeTable("for fluentdforward store", TestGenerateConfWith(f),
 		Entry("with tls key,cert,ca-bundle", ConfGenerateTest{
@@ -47,38 +49,36 @@ var fluentforwardtest = Describe("fluentd conf generation", func() {
 			},
 			ExpectedConf: `
 # FluentdForward store
-<store>
-  @type forward
-  @id secureforward_receiver
-  <server>
-    host es.svc.messaging.cluster.local
-    port 9654
-  </server>
-  heartbeat_type none
-  keepalive true
-  transport tls
-  tls_verify_hostname false
-  tls_version 'TLSv1_2'
-  tls_client_private_key_path /var/run/ocp-collector/secrets/tls.key
-  tls_client_cert_path /var/run/ocp-collector/secrets/tls.crt
-  tls_cert_path /var/run/ocp-collector/secrets/ca-bundle.crt
-  <buffer>
-    @type file
-    path '/var/lib/fluentd/secureforward_receiver'
-    flush_mode interval
-    flush_interval 5s
-    flush_thread_count 2
-    flush_at_shutdown true
-    retry_type exponential_backoff
-    retry_wait 1s
-    retry_max_interval 60s
-    retry_timeout 60m
-    queued_chunks_limit_size "#{ENV['BUFFER_QUEUE_LIMIT'] || '32'}"
-    total_limit_size "#{ENV['TOTAL_LIMIT_SIZE'] || '8589934592'}"
-    chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '1m'}"
-    overflow_action block
-  </buffer>
-</store>
+@type forward
+@id secureforward_receiver
+<server>
+  host es.svc.messaging.cluster.local
+  port 9654
+</server>
+heartbeat_type none
+keepalive true
+transport tls
+tls_verify_hostname false
+tls_version 'TLSv1_2'
+tls_client_private_key_path /var/run/ocp-collector/secrets/tls.key
+tls_client_cert_path /var/run/ocp-collector/secrets/tls.crt
+tls_cert_path /var/run/ocp-collector/secrets/ca-bundle.crt
+<buffer>
+  @type file
+  path '/var/lib/fluentd/secureforward_receiver'
+  flush_mode interval
+  flush_interval 5s
+  flush_thread_count 2
+  flush_at_shutdown true
+  retry_type exponential_backoff
+  retry_wait 1s
+  retry_max_interval 60s
+  retry_timeout 60m
+  queued_chunks_limit_size "#{ENV['BUFFER_QUEUE_LIMIT'] || '32'}"
+  total_limit_size "#{ENV['TOTAL_LIMIT_SIZE'] || '8589934592'}"
+  chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '1m'}"
+  overflow_action block
+</buffer>
 `,
 		}),
 		Entry("with shared_key", ConfGenerateTest{
@@ -103,39 +103,37 @@ var fluentforwardtest = Describe("fluentd conf generation", func() {
 			},
 			ExpectedConf: `
 # FluentdForward store
-<store>
-  @type forward
-  @id secureforward_receiver
-  <server>
-    host es.svc.messaging.cluster.local
-    port 9654
-  </server>
-  heartbeat_type none
-  keepalive true
-  transport tls
-  tls_verify_hostname false
-  tls_version 'TLSv1_2'
-  <security>
-    self_hostname "#{ENV['NODE_NAME']}"
-    shared_key "/var/run/ocp-collector/secrets/shared_key"
-  </security>
-  <buffer>
-    @type file
-    path '/var/lib/fluentd/secureforward_receiver'
-    flush_mode interval
-    flush_interval 5s
-    flush_thread_count 2
-    flush_at_shutdown true
-    retry_type exponential_backoff
-    retry_wait 1s
-    retry_max_interval 60s
-    retry_timeout 60m
-    queued_chunks_limit_size "#{ENV['BUFFER_QUEUE_LIMIT'] || '32'}"
-    total_limit_size "#{ENV['TOTAL_LIMIT_SIZE'] || '8589934592'}"
-    chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '1m'}"
-    overflow_action block
-  </buffer>
-</store>
+@type forward
+@id secureforward_receiver
+<server>
+  host es.svc.messaging.cluster.local
+  port 9654
+</server>
+heartbeat_type none
+keepalive true
+transport tls
+tls_verify_hostname false
+tls_version 'TLSv1_2'
+<security>
+  self_hostname "#{ENV['NODE_NAME']}"
+  shared_key "/var/run/ocp-collector/secrets/shared_key"
+</security>
+<buffer>
+  @type file
+  path '/var/lib/fluentd/secureforward_receiver'
+  flush_mode interval
+  flush_interval 5s
+  flush_thread_count 2
+  flush_at_shutdown true
+  retry_type exponential_backoff
+  retry_wait 1s
+  retry_max_interval 60s
+  retry_timeout 60m
+  queued_chunks_limit_size "#{ENV['BUFFER_QUEUE_LIMIT'] || '32'}"
+  total_limit_size "#{ENV['TOTAL_LIMIT_SIZE'] || '8589934592'}"
+  chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '1m'}"
+  overflow_action block
+</buffer>
 `,
 		}),
 		Entry("with unsecured, and default port", ConfGenerateTest{
@@ -154,33 +152,31 @@ var fluentforwardtest = Describe("fluentd conf generation", func() {
 			Secrets: security.NoSecrets,
 			ExpectedConf: `
 # FluentdForward store
-<store>
-  @type forward
-  @id secureforward_receiver
-  <server>
-    host es.svc.messaging.cluster.local
-    port 24224
-  </server>
-  heartbeat_type none
-  keepalive true
-  tls_insecure_mode true
-  <buffer>
-    @type file
-    path '/var/lib/fluentd/secureforward_receiver'
-    flush_mode interval
-    flush_interval 5s
-    flush_thread_count 2
-    flush_at_shutdown true
-    retry_type exponential_backoff
-    retry_wait 1s
-    retry_max_interval 60s
-    retry_timeout 60m
-    queued_chunks_limit_size "#{ENV['BUFFER_QUEUE_LIMIT'] || '32'}"
-    total_limit_size "#{ENV['TOTAL_LIMIT_SIZE'] || '8589934592'}"
-    chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '1m'}"
-    overflow_action block
-  </buffer>
-</store>
+@type forward
+@id secureforward_receiver
+<server>
+  host es.svc.messaging.cluster.local
+  port 24224
+</server>
+heartbeat_type none
+keepalive true
+tls_insecure_mode true
+<buffer>
+  @type file
+  path '/var/lib/fluentd/secureforward_receiver'
+  flush_mode interval
+  flush_interval 5s
+  flush_thread_count 2
+  flush_at_shutdown true
+  retry_type exponential_backoff
+  retry_wait 1s
+  retry_max_interval 60s
+  retry_timeout 60m
+  queued_chunks_limit_size "#{ENV['BUFFER_QUEUE_LIMIT'] || '32'}"
+  total_limit_size "#{ENV['TOTAL_LIMIT_SIZE'] || '8589934592'}"
+  chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '1m'}"
+  overflow_action block
+</buffer>
 `,
 		}),
 	)

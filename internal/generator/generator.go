@@ -33,17 +33,6 @@ type Options map[string]string
 
 var NoOptions = map[string]string{}
 
-var Header = `
-## CLO GENERATED CONFIGURATION ###
-# This file is a copy of the fluentd configuration entrypoint
-# which should normally be supplied in a configmap.
-
-<system>
-  log_level "#{ENV['LOG_LEVEL'] || 'warn'}"
-</system>
-
-`
-
 type Generator struct {
 }
 
@@ -51,12 +40,12 @@ func MakeGenerator() *Generator {
 	return &Generator{}
 }
 
-func (g *Generator) GenerateConfWithHeader(es ...Element) (string, error) {
+func (g *Generator) GenerateConfWithHeader(header string, es ...Element) (string, error) {
 	conf, err := g.generate(es)
 	if err != nil {
 		return "", err
 	}
-	return strings.Join([]string{Header, conf}, "\n"), nil
+	return strings.Join([]string{header, conf}, "\n"), nil
 }
 
 func (g *Generator) GenerateConf(es ...Element) (string, error) {
@@ -77,14 +66,24 @@ func (g *Generator) GenerateRec(t *template.Template, e Element, b *bytes.Buffer
 	return nil
 }
 
+func (g *Generator) compose(es []Element) (string, error) {
+	return g.generate(es)
+}
+
+func (g *Generator) compose_one(e Element) (string, error) {
+	return g.generate([]Element{
+		e,
+	})
+}
+
 func (g *Generator) generate(es []Element) (string, error) {
 	if len(es) == 0 {
 		return "", nil
 	}
 	t := template.New("generate")
 	t.Funcs(template.FuncMap{
-		"generate":        g.generate,
-		"compose":         g.generate,
+		"compose":         g.compose,
+		"compose_one":     g.compose_one,
 		"indent":          indent,
 		"comma_separated": comma_separated,
 	})
@@ -123,7 +122,17 @@ func MergeSections(sections []Section) []Element {
 //indent helper function to prefix each line of the output by N spaces
 func indent(length int, in string) string {
 	pad := strings.Repeat(" ", length)
-	return pad + strings.Replace(in, "\n", "\n"+pad, -1)
+	inlines := strings.Split(in, "\n")
+	outlines := make([]string, len(inlines))
+	for i, inline := range inlines {
+		// if strings.TrimSpace(inline) == "" {
+		// 	outlines[i] = ""
+		// } else {
+		// 	outlines[i] = pad + inline
+		// }
+		outlines[i] = pad + inline
+	}
+	return strings.Join(outlines, "\n")
 }
 
 func comma_separated(arr []string) string {

@@ -34,20 +34,18 @@ func (k Kafka) Name() string {
 
 func (k Kafka) Template() string {
 	return `{{define "` + k.Name() + `" -}}
-<store>
-  @type kafka2
-  @id {{.StoreID}}
-  brokers {{.Brokers}}
-  default_topic {{.Topics}}
-  use_event_time true
+@type kafka2
+@id {{.StoreID}}
+brokers {{.Brokers}}
+default_topic {{.Topics}}
+use_event_time true
 {{- with $x := compose .SecurityConfig }}
-{{$x | indent 2}}
+{{$x}}
 {{- end}}
-  <format>
-    @type json
-  </format>
-{{compose .BufferConfig | indent 2}}
-</store>
+<format>
+  @type json
+</format>
+{{compose .BufferConfig}}
 {{- end}}
 `
 }
@@ -60,17 +58,15 @@ func (k Kafka) Data() interface{} {
 	return k
 }
 
-func Store(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o logging.OutputSpec, op *Options) []Element {
+func Conf(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o logging.OutputSpec, op *Options) Element {
 	topics := Topics(o)
-	return []Element{
-		Kafka{
-			Desc:           "Kafka store",
-			StoreID:        strings.ToLower(helpers.Replacer.Replace(o.Name)),
-			Topics:         topics,
-			Brokers:        Brokers(o),
-			SecurityConfig: SecurityConfig(o, secret),
-			BufferConfig:   output.Buffer([]string{topics}, bufspec, &o),
-		},
+	return Kafka{
+		Desc:           "Kafka store",
+		StoreID:        strings.ToLower(helpers.Replacer.Replace(o.Name)),
+		Topics:         topics,
+		Brokers:        Brokers(o),
+		SecurityConfig: SecurityConfig(o, secret),
+		BufferConfig:   output.Buffer([]string{topics}, bufspec, &o),
 	}
 }
 

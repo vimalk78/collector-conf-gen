@@ -72,10 +72,8 @@ func SourceTypeToPipeline(sourceType string, spec *logging.ClusterLogForwarderSp
 			SubElements: []Element{
 				Match{
 					MatchTags: "**",
-					Elements: []Element{
-						Relabel{
-							OutLabel: labelName(srcTypePipeline[0]),
-						},
+					MatchElement: Relabel{
+						OutLabel: labelName(srcTypePipeline[0]),
 					},
 				},
 			},
@@ -85,8 +83,11 @@ func SourceTypeToPipeline(sourceType string, spec *logging.ClusterLogForwarderSp
 			Desc:    fmt.Sprintf("Copying %s source type to pipeline", sourceType),
 			InLabel: sourceTypeLabelName(sourceType),
 			SubElements: []Element{
-				Copy{
-					Labels: labelNames(srcTypePipeline),
+				Match{
+					MatchTags: "**",
+					MatchElement: Copy{
+						Stores: CopyToLabels(srcTypePipeline),
+					},
 				},
 			},
 		}
@@ -161,10 +162,8 @@ func AppToPipeline(spec *logging.ClusterLogForwarderSpec, o *Options) []Element 
 				SubElements: []Element{
 					Match{
 						MatchTags: "**",
-						Elements: []Element{
-							Relabel{
-								OutLabel: labelName(unRoutedPipelines[0]),
-							},
+						MatchElement: Relabel{
+							OutLabel: labelName(unRoutedPipelines[0]),
 						},
 					},
 				},
@@ -180,8 +179,11 @@ func AppToPipeline(spec *logging.ClusterLogForwarderSpec, o *Options) []Element 
 				Desc:    "Copying unrouted application to pipelines",
 				InLabel: sourceTypeLabelName("APPLICATION_ALL"),
 				SubElements: []Element{
-					Copy{
-						Labels: labelNames(unRoutedPipelines),
+					Match{
+						MatchTags: "**",
+						MatchElement: Copy{
+							Stores: CopyToLabels(unRoutedPipelines),
+						},
 					},
 				},
 			},

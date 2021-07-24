@@ -25,6 +25,7 @@ type Elasticsearch struct {
 	StoreID        string
 	Host           string
 	Port           string
+	RetryTag       string
 	SecurityConfig []Element
 	BufferConfig   []Element
 }
@@ -36,29 +37,30 @@ func (e Elasticsearch) Name() string {
 func (e Elasticsearch) Template() string {
 	return `{{define "` + e.Name() + `" -}}
 # {{.Desc}}
-<store>
-  @type elasticsearch
-  @id {{.StoreID}}
-  host {{.Host}}
-  port {{.Port}}
-{{compose .SecurityConfig | indent 2}}
-  verify_es_version_at_startup false
-  target_index_key viaq_index_name
-  id_key viaq_msg_id
-  remove_keys viaq_index_name
-  type_name _doc
-  http_backend typhoeus
-  write_operation create
-  reload_connections 'true'
-  # https://github.com/uken/fluent-plugin-elasticsearch#reload-after
-  reload_after '200'
-  # https://github.com/uken/fluent-plugin-elasticsearch#sniffer-class-name
-  sniffer_class_name 'Fluent::Plugin::ElasticsearchSimpleSniffer'
-  reload_on_failure false
-  # 2 ^ 31
-  request_timeout 2147483648
-{{compose .BufferConfig | indent 2}}
-</store>
+@type elasticsearch
+@id {{.StoreID}}
+host {{.Host}}
+port {{.Port}}
+{{compose .SecurityConfig}}
+verify_es_version_at_startup false
+target_index_key viaq_index_name
+id_key viaq_msg_id
+remove_keys viaq_index_name
+type_name _doc
+{{- if .RetryTag}}
+retry_tag {{.RetryTag}}
+{{- end}}
+http_backend typhoeus
+write_operation create
+reload_connections 'true'
+# https://github.com/uken/fluent-plugin-elasticsearch#reload-after
+reload_after '200'
+# https://github.com/uken/fluent-plugin-elasticsearch#sniffer-class-name
+sniffer_class_name 'Fluent::Plugin::ElasticsearchSimpleSniffer'
+reload_on_failure false
+# 2 ^ 31
+request_timeout 2147483648
+{{compose .BufferConfig}}
 {{- end}}
 `
 }
@@ -71,24 +73,27 @@ func (e Elasticsearch) Data() interface{} {
 	return e
 }
 
-func Store(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o logging.OutputSpec, op *Options) []Element {
+func Conf(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o logging.OutputSpec, op *Options) Elasticsearch {
 	// URL is parasable, checked at input sanitization
 	u, _ := urlhelper.Parse(o.URL)
 	port := u.Port()
 	if port == "" {
 		port = defaultElasticsearchPort
 	}
-	prefix := ""
-	return []Element{
-		Elasticsearch{
-			Desc:           "Elasticsearch store",
-			StoreID:        strings.ToLower(fmt.Sprintf("%v%v", prefix, helpers.Replacer.Replace(o.Name))),
-			Host:           u.Hostname(),
-			Port:           port,
-			SecurityConfig: SecurityConfig(o, secret),
-			BufferConfig:   output.Buffer(output.NOKEYS, bufspec, &o),
-		},
+	return Elasticsearch{
+		Desc:           "Elasticsearch store",
+		StoreID:        strings.ToLower(fmt.Sprintf("%v", helpers.Replacer.Replace(o.Name))),
+		Host:           u.Hostname(),
+		Port:           port,
+		SecurityConfig: SecurityConfig(o, secret),
+		BufferConfig:   output.Buffer(output.NOKEYS, bufspec, &o),
 	}
+}
+
+func RetryConf(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o logging.OutputSpec, op *Options) Elasticsearch {
+	es := Conf(bufspec, secret, o, op)
+	es.StoreID = strings.ToLower(fmt.Sprintf("retry_%v", helpers.Replacer.Replace(o.Name)))
+	return es
 }
 
 func SecurityConfig(o logging.OutputSpec, secret *corev1.Secret) []Element {

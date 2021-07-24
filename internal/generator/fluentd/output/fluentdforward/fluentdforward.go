@@ -34,18 +34,16 @@ func (ff FluentdForward) Name() string {
 func (ff FluentdForward) Template() string {
 	return `{{define "` + ff.Name() + `" -}}
 # {{.Desc}}
-<store>
-  @type forward
-  @id {{.StoreID}}
-  <server>
-    host {{.Host}}
-    port {{.Port}}
-  </server>
-  heartbeat_type none
-  keepalive true
-{{compose .SecurityConfig | indent 2}}
-{{compose .BufferConfig | indent 2}}
-</store>
+@type forward
+@id {{.StoreID}}
+<server>
+  host {{.Host}}
+  port {{.Port}}
+</server>
+heartbeat_type none
+keepalive true
+{{compose .SecurityConfig}}
+{{compose .BufferConfig}}
 {{- end}}
 `
 }
@@ -58,22 +56,20 @@ func (ff FluentdForward) Data() interface{} {
 	return ff
 }
 
-func Store(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o logging.OutputSpec, op *Options) []Element {
+func Conf(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o logging.OutputSpec, op *Options) Element {
 	// URL is parasable, checked at input sanitization
 	u, _ := urlhelper.Parse(o.URL)
 	port := u.Port()
 	if port == "" {
 		port = defaultFluentdForwardPort
 	}
-	return []Element{
-		FluentdForward{
-			Desc:           "FluentdForward store",
-			StoreID:        strings.ToLower(helpers.Replacer.Replace(o.Name)),
-			Host:           u.Hostname(),
-			Port:           port,
-			SecurityConfig: SecurityConfig(o, secret),
-			BufferConfig:   output.Buffer(output.NOKEYS, bufspec, &o),
-		},
+	return FluentdForward{
+		Desc:           "FluentdForward store",
+		StoreID:        strings.ToLower(helpers.Replacer.Replace(o.Name)),
+		Host:           u.Hostname(),
+		Port:           port,
+		SecurityConfig: SecurityConfig(o, secret),
+		BufferConfig:   output.Buffer(output.NOKEYS, bufspec, &o),
 	}
 }
 
