@@ -1,4 +1,4 @@
-package fluentd
+package elements
 
 import (
 	"text/template"
@@ -31,7 +31,7 @@ func (c Copy) Data() interface{} {
 
 func CopyToLabels(labels []string) []Element {
 	s := []Element{}
-	for _, l := range labelNames(labels) {
+	for _, l := range labels {
 		s = append(s, Store{
 			Element: Relabel{
 				OutLabel: l,

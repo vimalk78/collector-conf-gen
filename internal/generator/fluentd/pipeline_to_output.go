@@ -8,6 +8,7 @@ import (
 
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
+	. "github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/elements"
 )
 
 type PipelineToOutputs_ struct {
@@ -120,7 +121,7 @@ func PipelineToOutputs(spec *logging.ClusterLogForwarderSpec, o *Options) []Elem
 				Match{
 					MatchTags: "**",
 					MatchElement: Copy{
-						Stores: CopyToLabels(p.OutputRefs),
+						Stores: CopyToLabels(labelNames(p.OutputRefs)),
 					},
 				},
 			}

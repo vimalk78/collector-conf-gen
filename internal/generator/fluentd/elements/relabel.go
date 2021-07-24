@@ -1,4 +1,4 @@
-package fluentd
+package elements
 
 import (
 	"text/template"

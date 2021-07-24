@@ -6,6 +6,7 @@ import (
 
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
+	. "github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/elements"
 )
 
 type ApplicationToPipeline struct {
@@ -86,7 +87,7 @@ func SourceTypeToPipeline(sourceType string, spec *logging.ClusterLogForwarderSp
 				Match{
 					MatchTags: "**",
 					MatchElement: Copy{
-						Stores: CopyToLabels(srcTypePipeline),
+						Stores: CopyToLabels(labelNames(srcTypePipeline)),
 					},
 				},
 			},
@@ -182,7 +183,7 @@ func AppToPipeline(spec *logging.ClusterLogForwarderSpec, o *Options) []Element 
 					Match{
 						MatchTags: "**",
 						MatchElement: Copy{
-							Stores: CopyToLabels(unRoutedPipelines),
+							Stores: CopyToLabels(labelNames(unRoutedPipelines)),
 						},
 					},
 				},

@@ -6,6 +6,7 @@ import (
 
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
+	. "github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/elements"
 	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/output/elasticsearch"
 	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/output/fluentdforward"
 	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/output/kafka"
