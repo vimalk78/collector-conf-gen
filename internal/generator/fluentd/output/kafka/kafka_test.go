@@ -20,9 +20,7 @@ var kafka_store_test = Describe("Generate fluentd config", func() {
 			clspec.Forwarder.Fluentd.Buffer != nil {
 			bufspec = clspec.Forwarder.Fluentd.Buffer
 		}
-		return []Element{
-			Conf(bufspec, secrets[clfspec.Outputs[0].Name], clfspec.Outputs[0], &Options{}),
-		}
+		return Conf(bufspec, secrets[clfspec.Outputs[0].Name], clfspec.Outputs[0], &Options{})
 	}
 	DescribeTable("for kafka store", TestGenerateConfWith(f),
 		Entry("with username,password to single topic", ConfGenerateTest{
@@ -52,33 +50,38 @@ var kafka_store_test = Describe("Generate fluentd config", func() {
 				},
 			},
 			ExpectedConf: `
-@type kafka2
-@id kafka_receiver
-brokers broker1-kafka.svc.messaging.cluster.local:9092
-default_topic build_complete
-use_event_time true
-sasl_plain_username "#{File.exists?('/var/run/ocp-collector/secrets/username') ? open('/var/run/ocp-collector/secrets/username','r') do |f|f.read end : ''}"
-sasl_plain_password "#{File.exists?('/var/run/ocp-collector/secrets/password') ? open('/var/run/ocp-collector/secrets/password','r') do |f|f.read end : ''}"
-sasl_over_ssl false
-<format>
-  @type json
-</format>
-<buffer build_complete>
-  @type file
-  path '/var/lib/fluentd/kafka_receiver'
-  flush_mode interval
-  flush_interval 1s
-  flush_thread_count 2
-  flush_at_shutdown true
-  retry_type exponential_backoff
-  retry_wait 1s
-  retry_max_interval 60s
-  retry_timeout 60m
-  queued_chunks_limit_size "#{ENV['BUFFER_QUEUE_LIMIT'] || '32'}"
-  total_limit_size "#{ENV['TOTAL_LIMIT_SIZE'] || '8589934592'}"
-  chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '1m'}"
-  overflow_action block
-</buffer>
+# Output to kafka
+<label @KAFKA_RECEIVER>
+  <match **>
+    @type kafka2
+    @id kafka_receiver
+    brokers broker1-kafka.svc.messaging.cluster.local:9092
+    default_topic build_complete
+    use_event_time true
+    sasl_plain_username "#{File.exists?('/var/run/ocp-collector/secrets/username') ? open('/var/run/ocp-collector/secrets/username','r') do |f|f.read end : ''}"
+    sasl_plain_password "#{File.exists?('/var/run/ocp-collector/secrets/password') ? open('/var/run/ocp-collector/secrets/password','r') do |f|f.read end : ''}"
+    sasl_over_ssl false
+    <format>
+      @type json
+    </format>
+    <buffer build_complete>
+      @type file
+      path '/var/lib/fluentd/kafka_receiver'
+      flush_mode interval
+      flush_interval 1s
+      flush_thread_count 2
+      flush_at_shutdown true
+      retry_type exponential_backoff
+      retry_wait 1s
+      retry_max_interval 60s
+      retry_timeout 60m
+      queued_chunks_limit_size "#{ENV['BUFFER_QUEUE_LIMIT'] || '32'}"
+      total_limit_size "#{ENV['TOTAL_LIMIT_SIZE'] || '8589934592'}"
+      chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '1m'}"
+      overflow_action block
+    </buffer>
+  </match>
+</label>
 `,
 		}),
 		Entry("with tls key,cert,ca-bundle", ConfGenerateTest{
@@ -104,34 +107,39 @@ sasl_over_ssl false
 				},
 			},
 			ExpectedConf: `
-@type kafka2
-@id kafka_receiver
-brokers broker1-kafka.svc.messaging.cluster.local:9092
-default_topic topic
-use_event_time true
-client_key /var/run/ocp-collector/secrets/tls.key
-client_cert /var/run/ocp-collector/secrets/tls.crt
-ca_file /var/run/ocp-collector/secrets/ca-bundle.crt
-sasl_over_ssl false
-<format>
-  @type json
-</format>
-<buffer topic>
-  @type file
-  path '/var/lib/fluentd/kafka_receiver'
-  flush_mode interval
-  flush_interval 1s
-  flush_thread_count 2
-  flush_at_shutdown true
-  retry_type exponential_backoff
-  retry_wait 1s
-  retry_max_interval 60s
-  retry_timeout 60m
-  queued_chunks_limit_size "#{ENV['BUFFER_QUEUE_LIMIT'] || '32'}"
-  total_limit_size "#{ENV['TOTAL_LIMIT_SIZE'] || '8589934592'}"
-  chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '1m'}"
-  overflow_action block
-</buffer>
+# Output to kafka
+<label @KAFKA_RECEIVER>
+  <match **>
+    @type kafka2
+    @id kafka_receiver
+    brokers broker1-kafka.svc.messaging.cluster.local:9092
+    default_topic topic
+    use_event_time true
+    client_key /var/run/ocp-collector/secrets/tls.key
+    client_cert /var/run/ocp-collector/secrets/tls.crt
+    ca_file /var/run/ocp-collector/secrets/ca-bundle.crt
+    sasl_over_ssl false
+    <format>
+      @type json
+    </format>
+    <buffer topic>
+      @type file
+      path '/var/lib/fluentd/kafka_receiver'
+      flush_mode interval
+      flush_interval 1s
+      flush_thread_count 2
+      flush_at_shutdown true
+      retry_type exponential_backoff
+      retry_wait 1s
+      retry_max_interval 60s
+      retry_timeout 60m
+      queued_chunks_limit_size "#{ENV['BUFFER_QUEUE_LIMIT'] || '32'}"
+      total_limit_size "#{ENV['TOTAL_LIMIT_SIZE'] || '8589934592'}"
+      chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '1m'}"
+      overflow_action block
+    </buffer>
+  </match>
+</label>
 `,
 		}),
 		Entry("without security", ConfGenerateTest{
@@ -146,30 +154,35 @@ sasl_over_ssl false
 			},
 			Secrets: security.NoSecrets,
 			ExpectedConf: `
-@type kafka2
-@id kafka_receiver
-brokers broker1-kafka.svc.messaging.cluster.local:9092
-default_topic topic
-use_event_time true
-<format>
-  @type json
-</format>
-<buffer topic>
-  @type file
-  path '/var/lib/fluentd/kafka_receiver'
-  flush_mode interval
-  flush_interval 1s
-  flush_thread_count 2
-  flush_at_shutdown true
-  retry_type exponential_backoff
-  retry_wait 1s
-  retry_max_interval 60s
-  retry_timeout 60m
-  queued_chunks_limit_size "#{ENV['BUFFER_QUEUE_LIMIT'] || '32'}"
-  total_limit_size "#{ENV['TOTAL_LIMIT_SIZE'] || '8589934592'}"
-  chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '1m'}"
-  overflow_action block
-</buffer>
+# Output to kafka
+<label @KAFKA_RECEIVER>
+  <match **>
+    @type kafka2
+    @id kafka_receiver
+    brokers broker1-kafka.svc.messaging.cluster.local:9092
+    default_topic topic
+    use_event_time true
+    <format>
+      @type json
+    </format>
+    <buffer topic>
+      @type file
+      path '/var/lib/fluentd/kafka_receiver'
+      flush_mode interval
+      flush_interval 1s
+      flush_thread_count 2
+      flush_at_shutdown true
+      retry_type exponential_backoff
+      retry_wait 1s
+      retry_max_interval 60s
+      retry_timeout 60m
+      queued_chunks_limit_size "#{ENV['BUFFER_QUEUE_LIMIT'] || '32'}"
+      total_limit_size "#{ENV['TOTAL_LIMIT_SIZE'] || '8589934592'}"
+      chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '1m'}"
+      overflow_action block
+    </buffer>
+  </match>
+</label>
 `,
 		}),
 	)

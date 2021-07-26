@@ -9,6 +9,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
+	. "github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/elements"
+	fluenthelpers "github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/helpers"
 	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/output"
 	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/output/security"
 	"github.com/vimalk78/collector-conf-gen/internal/generator/helpers"
@@ -58,15 +60,26 @@ func (k Kafka) Data() interface{} {
 	return k
 }
 
-func Conf(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o logging.OutputSpec, op *Options) Element {
+func Conf(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o logging.OutputSpec, op *Options) []Element {
 	topics := Topics(o)
-	return Kafka{
-		Desc:           "Kafka store",
-		StoreID:        strings.ToLower(helpers.Replacer.Replace(o.Name)),
-		Topics:         topics,
-		Brokers:        Brokers(o),
-		SecurityConfig: SecurityConfig(o, secret),
-		BufferConfig:   output.Buffer([]string{topics}, bufspec, &o),
+	return []Element{
+		FromLabel{
+			Desc:    "Output to kafka",
+			InLabel: fluenthelpers.LabelName(o.Name),
+			SubElements: []Element{
+				Match{
+					MatchTags: "**",
+					MatchElement: Kafka{
+						Desc:           "Kafka store",
+						StoreID:        strings.ToLower(helpers.Replacer.Replace(o.Name)),
+						Topics:         topics,
+						Brokers:        Brokers(o),
+						SecurityConfig: SecurityConfig(o, secret),
+						BufferConfig:   output.Buffer([]string{topics}, bufspec, &o),
+					},
+				},
+			},
+		},
 	}
 }
 

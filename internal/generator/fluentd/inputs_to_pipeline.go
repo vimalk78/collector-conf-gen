@@ -7,6 +7,7 @@ import (
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/elements"
+	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/helpers"
 )
 
 type ApplicationToPipeline struct {
@@ -69,12 +70,12 @@ func SourceTypeToPipeline(sourceType string, spec *logging.ClusterLogForwarderSp
 	case 1:
 		return FromLabel{
 			Desc:    fmt.Sprintf("Sending %s source type to pipeline", sourceType),
-			InLabel: sourceTypeLabelName(sourceType),
+			InLabel: helpers.SourceTypeLabelName(sourceType),
 			SubElements: []Element{
 				Match{
 					MatchTags: "**",
 					MatchElement: Relabel{
-						OutLabel: labelName(srcTypePipeline[0]),
+						OutLabel: helpers.LabelName(srcTypePipeline[0]),
 					},
 				},
 			},
@@ -82,12 +83,12 @@ func SourceTypeToPipeline(sourceType string, spec *logging.ClusterLogForwarderSp
 	default:
 		return FromLabel{
 			Desc:    fmt.Sprintf("Copying %s source type to pipeline", sourceType),
-			InLabel: sourceTypeLabelName(sourceType),
+			InLabel: helpers.SourceTypeLabelName(sourceType),
 			SubElements: []Element{
 				Match{
 					MatchTags: "**",
 					MatchElement: Copy{
-						Stores: CopyToLabels(labelNames(srcTypePipeline)),
+						Stores: CopyToLabels(helpers.LabelNames(srcTypePipeline)),
 					},
 				},
 			},
@@ -117,7 +118,7 @@ func AppToPipeline(spec *logging.ClusterLogForwarderSpec, o *Options) []Element 
 					if len(app.Namespaces) != 0 {
 						if a == nil {
 							a = &ApplicationToPipeline{
-								Pipeline: labelName(pipeline.Name),
+								Pipeline: helpers.LabelName(pipeline.Name),
 							}
 						}
 						a.Namespaces = app.Namespaces
@@ -125,10 +126,10 @@ func AppToPipeline(spec *logging.ClusterLogForwarderSpec, o *Options) []Element 
 					if app.Selector != nil && len(app.Selector.MatchLabels) != 0 {
 						if a == nil {
 							a = &ApplicationToPipeline{
-								Pipeline: labelName(pipeline.Name),
+								Pipeline: helpers.LabelName(pipeline.Name),
 							}
 						}
-						a.Labels = LabelsKV(app.Selector)
+						a.Labels = helpers.LabelsKV(app.Selector)
 					}
 					if a != nil {
 						routedPipelines = append(routedPipelines, *a)
@@ -153,18 +154,18 @@ func AppToPipeline(spec *logging.ClusterLogForwarderSpec, o *Options) []Element 
 		}
 	case 1:
 		routedPipelines = append(routedPipelines, ApplicationToPipeline{
-			Pipeline: sourceTypeLabelName("APPLICATION_ALL"),
+			Pipeline: helpers.SourceTypeLabelName("APPLICATION_ALL"),
 		})
 		return []Element{
 			routedPipelines,
 			FromLabel{
 				Desc:    "Sending unrouted application to pipelines",
-				InLabel: sourceTypeLabelName("APPLICATION_ALL"),
+				InLabel: helpers.SourceTypeLabelName("APPLICATION_ALL"),
 				SubElements: []Element{
 					Match{
 						MatchTags: "**",
 						MatchElement: Relabel{
-							OutLabel: labelName(unRoutedPipelines[0]),
+							OutLabel: helpers.LabelName(unRoutedPipelines[0]),
 						},
 					},
 				},
@@ -172,18 +173,18 @@ func AppToPipeline(spec *logging.ClusterLogForwarderSpec, o *Options) []Element 
 		}
 	default:
 		routedPipelines = append(routedPipelines, ApplicationToPipeline{
-			Pipeline: sourceTypeLabelName("APPLICATION_ALL"),
+			Pipeline: helpers.SourceTypeLabelName("APPLICATION_ALL"),
 		})
 		return []Element{
 			routedPipelines,
 			FromLabel{
 				Desc:    "Copying unrouted application to pipelines",
-				InLabel: sourceTypeLabelName("APPLICATION_ALL"),
+				InLabel: helpers.SourceTypeLabelName("APPLICATION_ALL"),
 				SubElements: []Element{
 					Match{
 						MatchTags: "**",
 						MatchElement: Copy{
-							Stores: CopyToLabels(labelNames(unRoutedPipelines)),
+							Stores: CopyToLabels(helpers.LabelNames(unRoutedPipelines)),
 						},
 					},
 				},

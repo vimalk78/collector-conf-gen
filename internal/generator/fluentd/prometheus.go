@@ -4,6 +4,7 @@ import (
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/elements"
+	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/helpers"
 )
 
 var PrometheusMonitorTemplate = `
@@ -45,7 +46,7 @@ type PrometheusMonitor = ConfLiteral
 func PrometheusMetrics(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return []Element{
 		Pipeline{
-			InLabel: labelName("MEASURE"),
+			InLabel: helpers.LabelName("MEASURE"),
 			Desc:    "Increment Prometheus metrics",
 			SubElements: []Element{
 				ConfLiteral{
@@ -57,21 +58,21 @@ func PrometheusMetrics(spec *logging.ClusterLogForwarderSpec, o *Options) []Elem
 					Desc:      "Journal Logs go to INGRESS pipeline",
 					MatchTags: "journal",
 					MatchElement: Relabel{
-						OutLabel: labelName("INGRESS"),
+						OutLabel: helpers.LabelName("INGRESS"),
 					},
 				},
 				Match{
 					Desc:      "Audit Logs go to INGRESS pipeline",
 					MatchTags: "*audit.log",
 					MatchElement: Relabel{
-						OutLabel: labelName("INGRESS"),
+						OutLabel: helpers.LabelName("INGRESS"),
 					},
 				},
 				Match{
 					Desc:      "Kubernetes Logs go to CONCAT pipeline",
 					MatchTags: "kubernetes.**",
 					MatchElement: Relabel{
-						OutLabel: labelName("CONCAT"),
+						OutLabel: helpers.LabelName("CONCAT"),
 					},
 				},
 			},

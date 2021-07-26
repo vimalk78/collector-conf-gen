@@ -4,6 +4,7 @@ import (
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/elements"
+	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/helpers"
 )
 
 func SourcesToInputs(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
@@ -15,7 +16,7 @@ func SourcesToInputs(spec *logging.ClusterLogForwarderSpec, o *Options) []Elemen
 			Desc:      "Dont discard Application logs",
 			MatchTags: ApplicationTags,
 			MatchElement: Relabel{
-				OutLabel: sourceTypeLabelName(logging.InputNameApplication),
+				OutLabel: helpers.SourceTypeLabelName(logging.InputNameApplication),
 			},
 		})
 	} else {
@@ -32,7 +33,7 @@ func SourcesToInputs(spec *logging.ClusterLogForwarderSpec, o *Options) []Elemen
 			Desc:      "Dont discard Infrastructure logs",
 			MatchTags: InfraTags,
 			MatchElement: Relabel{
-				OutLabel: sourceTypeLabelName(logging.InputNameInfrastructure),
+				OutLabel: helpers.SourceTypeLabelName(logging.InputNameInfrastructure),
 			},
 		})
 	} else {
@@ -49,7 +50,7 @@ func SourcesToInputs(spec *logging.ClusterLogForwarderSpec, o *Options) []Elemen
 			Desc:      "Dont discard Audit logs",
 			MatchTags: AuditTags,
 			MatchElement: Relabel{
-				OutLabel: sourceTypeLabelName(logging.InputNameAudit),
+				OutLabel: helpers.SourceTypeLabelName(logging.InputNameAudit),
 			},
 		})
 	} else {

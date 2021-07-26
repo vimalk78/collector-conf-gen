@@ -1,4 +1,4 @@
-package fluentd
+package helpers
 
 import (
 	"fmt"
@@ -10,19 +10,19 @@ import (
 
 var replacer = strings.NewReplacer(" ", "_", "-", "_", ".", "_")
 
-func labelName(name string) string {
+func LabelName(name string) string {
 	return strings.ToUpper(fmt.Sprintf("@%s", replacer.Replace(name)))
 }
 
-func labelNames(names []string) []string {
+func LabelNames(names []string) []string {
 	asLabels := make([]string, len(names))
 	for i, n := range names {
-		asLabels[i] = labelName(n)
+		asLabels[i] = LabelName(n)
 	}
 	return asLabels
 }
 
-func sourceTypeLabelName(name string) string {
+func SourceTypeLabelName(name string) string {
 	return strings.ToUpper(fmt.Sprintf("@_%s", replacer.Replace(name)))
 }
 

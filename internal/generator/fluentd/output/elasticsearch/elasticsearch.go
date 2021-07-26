@@ -9,6 +9,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
+	. "github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/elements"
+	fluenthelpers "github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/helpers"
 	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/output"
 	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/output/security"
 	"github.com/vimalk78/collector-conf-gen/internal/generator/helpers"
@@ -18,6 +20,7 @@ import (
 
 const (
 	defaultElasticsearchPort = "9200"
+	KeyStructured            = "structured"
 )
 
 type Elasticsearch struct {
@@ -73,7 +76,46 @@ func (e Elasticsearch) Data() interface{} {
 	return e
 }
 
-func Conf(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o logging.OutputSpec, op *Options) Elasticsearch {
+func Conf(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o logging.OutputSpec, op *Options) []Element {
+	return []Element{
+		FromLabel{
+			Desc:    "Output to elasticsearch",
+			InLabel: fluenthelpers.LabelName(o.Name),
+			SubElements: MergeElements(
+				ChangeESIndex(bufspec, secret, o, op),
+				FlattenLabels(bufspec, secret, o, op),
+				OutputConf(bufspec, secret, o, op),
+			),
+		},
+	}
+}
+
+func OutputConf(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o logging.OutputSpec, op *Options) []Element {
+	es := ESOutput(bufspec, secret, o, op)
+	need_retry := true
+	if need_retry {
+		es.RetryTag = fmt.Sprintf("retry_%s", strings.ToLower(helpers.Replacer.Replace(o.Name)))
+		return []Element{
+			Match{
+				MatchTags:    es.RetryTag,
+				MatchElement: RetryESOutput(bufspec, secret, o, op),
+			},
+			Match{
+				MatchTags:    "**",
+				MatchElement: es,
+			},
+		}
+	} else {
+		return []Element{
+			Match{
+				MatchTags:    "**",
+				MatchElement: es,
+			},
+		}
+	}
+}
+
+func ESOutput(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o logging.OutputSpec, op *Options) Elasticsearch {
 	// URL is parasable, checked at input sanitization
 	u, _ := urlhelper.Parse(o.URL)
 	port := u.Port()
@@ -90,10 +132,53 @@ func Conf(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o logging.O
 	}
 }
 
-func RetryConf(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o logging.OutputSpec, op *Options) Elasticsearch {
-	es := Conf(bufspec, secret, o, op)
+func RetryESOutput(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o logging.OutputSpec, op *Options) Elasticsearch {
+	es := ESOutput(bufspec, secret, o, op)
 	es.StoreID = strings.ToLower(fmt.Sprintf("retry_%v", helpers.Replacer.Replace(o.Name)))
 	return es
+}
+
+func ChangeESIndex(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o logging.OutputSpec, op *Options) []Element {
+	if o.Elasticsearch != nil && (o.Elasticsearch.StructuredTypeKey != "" || o.Elasticsearch.StructuredTypeName != "") {
+		return []Element{
+			Filter{
+				MatchTags: "**",
+				Element: RecordModifier{
+					Record: map[RecordKey]RubyExpression{
+						"typeFromKey":           RubyExpression(fmt.Sprintf("${record.dig(%s)}", generateRubyDigArgs(o.Elasticsearch.StructuredTypeKey))),
+						"hasStructuredTypeName": RubyExpression(o.Elasticsearch.StructuredTypeName),
+						"viaq_index_name":       "",
+					},
+					RemoveKeys: []string{"typeFromKey", "hasStructuredTypeName", "viaq_index_name"},
+				},
+			},
+		}
+	} else {
+		return []Element{
+			Filter{
+				Desc:      "remove structured field if present",
+				MatchTags: "**",
+				Element: RecordModifier{
+					RemoveKeys: []string{KeyStructured},
+				},
+			},
+		}
+	}
+}
+
+func FlattenLabels(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o logging.OutputSpec, op *Options) []Element {
+	return []Element{
+		Filter{
+			Desc:      "flatten labels to prevent field explosion in ES",
+			MatchTags: "**",
+			Element: RecordModifier{
+				Record: map[RecordKey]RubyExpression{
+					"kubernetes": `${!record['kubernetes'].nil? ? record['kubernetes'].merge({"flat_labels": (record['kubernetes']['labels']||{}).map{|k,v| "#{k}=#{v}"}}) : {} }`,
+				},
+				RemoveKeys: []string{"$.kubernetes.labels"},
+			},
+		},
+	}
 }
 
 func SecurityConfig(o logging.OutputSpec, secret *corev1.Secret) []Element {
@@ -127,4 +212,12 @@ func SecurityConfig(o logging.OutputSpec, secret *corev1.Secret) []Element {
 		conf = append(conf, ca)
 	}
 	return conf
+}
+
+func generateRubyDigArgs(path string) string {
+	var args []string
+	for _, s := range strings.Split(path, ".") {
+		args = append(args, fmt.Sprintf("%q", s))
+	}
+	return strings.Join(args, ",")
 }

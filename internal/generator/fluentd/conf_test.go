@@ -561,6 +561,21 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
 </label>
 # Output to elasticsearch
 <label @ES_1>
+  #remove structured field if present
+  <filter **>
+    @type record_modifier
+    remove_keys structured
+  </filter>
+  
+  #flatten labels to prevent field explosion in ES
+  <filter **>
+    @type record_modifier
+    <record>
+      kubernetes ${!record['kubernetes'].nil? ? record['kubernetes'].merge({"flat_labels": (record['kubernetes']['labels']||{}).map{|k,v| "#{k}=#{v}"}}) : {} }
+    </record>
+    remove_keys $.kubernetes.labels
+  </filter>
+  
   <match retry_es_1>
     # Elasticsearch store
     @type elasticsearch

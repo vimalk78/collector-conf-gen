@@ -9,6 +9,7 @@ import (
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/elements"
+	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/helpers"
 )
 
 type PipelineToOutputs_ struct {
@@ -80,7 +81,7 @@ func PipelineToOutputs(spec *logging.ClusterLogForwarderSpec, o *Options) []Elem
 	for _, p := range pipelines {
 		po := PipelineToOutputs_{
 			Desc:      fmt.Sprintf("Copying pipeline %s to outputs", p.Name),
-			Pipeline:  labelName(p.Name),
+			Pipeline:  helpers.LabelName(p.Name),
 			JsonParse: Nils,
 			Labels:    Nils,
 		}
@@ -112,7 +113,7 @@ func PipelineToOutputs(spec *logging.ClusterLogForwarderSpec, o *Options) []Elem
 				Match{
 					MatchTags: "**",
 					MatchElement: Relabel{
-						OutLabel: labelName(p.OutputRefs[0]),
+						OutLabel: helpers.LabelName(p.OutputRefs[0]),
 					},
 				},
 			}
@@ -121,7 +122,7 @@ func PipelineToOutputs(spec *logging.ClusterLogForwarderSpec, o *Options) []Elem
 				Match{
 					MatchTags: "**",
 					MatchElement: Copy{
-						Stores: CopyToLabels(labelNames(p.OutputRefs)),
+						Stores: CopyToLabels(helpers.LabelNames(p.OutputRefs)),
 					},
 				},
 			}

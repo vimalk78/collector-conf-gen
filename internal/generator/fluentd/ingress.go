@@ -4,25 +4,26 @@ import (
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/elements"
+	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/helpers"
 )
 
 func Concat(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return []Element{
 		Pipeline{
-			InLabel: labelName("CONCAT"),
+			InLabel: helpers.LabelName("CONCAT"),
 			Desc:    "Concat log lines of container logs",
 			SubElements: []Element{
 				ConfLiteral{
 					Desc:         "Concat container lines",
 					TemplateName: "concatLines",
 					TemplateStr:  ConcatLines,
-					OutLabel:     labelName("INGRESS"),
+					OutLabel:     helpers.LabelName("INGRESS"),
 				},
 				Match{
 					Desc:      "Kubernetes Logs go to INGRESS pipeline",
 					MatchTags: "kubernetes.**",
 					MatchElement: Relabel{
-						OutLabel: labelName("INGRESS"),
+						OutLabel: helpers.LabelName("INGRESS"),
 					},
 				},
 			},
@@ -33,7 +34,7 @@ func Concat(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 func Ingress(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return []Element{
 		Pipeline{
-			InLabel: labelName("INGRESS"),
+			InLabel: helpers.LabelName("INGRESS"),
 			Desc:    "Ingress pipeline",
 			SubElements: MergeElements([]Element{
 				ConfLiteral{
