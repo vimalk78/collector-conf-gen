@@ -27,6 +27,10 @@ type CAFile struct {
 	CAFilePath string
 }
 
+type Passphrase struct {
+	PassphrasePath string
+}
+
 var NoSecrets = map[string]*corev1.Secret{}
 
 func HasUsernamePassword(secret *corev1.Secret) bool {
@@ -78,6 +82,18 @@ func HasSharedKey(secret *corev1.Secret) bool {
 
 	// TODO: use constants.TrustedCABundleKey
 	if _, ok := secret.Data["shared_key"]; !ok {
+		return false
+	}
+	return true
+}
+
+func HasPassphrase(secret *corev1.Secret) bool {
+	if secret == nil {
+		return false
+	}
+
+	// TODO: use constants.TrustedCABundleKey
+	if _, ok := secret.Data["passphrase"]; !ok {
 		return false
 	}
 	return true
