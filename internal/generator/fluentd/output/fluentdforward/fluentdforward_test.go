@@ -61,9 +61,9 @@ var fluentforwardtest = Describe("fluentd conf generation", func() {
     transport tls
     tls_verify_hostname false
     tls_version 'TLSv1_2'
-    tls_client_private_key_path /var/run/ocp-collector/secrets/tls.key
-    tls_client_cert_path /var/run/ocp-collector/secrets/tls.crt
-    tls_cert_path /var/run/ocp-collector/secrets/ca-bundle.crt
+    tls_client_private_key_path '/var/run/ocp-collector/secrets/secureforward-receiver-secret/tls.key'
+    tls_client_cert_path '/var/run/ocp-collector/secrets/secureforward-receiver-secret/tls.crt'
+    tls_cert_path '/var/run/ocp-collector/secrets/secureforward-receiver-secret/ca-bundle.crt'
     <buffer>
       @type file
       path '/var/lib/fluentd/secureforward_receiver'
@@ -77,7 +77,7 @@ var fluentforwardtest = Describe("fluentd conf generation", func() {
       retry_timeout 60m
       queued_chunks_limit_size "#{ENV['BUFFER_QUEUE_LIMIT'] || '32'}"
       total_limit_size "#{ENV['TOTAL_LIMIT_SIZE'] || '8589934592'}"
-      chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '1m'}"
+      chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '8m'}"
       overflow_action block
     </buffer>
   </match>
@@ -122,7 +122,7 @@ var fluentforwardtest = Describe("fluentd conf generation", func() {
     tls_version 'TLSv1_2'
     <security>
       self_hostname "#{ENV['NODE_NAME']}"
-      shared_key "/var/run/ocp-collector/secrets/shared_key"
+      shared_key '/var/run/ocp-collector/secrets/secureforward-receiver-secret/shared_key'
     </security>
     <buffer>
       @type file
@@ -137,7 +137,7 @@ var fluentforwardtest = Describe("fluentd conf generation", func() {
       retry_timeout 60m
       queued_chunks_limit_size "#{ENV['BUFFER_QUEUE_LIMIT'] || '32'}"
       total_limit_size "#{ENV['TOTAL_LIMIT_SIZE'] || '8589934592'}"
-      chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '1m'}"
+      chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '8m'}"
       overflow_action block
     </buffer>
   </match>
@@ -185,7 +185,7 @@ var fluentforwardtest = Describe("fluentd conf generation", func() {
       retry_timeout 60m
       queued_chunks_limit_size "#{ENV['BUFFER_QUEUE_LIMIT'] || '32'}"
       total_limit_size "#{ENV['TOTAL_LIMIT_SIZE'] || '8589934592'}"
-      chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '1m'}"
+      chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '8m'}"
       overflow_action block
     </buffer>
   </match>

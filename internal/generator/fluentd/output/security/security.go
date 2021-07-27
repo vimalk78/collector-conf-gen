@@ -1,6 +1,7 @@
 package security
 
 import (
+	"fmt"
 	"path/filepath"
 
 	corev1 "k8s.io/api/core/v1"
@@ -82,10 +83,6 @@ func HasSharedKey(secret *corev1.Secret) bool {
 	return true
 }
 
-func SecretPath(secret *corev1.Secret, file string) string {
-	if secret != nil {
-		// TODO use constants.CollectorSecretsDir
-		return filepath.Join("/var/run/ocp-collector/secrets", secret.Name, file)
-	}
-	return ""
+func SecretPath(name string, file string) string {
+	return fmt.Sprintf("'%s'", filepath.Join("/var/run/ocp-collector/secrets", name, file))
 }

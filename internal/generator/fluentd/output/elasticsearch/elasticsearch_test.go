@@ -68,11 +68,11 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
     @id retry_es_1
     host es.svc.infra.cluster
     port 9999
+    verify_es_version_at_startup false
     scheme https
     ssl_version TLSv1_2
-    username "#{File.exists?('/var/run/ocp-collector/secrets/username') ? open('/var/run/ocp-collector/secrets/username','r') do |f|f.read end : ''}"
-    password "#{File.exists?('/var/run/ocp-collector/secrets/password') ? open('/var/run/ocp-collector/secrets/password','r') do |f|f.read end : ''}"
-    verify_es_version_at_startup false
+    username "#{File.exists?('/var/run/ocp-collector/secrets/es-1/username') ? open('/var/run/ocp-collector/secrets/es-1/username','r') do |f|f.read end : ''}"
+    password "#{File.exists?('/var/run/ocp-collector/secrets/es-1/password') ? open('/var/run/ocp-collector/secrets/es-1/password','r') do |f|f.read end : ''}"
     target_index_key viaq_index_name
     id_key viaq_msg_id
     remove_keys viaq_index_name
@@ -89,7 +89,7 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
     request_timeout 2147483648
     <buffer>
       @type file
-      path '/var/lib/fluentd/es_1'
+      path '/var/lib/fluentd/retry_es_1'
       flush_mode interval
       flush_interval 1s
       flush_thread_count 2
@@ -100,7 +100,7 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
       retry_timeout 60m
       queued_chunks_limit_size "#{ENV['BUFFER_QUEUE_LIMIT'] || '32'}"
       total_limit_size "#{ENV['TOTAL_LIMIT_SIZE'] || '8589934592'}"
-      chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '1m'}"
+      chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '8m'}"
       overflow_action block
     </buffer>
   </match>
@@ -111,11 +111,11 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
     @id es_1
     host es.svc.infra.cluster
     port 9999
+    verify_es_version_at_startup false
     scheme https
     ssl_version TLSv1_2
-    username "#{File.exists?('/var/run/ocp-collector/secrets/username') ? open('/var/run/ocp-collector/secrets/username','r') do |f|f.read end : ''}"
-    password "#{File.exists?('/var/run/ocp-collector/secrets/password') ? open('/var/run/ocp-collector/secrets/password','r') do |f|f.read end : ''}"
-    verify_es_version_at_startup false
+    username "#{File.exists?('/var/run/ocp-collector/secrets/es-1/username') ? open('/var/run/ocp-collector/secrets/es-1/username','r') do |f|f.read end : ''}"
+    password "#{File.exists?('/var/run/ocp-collector/secrets/es-1/password') ? open('/var/run/ocp-collector/secrets/es-1/password','r') do |f|f.read end : ''}"
     target_index_key viaq_index_name
     id_key viaq_msg_id
     remove_keys viaq_index_name
@@ -144,7 +144,7 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
       retry_timeout 60m
       queued_chunks_limit_size "#{ENV['BUFFER_QUEUE_LIMIT'] || '32'}"
       total_limit_size "#{ENV['TOTAL_LIMIT_SIZE'] || '8589934592'}"
-      chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '1m'}"
+      chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '8m'}"
       overflow_action block
     </buffer>
   </match>
@@ -197,12 +197,12 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
     @id retry_es_1
     host es.svc.infra.cluster
     port 9999
+    verify_es_version_at_startup false
     scheme https
     ssl_version TLSv1_2
-    client_key /var/run/ocp-collector/secrets/tls.key
-    client_cert /var/run/ocp-collector/secrets/tls.crt
-    ca_file /var/run/ocp-collector/secrets/ca-bundle.crt
-    verify_es_version_at_startup false
+    client_key '/var/run/ocp-collector/secrets/es-1/tls.key'
+    client_cert '/var/run/ocp-collector/secrets/es-1/tls.crt'
+    ca_file '/var/run/ocp-collector/secrets/es-1/ca-bundle.crt'
     target_index_key viaq_index_name
     id_key viaq_msg_id
     remove_keys viaq_index_name
@@ -219,7 +219,7 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
     request_timeout 2147483648
     <buffer>
       @type file
-      path '/var/lib/fluentd/es_1'
+      path '/var/lib/fluentd/retry_es_1'
       flush_mode interval
       flush_interval 1s
       flush_thread_count 2
@@ -230,7 +230,7 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
       retry_timeout 60m
       queued_chunks_limit_size "#{ENV['BUFFER_QUEUE_LIMIT'] || '32'}"
       total_limit_size "#{ENV['TOTAL_LIMIT_SIZE'] || '8589934592'}"
-      chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '1m'}"
+      chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '8m'}"
       overflow_action block
     </buffer>
   </match>
@@ -241,12 +241,12 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
     @id es_1
     host es.svc.infra.cluster
     port 9999
+    verify_es_version_at_startup false
     scheme https
     ssl_version TLSv1_2
-    client_key /var/run/ocp-collector/secrets/tls.key
-    client_cert /var/run/ocp-collector/secrets/tls.crt
-    ca_file /var/run/ocp-collector/secrets/ca-bundle.crt
-    verify_es_version_at_startup false
+    client_key '/var/run/ocp-collector/secrets/es-1/tls.key'
+    client_cert '/var/run/ocp-collector/secrets/es-1/tls.crt'
+    ca_file '/var/run/ocp-collector/secrets/es-1/ca-bundle.crt'
     target_index_key viaq_index_name
     id_key viaq_msg_id
     remove_keys viaq_index_name
@@ -275,7 +275,7 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
       retry_timeout 60m
       queued_chunks_limit_size "#{ENV['BUFFER_QUEUE_LIMIT'] || '32'}"
       total_limit_size "#{ENV['TOTAL_LIMIT_SIZE'] || '8589934592'}"
-      chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '1m'}"
+      chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '8m'}"
       overflow_action block
     </buffer>
   </match>
@@ -320,8 +320,8 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
     @id retry_es_1
     host es.svc.infra.cluster
     port 9999
-    scheme http
     verify_es_version_at_startup false
+    scheme http
     target_index_key viaq_index_name
     id_key viaq_msg_id
     remove_keys viaq_index_name
@@ -338,7 +338,7 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
     request_timeout 2147483648
     <buffer>
       @type file
-      path '/var/lib/fluentd/es_1'
+      path '/var/lib/fluentd/retry_es_1'
       flush_mode interval
       flush_interval 1s
       flush_thread_count 2
@@ -349,7 +349,7 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
       retry_timeout 60m
       queued_chunks_limit_size "#{ENV['BUFFER_QUEUE_LIMIT'] || '32'}"
       total_limit_size "#{ENV['TOTAL_LIMIT_SIZE'] || '8589934592'}"
-      chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '1m'}"
+      chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '8m'}"
       overflow_action block
     </buffer>
   </match>
@@ -360,8 +360,8 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
     @id es_1
     host es.svc.infra.cluster
     port 9999
-    scheme http
     verify_es_version_at_startup false
+    scheme http
     target_index_key viaq_index_name
     id_key viaq_msg_id
     remove_keys viaq_index_name
@@ -390,7 +390,7 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
       retry_timeout 60m
       queued_chunks_limit_size "#{ENV['BUFFER_QUEUE_LIMIT'] || '32'}"
       total_limit_size "#{ENV['TOTAL_LIMIT_SIZE'] || '8589934592'}"
-      chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '1m'}"
+      chunk_limit_size "#{ENV['BUFFER_SIZE_LIMIT'] || '8m'}"
       overflow_action block
     </buffer>
   </match>

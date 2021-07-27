@@ -8,10 +8,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-var replacer = strings.NewReplacer(" ", "_", "-", "_", ".", "_")
+var Replacer = strings.NewReplacer(" ", "_", "-", "_", ".", "_")
 
 func LabelName(name string) string {
-	return strings.ToUpper(fmt.Sprintf("@%s", replacer.Replace(name)))
+	return strings.ToUpper(fmt.Sprintf("@%s", Replacer.Replace(name)))
 }
 
 func LabelNames(names []string) []string {
@@ -23,7 +23,7 @@ func LabelNames(names []string) []string {
 }
 
 func SourceTypeLabelName(name string) string {
-	return strings.ToUpper(fmt.Sprintf("@_%s", replacer.Replace(name)))
+	return strings.ToUpper(fmt.Sprintf("@_%s", Replacer.Replace(name)))
 }
 
 func LabelsKV(ls *metav1.LabelSelector) []string {
@@ -38,4 +38,12 @@ func LabelsKV(ls *metav1.LabelSelector) []string {
 		kv[i] = fmt.Sprintf("%s:%s", k, m[k])
 	}
 	return kv
+}
+
+func StoreID(name string, retry bool) string {
+	prefix := ""
+	if retry {
+		prefix = "retry_"
+	}
+	return strings.ToLower(fmt.Sprintf("%v%v", prefix, Replacer.Replace(name)))
 }

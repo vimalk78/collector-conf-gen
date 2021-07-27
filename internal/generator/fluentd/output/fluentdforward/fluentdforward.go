@@ -7,10 +7,9 @@ import (
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/elements"
-	fluenthelpers "github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/helpers"
+	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/helpers"
 	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/output"
 	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/output/security"
-	"github.com/vimalk78/collector-conf-gen/internal/generator/helpers"
 	"github.com/vimalk78/collector-conf-gen/internal/generator/url"
 	urlhelper "github.com/vimalk78/collector-conf-gen/internal/generator/url"
 	corev1 "k8s.io/api/core/v1"
@@ -65,20 +64,21 @@ func Conf(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o logging.O
 	if port == "" {
 		port = defaultFluentdForwardPort
 	}
+	storeID := strings.ToLower(helpers.Replacer.Replace(o.Name))
 	return []Element{
 		FromLabel{
 			Desc:    "Output to fluentdforward",
-			InLabel: fluenthelpers.LabelName(o.Name),
+			InLabel: helpers.LabelName(o.Name),
 			SubElements: []Element{
 				Match{
 					MatchTags: "**",
 					MatchElement: FluentdForward{
 						Desc:           "FluentdForward output",
-						StoreID:        strings.ToLower(helpers.Replacer.Replace(o.Name)),
+						StoreID:        storeID,
 						Host:           u.Hostname(),
 						Port:           port,
 						SecurityConfig: SecurityConfig(o, secret),
-						BufferConfig:   output.Buffer(output.NOKEYS, bufspec, &o),
+						BufferConfig:   output.Buffer(output.NOKEYS, bufspec, storeID, &o),
 					},
 				},
 			},
@@ -93,26 +93,28 @@ func SecurityConfig(o logging.OutputSpec, secret *corev1.Secret) []Element {
 	conf := []Element{
 		tls,
 	}
-	if security.HasSharedKey(secret) {
-		sk := SharedKey{
-			KeyPath: security.SecretPath(secret, "shared_key"),
+	if o.Secret != nil {
+		if security.HasSharedKey(secret) {
+			sk := SharedKey{
+				KeyPath: security.SecretPath(o.Secret.Name, "shared_key"),
+			}
+			conf = append(conf, sk)
 		}
-		conf = append(conf, sk)
-	}
-	if security.HasTLSKeyAndCrt(secret) {
-		kc := TLSKeyCert{
-			// TODO: use constants.ClientCertKey
-			KeyPath:  security.SecretPath(secret, "tls.key"),
-			CertPath: security.SecretPath(secret, "tls.crt"),
+		if security.HasTLSKeyAndCrt(secret) {
+			kc := TLSKeyCert{
+				// TODO: use constants.ClientCertKey
+				KeyPath:  security.SecretPath(o.Secret.Name, "tls.key"),
+				CertPath: security.SecretPath(o.Secret.Name, "tls.crt"),
+			}
+			conf = append(conf, kc)
 		}
-		conf = append(conf, kc)
-	}
-	if security.HasCABundle(secret) {
-		ca := CAFile{
-			// TODO: use constants.TrustedCABundleKey
-			CAFilePath: security.SecretPath(secret, "ca-bundle.crt"),
+		if security.HasCABundle(secret) {
+			ca := CAFile{
+				// TODO: use constants.TrustedCABundleKey
+				CAFilePath: security.SecretPath(o.Secret.Name, "ca-bundle.crt"),
+			}
+			conf = append(conf, ca)
 		}
-		conf = append(conf, ca)
 	}
 	return conf
 }

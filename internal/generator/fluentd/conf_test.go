@@ -582,12 +582,12 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
     @id retry_es_1
     host es.svc.infra.cluster
     port 9999
+    verify_es_version_at_startup false
     scheme https
     ssl_version TLSv1_2
-    client_key /var/run/ocp-collector/secrets/tls.key
-    client_cert /var/run/ocp-collector/secrets/tls.crt
-    ca_file /var/run/ocp-collector/secrets/ca-bundle.crt
-    verify_es_version_at_startup false
+    client_key '/var/run/ocp-collector/secrets/es-1-secret/tls.key'
+    client_cert '/var/run/ocp-collector/secrets/es-1-secret/tls.crt'
+    ca_file '/var/run/ocp-collector/secrets/es-1-secret/ca-bundle.crt'
     target_index_key viaq_index_name
     id_key viaq_msg_id
     remove_keys viaq_index_name
@@ -604,7 +604,7 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
     request_timeout 2147483648
     <buffer>
       @type file
-      path '/var/lib/fluentd/es_1'
+      path '/var/lib/fluentd/retry_es_1'
       flush_mode interval
       flush_interval 1s
       flush_thread_count 2
@@ -626,12 +626,12 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
     @id es_1
     host es.svc.infra.cluster
     port 9999
+    verify_es_version_at_startup false
     scheme https
     ssl_version TLSv1_2
-    client_key /var/run/ocp-collector/secrets/tls.key
-    client_cert /var/run/ocp-collector/secrets/tls.crt
-    ca_file /var/run/ocp-collector/secrets/ca-bundle.crt
-    verify_es_version_at_startup false
+    client_key '/var/run/ocp-collector/secrets/es-1-secret/tls.key'
+    client_cert '/var/run/ocp-collector/secrets/es-1-secret/tls.crt'
+    ca_file '/var/run/ocp-collector/secrets/es-1-secret/ca-bundle.crt'
     target_index_key viaq_index_name
     id_key viaq_msg_id
     remove_keys viaq_index_name

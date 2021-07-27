@@ -2,7 +2,6 @@ package output
 
 import (
 	"fmt"
-	"strings"
 
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
@@ -24,7 +23,7 @@ const (
 	defaultRetryTimeout     = "60m"
 	defaultBufferQueueLimit = "32"
 	defaultTotalLimitSize   = "8589934592" // 0x200000000, 8GB
-	defaultBufferSizeLimit  = "1m"
+	defaultBufferSizeLimit  = "8m"
 
 	// Output fluentdForward default
 	fluentdForwardOverflowAction = "block"
@@ -33,19 +32,15 @@ const (
 
 var NOKEYS = []string{}
 
-func RetryBuffer(bufkeys []string, bufspec *logging.FluentdBufferSpec, os *logging.OutputSpec) []Element {
-	return MakeBuffer(bufkeys, bufspec, os, true)
+func Buffer(bufkeys []string, bufspec *logging.FluentdBufferSpec, bufpath string, os *logging.OutputSpec) []Element {
+	return MakeBuffer(bufkeys, bufspec, bufpath, os)
 }
 
-func Buffer(bufkeys []string, bufspec *logging.FluentdBufferSpec, os *logging.OutputSpec) []Element {
-	return MakeBuffer(bufkeys, bufspec, os, false)
-}
-
-func MakeBuffer(bufkeys []string, bufspec *logging.FluentdBufferSpec, os *logging.OutputSpec, retry bool) []Element {
+func MakeBuffer(bufkeys []string, bufspec *logging.FluentdBufferSpec, bufpath string, os *logging.OutputSpec) []Element {
 	return []Element{
 		BufferConfig{
 			BufferKeys:           bufkeys,
-			BufferPath:           BufferPath(os, bufspec, retry),
+			BufferPath:           BufferPath(bufpath),
 			FlushMode:            FlushMode(bufspec),
 			FlushThreadCount:     FlushThreadCount(bufspec),
 			FlushInterval:        FlushInterval(os, bufspec),
@@ -61,14 +56,8 @@ func MakeBuffer(bufkeys []string, bufspec *logging.FluentdBufferSpec, os *loggin
 	}
 }
 
-func BufferPath(os *logging.OutputSpec, bufspec *logging.FluentdBufferSpec, retry bool) string {
-	prefix := ""
-	if retry {
-		prefix = "retry_"
-	}
-	var replacer = strings.NewReplacer(" ", "_", "-", "_", ".", "_")
-	store := strings.ToLower(fmt.Sprintf("%v%v", prefix, replacer.Replace(os.Name)))
-	return fmt.Sprintf("/var/lib/fluentd/%s", store)
+func BufferPath(bufpath string) string {
+	return fmt.Sprintf("/var/lib/fluentd/%s", bufpath)
 }
 
 func ChunkLimitSize(bufspec *logging.FluentdBufferSpec) string {

@@ -16,7 +16,7 @@ func (sk SharedKey) Template() string {
 	return `{{define "` + sk.Name() + `" -}}
 <security>
   self_hostname "#{ENV['NODE_NAME']}"
-  shared_key "{{.KeyPath}}"
+  shared_key {{.KeyPath}}
 </security>
 {{- end}}`
 }

@@ -10,10 +10,9 @@ import (
 
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/elements"
-	fluenthelpers "github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/helpers"
+	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/helpers"
 	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/output"
 	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/output/security"
-	"github.com/vimalk78/collector-conf-gen/internal/generator/helpers"
 	"github.com/vimalk78/collector-conf-gen/internal/generator/url"
 	urlhelper "github.com/vimalk78/collector-conf-gen/internal/generator/url"
 )
@@ -44,8 +43,8 @@ func (e Elasticsearch) Template() string {
 @id {{.StoreID}}
 host {{.Host}}
 port {{.Port}}
-{{compose .SecurityConfig}}
 verify_es_version_at_startup false
+{{compose .SecurityConfig}}
 target_index_key viaq_index_name
 id_key viaq_msg_id
 remove_keys viaq_index_name
@@ -80,7 +79,7 @@ func Conf(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o logging.O
 	return []Element{
 		FromLabel{
 			Desc:    "Output to elasticsearch",
-			InLabel: fluenthelpers.LabelName(o.Name),
+			InLabel: helpers.LabelName(o.Name),
 			SubElements: MergeElements(
 				ChangeESIndex(bufspec, secret, o, op),
 				FlattenLabels(bufspec, secret, o, op),
@@ -94,7 +93,7 @@ func OutputConf(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o log
 	es := ESOutput(bufspec, secret, o, op)
 	need_retry := true
 	if need_retry {
-		es.RetryTag = fmt.Sprintf("retry_%s", strings.ToLower(helpers.Replacer.Replace(o.Name)))
+		es.RetryTag = helpers.StoreID(o.Name, true)
 		return []Element{
 			Match{
 				MatchTags:    es.RetryTag,
@@ -122,19 +121,21 @@ func ESOutput(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o loggi
 	if port == "" {
 		port = defaultElasticsearchPort
 	}
+	storeID := helpers.StoreID(o.Name, false)
 	return Elasticsearch{
 		Desc:           "Elasticsearch store",
 		StoreID:        strings.ToLower(fmt.Sprintf("%v", helpers.Replacer.Replace(o.Name))),
 		Host:           u.Hostname(),
 		Port:           port,
 		SecurityConfig: SecurityConfig(o, secret),
-		BufferConfig:   output.Buffer(output.NOKEYS, bufspec, &o),
+		BufferConfig:   output.Buffer(output.NOKEYS, bufspec, storeID, &o),
 	}
 }
 
 func RetryESOutput(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o logging.OutputSpec, op *Options) Elasticsearch {
 	es := ESOutput(bufspec, secret, o, op)
-	es.StoreID = strings.ToLower(fmt.Sprintf("retry_%v", helpers.Replacer.Replace(o.Name)))
+	es.StoreID = helpers.StoreID(o.Name, true)
+	es.BufferConfig = output.Buffer(output.NOKEYS, bufspec, es.StoreID, &o)
 	return es
 }
 
@@ -188,26 +189,29 @@ func SecurityConfig(o logging.OutputSpec, secret *corev1.Secret) []Element {
 	conf := []Element{
 		tls,
 	}
+	if o.Secret == nil {
+		return conf
+	}
 	if security.HasUsernamePassword(secret) {
 		up := UserNamePass{
 			// TODO: use constants.ClientUsername
-			UsernamePath: security.SecretPath(secret, "username"),
-			PasswordPath: security.SecretPath(secret, "password"),
+			UsernamePath: security.SecretPath(o.Secret.Name, "username"),
+			PasswordPath: security.SecretPath(o.Secret.Name, "password"),
 		}
 		conf = append(conf, up)
 	}
 	if security.HasTLSKeyAndCrt(secret) {
 		kc := TLSKeyCert{
 			// TODO: use constants.ClientCertKey
-			KeyPath:  security.SecretPath(secret, "tls.key"),
-			CertPath: security.SecretPath(secret, "tls.crt"),
+			KeyPath:  security.SecretPath(o.Secret.Name, "tls.key"),
+			CertPath: security.SecretPath(o.Secret.Name, "tls.crt"),
 		}
 		conf = append(conf, kc)
 	}
 	if security.HasCABundle(secret) {
 		ca := CAFile{
 			// TODO: use constants.TrustedCABundleKey
-			CAFilePath: security.SecretPath(secret, "ca-bundle.crt"),
+			CAFilePath: security.SecretPath(o.Secret.Name, "ca-bundle.crt"),
 		}
 		conf = append(conf, ca)
 	}
