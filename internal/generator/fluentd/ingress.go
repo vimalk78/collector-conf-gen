@@ -90,17 +90,17 @@ func Ingress(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 }
 
 var SetEncoding string = `
-{{define "setEncoding"}}
+{{define "setEncoding" -}}
 # {{.Desc}}
 <filter **>
   @type record_modifier
   char_encoding utf-8
 </filter>
-{{- end}}
+{{end}}
 `
 
 var FilterJournalPRIORITY string = `
-{{define "filterJournalPRIORITY"}}
+{{define "filterJournalPRIORITY" -}}
 # {{.Desc}}
 <filter journal>
   @type grep
@@ -109,12 +109,12 @@ var FilterJournalPRIORITY string = `
     pattern ^7$
   </exclude>
 </filter>
-{{- end}}
+{{end}}
 `
 
 var RetagJournalLogs string = `
+{{define "retagJournal" -}}
 # {{.Desc}}
-{{define "retagJournal"}}
 <match journal>
   @type rewrite_tag_filter
   # skip to @INGRESS label section
@@ -185,11 +185,11 @@ var RetagJournalLogs string = `
     tag journal.system
   </rule>
 </match>
-{{- end}}
+{{end}}
 `
 
 var KubernetesMetadataPlugin string = `
-{{define "kubernetesMetadata"}}
+{{define "kubernetesMetadata" -}}
 # {{.Desc}}
 <filter kubernetes.**>
   @type kubernetes_metadata
@@ -199,11 +199,11 @@ var KubernetesMetadataPlugin string = `
   use_journal 'nil'
   ssl_partial_chain 'true'
 </filter>
-{{- end}}
+{{end}}
 `
 
 var ParseJsonFields string = `
-{{define "parseJsonFields"}}
+{{define "parseJsonFields" -}}
 # {{.Desc}}
 <filter kubernetes.journal.**>
   @type parse_json_field
@@ -225,11 +225,11 @@ var ParseJsonFields string = `
   preserve_json_log true
   json_fields 'log,MESSAGE'
 </filter>
-{{- end}}
+{{end}}
 `
 
 var CleanKibanaLogs string = `
-{{define "cleanKibanaLogs"}}
+{{define "cleanKibanaLogs" -}}
 # {{.Desc}}
 <filter **kibana**>
   @type record_transformer
@@ -239,11 +239,11 @@ var CleanKibanaLogs string = `
   </record>
   remove_keys req,res,msg,name,level,v,pid,err
 </filter>
-{{- end}}
+{{end}}
 `
 
 var FixAuditLevel string = `
-{{define "fixAuditLevel"}}
+{{define "fixAuditLevel" -}}
 # {{.Desc}}
 <filter k8s-audit.log**>
   @type record_modifier
@@ -252,6 +252,7 @@ var FixAuditLevel string = `
     level info
   </record>
 </filter>
+
 <filter openshift-audit.log**>
   @type record_modifier
   <record>
@@ -339,11 +340,11 @@ var GenElasticsearchID string = `
   alt_key kubernetes.event.metadata.uid
   alt_tags 'kubernetes.var.log.containers.logging-eventrouter-*.** kubernetes.var.log.containers.eventrouter-*.** kubernetes.var.log.containers.cluster-logging-eventrouter-*.** kubernetes.journal.container._default_.kubernetes-event'
 </filter>
-{{- end}}
+{{end}}
 `
 
 var ConcatLines string = `
-{{define "concatLines"}}
+{{define "concatLines" -}}
 # {{.Desc}}
 <filter kubernetes.**>
   @type concat
@@ -352,5 +353,5 @@ var ConcatLines string = `
   partial_value P
   separator ''
 </filter>
-{{- end}}
+{{end}}
 `

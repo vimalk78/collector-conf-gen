@@ -45,7 +45,6 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
 				},
 			},
 			ExpectedConf: `
-# Output to elasticsearch
 <label @ES_1>
   #remove structured field if present
   <filter **>
@@ -63,7 +62,6 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
   </filter>
   
   <match retry_es_1>
-    # Elasticsearch store
     @type elasticsearch
     @id retry_es_1
     host es.svc.infra.cluster
@@ -106,7 +104,6 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
   </match>
   
   <match **>
-    # Elasticsearch store
     @type elasticsearch
     @id es_1
     host es.svc.infra.cluster
@@ -174,7 +171,6 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
 				},
 			},
 			ExpectedConf: `
-# Output to elasticsearch
 <label @ES_1>
   #remove structured field if present
   <filter **>
@@ -192,7 +188,6 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
   </filter>
   
   <match retry_es_1>
-    # Elasticsearch store
     @type elasticsearch
     @id retry_es_1
     host es.svc.infra.cluster
@@ -236,7 +231,6 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
   </match>
   
   <match **>
-    # Elasticsearch store
     @type elasticsearch
     @id es_1
     host es.svc.infra.cluster
@@ -297,7 +291,6 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
 			},
 			Secrets: security.NoSecrets,
 			ExpectedConf: `
-# Output to elasticsearch
 <label @ES_1>
   #remove structured field if present
   <filter **>
@@ -315,7 +308,6 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
   </filter>
   
   <match retry_es_1>
-    # Elasticsearch store
     @type elasticsearch
     @id retry_es_1
     host es.svc.infra.cluster
@@ -355,7 +347,6 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
   </match>
   
   <match **>
-    # Elasticsearch store
     @type elasticsearch
     @id es_1
     host es.svc.infra.cluster

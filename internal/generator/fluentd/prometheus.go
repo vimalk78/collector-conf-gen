@@ -81,7 +81,7 @@ func PrometheusMetrics(spec *logging.ClusterLogForwarderSpec, o *Options) []Elem
 }
 
 var EmitMetrics string = `
-{{define "EmitMetrics"}}
+{{define "EmitMetrics" -}}
 # {{.Desc}}
 <filter **>
   @type record_transformer
@@ -90,6 +90,7 @@ var EmitMetrics string = `
     msg_size ${record.to_s.length}
   </record>
 </filter>
+
 <filter **>
   @type prometheus
   <metric>
@@ -102,6 +103,7 @@ var EmitMetrics string = `
     </labels>
   </metric>
 </filter>
+
 <filter **>
   @type prometheus
   <metric>
@@ -115,9 +117,10 @@ var EmitMetrics string = `
     </labels>
   </metric>
 </filter>
+
 <filter **>
   @type record_transformer
   remove_keys msg_size
 </filter>
-{{- end}}
+{{end}}
 `

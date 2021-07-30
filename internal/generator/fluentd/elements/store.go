@@ -19,7 +19,7 @@ func (s Store) Template() string {
 <store>
 {{compose_one .Element| indent 2}}
 </store>
-{{- end}}
+{{end}}
 `
 }
 

@@ -64,13 +64,11 @@ func Conf(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o logging.O
 	storeID := helpers.StoreID(o.Name, false)
 	return []Element{
 		FromLabel{
-			Desc:    "Output to kafka",
 			InLabel: helpers.LabelName(o.Name),
 			SubElements: []Element{
 				Match{
 					MatchTags: "**",
 					MatchElement: Kafka{
-						Desc:           "Kafka store",
 						StoreID:        strings.ToLower(helpers.Replacer.Replace(o.Name)),
 						Topics:         topics,
 						Brokers:        Brokers(o),

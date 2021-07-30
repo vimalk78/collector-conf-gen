@@ -219,6 +219,7 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
       msg_size ${record.to_s.length}
     </record>
   </filter>
+  
   <filter **>
     @type prometheus
     <metric>
@@ -231,6 +232,7 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
       </labels>
     </metric>
   </filter>
+  
   <filter **>
     @type prometheus
     <metric>
@@ -244,6 +246,7 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
       </labels>
     </metric>
   </filter>
+  
   <filter **>
     @type record_transformer
     remove_keys msg_size
@@ -303,6 +306,7 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
     </exclude>
   </filter>
   
+  # Retag Journal logs to specific tags
   <match journal>
     @type rewrite_tag_filter
     # skip to @INGRESS label section
@@ -424,6 +428,7 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
       level info
     </record>
   </filter>
+  
   <filter openshift-audit.log**>
     @type record_modifier
     <record>
@@ -559,7 +564,7 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
     @label @ES_1
   </match>
 </label>
-# Output to elasticsearch
+
 <label @ES_1>
   #remove structured field if present
   <filter **>
@@ -577,7 +582,6 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
   </filter>
   
   <match retry_es_1>
-    # Elasticsearch store
     @type elasticsearch
     @id retry_es_1
     host es.svc.infra.cluster
@@ -621,7 +625,6 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
   </match>
   
   <match **>
-    # Elasticsearch store
     @type elasticsearch
     @id es_1
     host es.svc.infra.cluster

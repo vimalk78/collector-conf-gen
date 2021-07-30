@@ -18,13 +18,13 @@ func (f Filter) Name() string {
 
 func (f Filter) Template() string {
 	return `{{define "` + f.Name() + `" -}}
-{{- if .Desc}}
+{{if .Desc -}}
 #{{.Desc}}
-{{- end}}
+{{end -}}
 <filter {{.MatchTags}}>
 {{compose_one .Element | indent 2}}
 </filter>
-{{- end}}
+{{end}}
 `
 }
 

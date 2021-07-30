@@ -9,7 +9,7 @@ func (r NilElement) Name() string {
 }
 
 func (r NilElement) Template() string {
-	return `{{- define "` + r.Name() + `"  -}}{{- end -}}`
+	return `{{define "` + r.Name() + `"}}{{end -}}`
 }
 
 func (n NilElement) Create(t *template.Template) *template.Template {

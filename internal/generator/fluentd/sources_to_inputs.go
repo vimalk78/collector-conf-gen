@@ -71,8 +71,9 @@ func SourcesToInputs(spec *logging.ClusterLogForwarderSpec, o *Options) []Elemen
 }
 
 var DiscardMatched string = `
-{{define "discardMatched"}}
+{{define "discardMatched" -}}
 # {{.Desc}}
 <match kubernetes.**>
   @type null
-</match>{{end}}`
+</match>
+{{end}}`

@@ -18,13 +18,13 @@ func (m Match) Name() string {
 
 func (m Match) Template() string {
 	return `{{define "` + m.Name() + `"  -}}
-{{- if .Desc}}
+{{if .Desc -}}
 # {{.Desc}}
-{{- end}}
+{{end -}}
 <match {{.MatchTags}}>
 {{compose_one .MatchElement | indent 2}}
 </match>
-{{- end}}`
+{{end}}`
 }
 
 func (m Match) Create(t *template.Template) *template.Template {

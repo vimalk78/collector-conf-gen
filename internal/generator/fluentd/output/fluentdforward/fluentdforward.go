@@ -34,7 +34,9 @@ func (ff FluentdForward) Name() string {
 
 func (ff FluentdForward) Template() string {
 	return `{{define "` + ff.Name() + `" -}}
+{{if .Desc -}}
 # {{.Desc}}
+{{end -}}
 @type forward
 @id {{.StoreID}}
 <server>
@@ -67,13 +69,11 @@ func Conf(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o logging.O
 	storeID := strings.ToLower(helpers.Replacer.Replace(o.Name))
 	return []Element{
 		FromLabel{
-			Desc:    "Output to fluentdforward",
 			InLabel: helpers.LabelName(o.Name),
 			SubElements: []Element{
 				Match{
 					MatchTags: "**",
 					MatchElement: FluentdForward{
-						Desc:           "FluentdForward output",
 						StoreID:        storeID,
 						Host:           u.Hostname(),
 						Port:           port,

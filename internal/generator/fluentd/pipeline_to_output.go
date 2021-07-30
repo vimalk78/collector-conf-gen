@@ -4,48 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
-	"text/template"
 
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator"
 	. "github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/elements"
 	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/helpers"
 )
-
-type PipelineToOutputs_ struct {
-	Desc      string
-	Pipeline  string
-	Labels    []Element
-	JsonParse []Element
-	ToOutputs []Element
-}
-
-func (p PipelineToOutputs_) Name() string {
-	return "pipelineToPutput"
-}
-
-func (p PipelineToOutputs_) Template() string {
-	return `{{define "` + p.Name() + `"  -}}
-# {{.Desc}}
-<label {{.Pipeline}}>
-{{- with $x := compose .Labels}}
-{{$x |indent 2 -}}
-{{- end}}
-{{- with $x := compose .JsonParse}}
-{{$x |indent 2 -}}
-{{- end}}
-{{compose .ToOutputs| indent 2}}
-</label>
-{{- end}}`
-}
-
-func (p PipelineToOutputs_) Data() interface{} {
-	return p
-}
-
-func (p PipelineToOutputs_) Create(t *template.Template) *template.Template {
-	return template.Must(t.Parse(p.Template()))
-}
 
 var PipelineLabels = `
 {{define "PipelineLabels" -}}
@@ -56,7 +20,7 @@ var PipelineLabels = `
     openshift { "labels": %s }
   </record>
 </filter>
-{{- end}}`
+{{end}}`
 
 var JsonParseTemplate = `{{define "JsonParse" -}}
 # {{.Desc}}
@@ -70,7 +34,7 @@ var JsonParseTemplate = `{{define "JsonParse" -}}
     json_parser oj
   </parse>
 </filter>
-{{- end}}`
+{{end}}`
 
 func PipelineToOutputs(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	var e []Element = []Element{}
@@ -79,53 +43,47 @@ func PipelineToOutputs(spec *logging.ClusterLogForwarderSpec, o *Options) []Elem
 		return pipelines[i].Name < pipelines[j].Name
 	})
 	for _, p := range pipelines {
-		po := PipelineToOutputs_{
-			Desc:      fmt.Sprintf("Copying pipeline %s to outputs", p.Name),
-			Pipeline:  helpers.LabelName(p.Name),
-			JsonParse: Nils,
-			Labels:    Nils,
+		po := FromLabel{
+			Desc:    fmt.Sprintf("Copying pipeline %s to outputs", p.Name),
+			InLabel: helpers.LabelName(p.Name),
 		}
 		if p.Labels != nil && len(p.Labels) != 0 {
 			// ignoring error, because pre-check stage already checked if Labels can be marshalled
 			s, _ := json.Marshal(p.Labels)
-			po.Labels = []Element{
+			po.SubElements = append(po.SubElements,
 				ConfLiteral{
 					Desc:         "Add User Defined labels to the output record",
 					TemplateName: "PipelineLabels",
 					TemplateStr:  fmt.Sprintf(PipelineLabels, string(s)),
-				},
-			}
+				})
 		}
 		if p.Parse == "json" {
-			po.JsonParse = []Element{
+			po.SubElements = append(po.SubElements,
 				ConfLiteral{
 					Desc:         "Parse the logs into json",
 					TemplateName: "JsonParse",
 					TemplateStr:  JsonParseTemplate,
-				},
-			}
+				})
 		}
 		switch len(p.OutputRefs) {
 		case 0:
 			// should not happen
 		case 1:
-			po.ToOutputs = []Element{
+			po.SubElements = append(po.SubElements,
 				Match{
 					MatchTags: "**",
 					MatchElement: Relabel{
 						OutLabel: helpers.LabelName(p.OutputRefs[0]),
 					},
-				},
-			}
+				})
 		default:
-			po.ToOutputs = []Element{
+			po.SubElements = append(po.SubElements,
 				Match{
 					MatchTags: "**",
 					MatchElement: Copy{
 						Stores: CopyToLabels(helpers.LabelNames(p.OutputRefs)),
 					},
-				},
-			}
+				})
 		}
 		e = append(e, po)
 	}

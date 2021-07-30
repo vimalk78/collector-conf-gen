@@ -26,9 +26,9 @@ func (bc BufferConfig) Name() string {
 
 func (bc BufferConfig) Template() string {
 	return `{{define "` + bc.Name() + `" -}}
-{{- if .BufferKeys}}
+{{if .BufferKeys -}}
 <buffer {{comma_separated .BufferKeys}}>
-{{- else}}
+{{- else -}}
 <buffer>
 {{- end}}
   @type file

@@ -68,6 +68,8 @@ func (g *Generator) GenerateRec(t *template.Template, e Element, b *bytes.Buffer
 
 func (g *Generator) compose(es []Element) (string, error) {
 	return g.generate(es)
+	//s, err := g.generate(es)
+	//return strings.TrimSpace(s), err
 }
 
 func (g *Generator) compose_one(e Element) (string, error) {
@@ -100,7 +102,7 @@ func (g *Generator) generate(es []Element) (string, error) {
 			b.Write([]byte("\n"))
 		}
 	}
-	return strings.TrimSpace(b.String()), nil
+	return strings.TrimRight(b.String(), "\n"), nil
 }
 
 func MergeElements(eles ...[]Element) []Element {
@@ -121,6 +123,9 @@ func MergeSections(sections []Section) []Element {
 
 //indent helper function to prefix each line of the output by N spaces
 func indent(length int, in string) string {
+	if len(in) == 0 {
+		return ""
+	}
 	pad := strings.Repeat(" ", length)
 	inlines := strings.Split(in, "\n")
 	outlines := make([]string, len(inlines))

@@ -1,7 +1,6 @@
 package generator
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -33,8 +32,8 @@ func TestGenerateConfWith(gf GenerateFunc) func(ConfGenerateTest) {
 			strings.Split(strings.TrimSpace(testcase.ExpectedConf), "\n"),
 			strings.Split(strings.TrimSpace(conf), "\n"))
 		if diff != "" {
-			b, _ := json.MarshalIndent(e, "", " ")
-			fmt.Printf("elements:\n%s\n", string(b))
+			//b, _ := json.MarshalIndent(e, "", " ")
+			//fmt.Printf("elements:\n%s\n", string(b))
 			fmt.Println(conf)
 			fmt.Printf("diff: %s", diff)
 		}

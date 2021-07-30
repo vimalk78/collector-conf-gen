@@ -56,12 +56,14 @@ var pipeline_to_outputs = Describe("Testing Config Generation", func() {
       @type relabel
       @label @DEFAULT
     </store>
+    
     <store>
       @type relabel
       @label @ES_APP_OUT
     </store>
   </match>
 </label>
+
 # Copying pipeline audit-to-es to outputs
 <label @AUDIT_TO_ES>
   <match **>
@@ -70,6 +72,7 @@ var pipeline_to_outputs = Describe("Testing Config Generation", func() {
       @type relabel
       @label @DEFAULT
     </store>
+    
     <store>
       @type relabel
       @label @ES_AUDIT_OUT
@@ -101,12 +104,14 @@ var pipeline_to_outputs = Describe("Testing Config Generation", func() {
       openshift { "labels": {"a":"b","c":"d"} }
     </record>
   </filter>
+  
   <match **>
     @type copy
     <store>
       @type relabel
       @label @DEFAULT
     </store>
+    
     <store>
       @type relabel
       @label @ES_APP_OUT
@@ -114,7 +119,7 @@ var pipeline_to_outputs = Describe("Testing Config Generation", func() {
   </match>
 </label>`,
 		}),
-		Entry("Application to default output with Json Parsing", ConfGenerateTest{
+		Entry("Application to default output with Json Parsing, and Labels", ConfGenerateTest{
 			CLFSpec: logging.ClusterLogForwarderSpec{
 				Pipelines: []logging.PipelineSpec{
 					{
@@ -122,12 +127,24 @@ var pipeline_to_outputs = Describe("Testing Config Generation", func() {
 						OutputRefs: []string{logging.OutputNameDefault, "es-app-out"},
 						Name:       "app-to-es",
 						Parse:      "json",
+						Labels: map[string]string{
+							"a": "b",
+							"c": "d",
+						},
 					},
 				},
 			},
 			ExpectedConf: `
 # Copying pipeline app-to-es to outputs
 <label @APP_TO_ES>
+  # Add User Defined labels to the output record
+  <filter **>
+    @type record_transformer
+    <record>
+      openshift { "labels": {"a":"b","c":"d"} }
+    </record>
+  </filter>
+  
   # Parse the logs into json
   <filter **>
     @type parser
@@ -139,12 +156,14 @@ var pipeline_to_outputs = Describe("Testing Config Generation", func() {
       json_parser oj
     </parse>
   </filter>
+  
   <match **>
     @type copy
     <store>
       @type relabel
       @label @DEFAULT
     </store>
+    
     <store>
       @type relabel
       @label @ES_APP_OUT

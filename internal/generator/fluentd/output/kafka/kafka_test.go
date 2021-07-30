@@ -50,7 +50,6 @@ var kafka_store_test = Describe("Generate fluentd config", func() {
 				},
 			},
 			ExpectedConf: `
-# Output to kafka
 <label @KAFKA_RECEIVER>
   <match **>
     @type kafka2
@@ -107,7 +106,6 @@ var kafka_store_test = Describe("Generate fluentd config", func() {
 				},
 			},
 			ExpectedConf: `
-# Output to kafka
 <label @KAFKA_RECEIVER>
   <match **>
     @type kafka2
@@ -154,7 +152,6 @@ var kafka_store_test = Describe("Generate fluentd config", func() {
 			},
 			Secrets: security.NoSecrets,
 			ExpectedConf: `
-# Output to kafka
 <label @KAFKA_RECEIVER>
   <match **>
     @type kafka2

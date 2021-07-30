@@ -44,7 +44,7 @@ func (a ApplicationsToPipelines) Template() string {
 	{{- end}}
   </match>
 </label>
-{{end}}`
+{{- end}}`
 }
 
 func (a ApplicationsToPipelines) Create(t *template.Template) *template.Template {

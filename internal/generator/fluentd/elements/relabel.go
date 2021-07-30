@@ -18,7 +18,7 @@ func (r Relabel) Template() string {
 	return `{{define "` + r.Name() + `"  -}}
 @type relabel
 @label {{.OutLabel}}
-{{- end}}`
+{{end}}`
 }
 
 func (r Relabel) Create(t *template.Template) *template.Template {

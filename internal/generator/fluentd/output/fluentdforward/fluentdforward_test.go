@@ -46,10 +46,8 @@ var fluentforwardtest = Describe("fluentd conf generation", func() {
 				},
 			},
 			ExpectedConf: `
-# Output to fluentdforward
 <label @SECUREFORWARD_RECEIVER>
   <match **>
-    # FluentdForward output
     @type forward
     @id secureforward_receiver
     <server>
@@ -105,10 +103,8 @@ var fluentforwardtest = Describe("fluentd conf generation", func() {
 				},
 			},
 			ExpectedConf: `
-# Output to fluentdforward
 <label @SECUREFORWARD_RECEIVER>
   <match **>
-    # FluentdForward output
     @type forward
     @id secureforward_receiver
     <server>
@@ -159,10 +155,8 @@ var fluentforwardtest = Describe("fluentd conf generation", func() {
 			},
 			Secrets: security.NoSecrets,
 			ExpectedConf: `
-# Output to fluentdforward
 <label @SECUREFORWARD_RECEIVER>
   <match **>
-    # FluentdForward output
     @type forward
     @id secureforward_receiver
     <server>

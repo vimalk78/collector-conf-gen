@@ -135,6 +135,7 @@ var source_to_pipline = Describe("Testing Config Generation", func() {
       @type relabel
       @label @PIPELINE1
     </store>
+    
     <store>
       @type relabel
       @label @PIPELINE2
@@ -399,7 +400,6 @@ var source_to_pipline = Describe("Testing Config Generation", func() {
     </route>
   </match>
 </label>
-
 # Sending unrouted application to pipelines
 <label @_APPLICATION_ALL>
   <match **>
@@ -492,7 +492,6 @@ var source_to_pipline = Describe("Testing Config Generation", func() {
     </route>
   </match>
 </label>
-
 # Copying unrouted application to pipelines
 <label @_APPLICATION_ALL>
   <match **>
@@ -501,10 +500,12 @@ var source_to_pipline = Describe("Testing Config Generation", func() {
       @type relabel
       @label @PIPELINE1
     </store>
+    
     <store>
       @type relabel
       @label @PIPELINE3
     </store>
+    
     <store>
       @type relabel
       @label @PIPELINE4

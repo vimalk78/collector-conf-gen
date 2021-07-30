@@ -1,9 +1,9 @@
 package fluentd
 
 var ToStdOut = `
-{{define "toStdout"}}
+{{define "toStdout" -}}
 # {{.Desc}}
 <match {{.Pattern}}>
  @type stdout
 </match>
-{{end -}}`
+{{end}}`

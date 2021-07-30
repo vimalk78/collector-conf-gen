@@ -38,7 +38,9 @@ func (e Elasticsearch) Name() string {
 
 func (e Elasticsearch) Template() string {
 	return `{{define "` + e.Name() + `" -}}
+{{if .Desc -}}
 # {{.Desc}}
+{{ end -}}
 @type elasticsearch
 @id {{.StoreID}}
 host {{.Host}}
@@ -78,7 +80,6 @@ func (e Elasticsearch) Data() interface{} {
 func Conf(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o logging.OutputSpec, op *Options) []Element {
 	return []Element{
 		FromLabel{
-			Desc:    "Output to elasticsearch",
 			InLabel: helpers.LabelName(o.Name),
 			SubElements: MergeElements(
 				ChangeESIndex(bufspec, secret, o, op),
@@ -123,7 +124,6 @@ func ESOutput(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o loggi
 	}
 	storeID := helpers.StoreID(o.Name, false)
 	return Elasticsearch{
-		Desc:           "Elasticsearch store",
 		StoreID:        strings.ToLower(fmt.Sprintf("%v", helpers.Replacer.Replace(o.Name))),
 		Host:           u.Hostname(),
 		Port:           port,

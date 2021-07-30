@@ -17,17 +17,17 @@ func (rm RecordModifier) Name() string {
 func (rm RecordModifier) Template() string {
 	return `{{define "` + rm.Name() + `"  -}}
 @type record_modifier
-{{- if .Record}}
+{{if .Record -}}
 <record>
 {{- range $Key, $Value := .Record}}
   {{$Key}} {{$Value}}
 {{- end}}
 </record>
-{{- end}}
-{{- if .RemoveKeys}}
+{{end -}}
+{{if .RemoveKeys -}}
 remove_keys {{comma_separated .RemoveKeys}}
-{{- end}}
-{{- end}}
+{{end -}}
+{{end}}
 `
 }
 

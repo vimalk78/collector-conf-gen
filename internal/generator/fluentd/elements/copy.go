@@ -18,7 +18,7 @@ func (c Copy) Template() string {
 	return `{{define "` + c.Name() + `"  -}}
 @type copy
 {{compose .Stores}}
-{{- end}}`
+{{end}}`
 }
 
 func (c Copy) Create(t *template.Template) *template.Template {
