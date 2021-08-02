@@ -68,8 +68,6 @@ func (g *Generator) GenerateRec(t *template.Template, e Element, b *bytes.Buffer
 
 func (g *Generator) compose(es []Element) (string, error) {
 	return g.generate(es)
-	//s, err := g.generate(es)
-	//return strings.TrimSpace(s), err
 }
 
 func (g *Generator) compose_one(e Element) (string, error) {

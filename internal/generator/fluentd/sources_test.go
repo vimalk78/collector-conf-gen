@@ -10,7 +10,7 @@ import (
 
 var log_sources_test = Describe("Testing Config Generation", func() {
 	var f = func(clspec logging.ClusterLoggingSpec, secrets map[string]*corev1.Secret, clfspec logging.ClusterLogForwarderSpec, op Options) []Element {
-		return LogSources(&clfspec, &Options{})
+		return LogSources(&clfspec, &op)
 	}
 	DescribeTable("Source(s)", TestGenerateConfWith(f),
 		Entry("Only Application", ConfGenerateTest{
@@ -187,7 +187,19 @@ var log_sources_test = Describe("Testing Config Generation", func() {
 					},
 				},
 			},
-			ExpectedConf: `
+			ExpectedConf: AllSources,
+		}),
+		Entry("Legacy Log Sources", ConfGenerateTest{
+			CLFSpec: logging.ClusterLogForwarderSpec{},
+			Options: Options{
+				IncludeLegacyForwardConfig: "",
+			},
+			ExpectedConf: AllSources,
+		}),
+	)
+})
+
+const AllSources = `
 # Logs from containers (including openshift containers)
 <source>
   @type tail
@@ -279,9 +291,8 @@ var log_sources_test = Describe("Testing Config Generation", func() {
     keep_time_key true
     time_format %Y-%m-%dT%H:%M:%S.%N%z
   </parse>
-</source>`,
-		}))
-})
+</source>
+`
 
 var metric_sources_test = Describe("Testing Config Generation", func() {
 	var f = func(clspec logging.ClusterLoggingSpec, secrets map[string]*corev1.Secret, clfspec logging.ClusterLogForwarderSpec, op Options) []Element {

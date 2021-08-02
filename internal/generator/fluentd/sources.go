@@ -31,7 +31,8 @@ func MetricSources(spec *logging.ClusterLogForwarderSpec, o *Options) []Element 
 // - includeLegacySyslogConfig
 func LogSources(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	var el []Element = make([]Element, 0)
-	types := Clo.GatherSources(spec)
+	types := Clo.GatherSources(spec, o)
+	types = Clo.AddLegacySources(types, *o)
 	if types.Has(logging.InputNameApplication) || types.Has(logging.InputNameInfrastructure) {
 		el = append(el,
 			source.ContainerLogs{

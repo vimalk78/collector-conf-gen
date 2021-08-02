@@ -55,7 +55,7 @@ func (a ApplicationsToPipelines) Data() interface{} {
 	return a
 }
 
-func SourceTypeToPipeline(sourceType string, spec *logging.ClusterLogForwarderSpec) Element {
+func SourceTypeToPipeline(sourceType string, spec *logging.ClusterLogForwarderSpec, op *Options) Element {
 	srcTypePipeline := []string{}
 	for _, pipeline := range spec.Pipelines {
 		for _, inRef := range pipeline.InputRefs {
@@ -63,6 +63,12 @@ func SourceTypeToPipeline(sourceType string, spec *logging.ClusterLogForwarderSp
 				srcTypePipeline = append(srcTypePipeline, pipeline.Name)
 			}
 		}
+	}
+	if Clo.IncludeLegacyForwardConfig(*op) {
+		srcTypePipeline = append(srcTypePipeline, LegacySecureforward)
+	}
+	if Clo.IncludeLegacySyslogConfig(*op) {
+		srcTypePipeline = append(srcTypePipeline, LegacySyslog)
 	}
 	switch len(srcTypePipeline) {
 	case 0:
@@ -106,6 +112,7 @@ func InputsToPipeline(spec *logging.ClusterLogForwarderSpec, o *Options) []Eleme
 
 func AppToPipeline(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	userDefined := spec.InputMap()
+	// routed by namespace, or labels
 	routedPipelines := ApplicationsToPipelines{}
 	unRoutedPipelines := []string{}
 	for _, pipeline := range spec.Pipelines {
@@ -144,9 +151,10 @@ func AppToPipeline(spec *logging.ClusterLogForwarderSpec, o *Options) []Element 
 	}
 	if len(routedPipelines) == 0 {
 		return []Element{
-			SourceTypeToPipeline(logging.InputNameApplication, spec),
+			SourceTypeToPipeline(logging.InputNameApplication, spec, o),
 		}
 	}
+	fmt.Printf("unRoutedPipelines: %v\n", unRoutedPipelines)
 	switch len(unRoutedPipelines) {
 	case 0:
 		return []Element{
@@ -195,12 +203,12 @@ func AppToPipeline(spec *logging.ClusterLogForwarderSpec, o *Options) []Element 
 
 func AuditToPipeline(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return []Element{
-		SourceTypeToPipeline(logging.InputNameAudit, spec),
+		SourceTypeToPipeline(logging.InputNameAudit, spec, o),
 	}
 }
 
 func InfraToPipeline(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return []Element{
-		SourceTypeToPipeline(logging.InputNameInfrastructure, spec),
+		SourceTypeToPipeline(logging.InputNameInfrastructure, spec, o),
 	}
 }

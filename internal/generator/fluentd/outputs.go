@@ -6,6 +6,7 @@ import (
 	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/output/elasticsearch"
 	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/output/fluentdforward"
 	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/output/kafka"
+	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/output/legacy"
 	corev1 "k8s.io/api/core/v1"
 )
 
@@ -28,6 +29,18 @@ func Outputs(clspec *logging.ClusterLoggingSpec, secrets map[string]*corev1.Secr
 		case logging.OutputTypeKafka:
 			outputs = MergeElements(outputs, kafka.Conf(bufspec, secret, o, op))
 		}
+	}
+	if Clo.IncludeLegacyForwardConfig(*op) {
+		outputs = append(outputs, ConfLiteral{
+			TemplateName: "legacySecureForward",
+			TemplateStr:  legacy.LegacySecureForwardTemplate,
+		})
+	}
+	if Clo.IncludeLegacySyslogConfig(*op) {
+		outputs = append(outputs, ConfLiteral{
+			TemplateName: "legacySyslog",
+			TemplateStr:  legacy.LegacySyslogForwardTemplate,
+		})
 	}
 	return outputs
 }

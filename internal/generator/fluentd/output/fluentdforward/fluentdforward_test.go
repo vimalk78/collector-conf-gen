@@ -20,7 +20,7 @@ var fluentforwardtest = Describe("fluentd conf generation", func() {
 			clspec.Forwarder.Fluentd.Buffer != nil {
 			bufspec = clspec.Forwarder.Fluentd.Buffer
 		}
-		return Conf(bufspec, secrets[clfspec.Outputs[0].Name], clfspec.Outputs[0], &Options{})
+		return Conf(bufspec, secrets[clfspec.Outputs[0].Name], clfspec.Outputs[0], &op)
 	}
 	DescribeTable("for fluentdforward store", TestGenerateConfWith(f),
 		Entry("with tls key,cert,ca-bundle", ConfGenerateTest{
@@ -44,6 +44,9 @@ var fluentforwardtest = Describe("fluentd conf generation", func() {
 						"ca-bundle.crt": []byte("junk"),
 					},
 				},
+			},
+			Options: Options{
+				IncludeLegacyForwardConfig: "",
 			},
 			ExpectedConf: `
 <label @SECUREFORWARD_RECEIVER>

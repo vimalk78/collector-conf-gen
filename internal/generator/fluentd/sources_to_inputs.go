@@ -9,7 +9,8 @@ import (
 
 func SourcesToInputs(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	var el []Element = make([]Element, 0)
-	types := Clo.GatherSources(spec)
+	types := Clo.GatherSources(spec, o)
+	types = Clo.AddLegacySources(types, *o)
 	ApplicationTags := "kubernetes.**"
 	if types.Has(logging.InputNameApplication) {
 		el = append(el, Match{

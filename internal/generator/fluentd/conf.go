@@ -6,7 +6,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-var Header = `
+const Header = `
 ## CLO GENERATED CONFIGURATION ###
 # This file is a copy of the fluentd configuration entrypoint
 # which should normally be supplied in a configmap.

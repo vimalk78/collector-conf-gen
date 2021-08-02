@@ -11,8 +11,15 @@ import (
 **/
 type CLO int
 
+const (
+	IncludeLegacyForwardConfig = "includeLegacyForwardConfig"
+	IncludeLegacySyslogConfig  = "includeLegacySyslogConfig"
+	LegacySecureforward        = "_LEGACY_SECUREFORWARD"
+	LegacySyslog               = "_LEGACY_SYSLOG"
+)
+
 //GatherSources collects the set of unique source types and namespaces
-func (CLO) GatherSources(forwarder *logging.ClusterLogForwarderSpec) sets.String {
+func (c CLO) GatherSources(forwarder *logging.ClusterLogForwarderSpec, op *Options) sets.String {
 	types := sets.NewString()
 	specs := forwarder.InputMap()
 	for inputName := range logging.NewRoutes(forwarder.Pipelines).ByInput {
@@ -31,6 +38,25 @@ func (CLO) GatherSources(forwarder *logging.ClusterLogForwarderSpec) sets.String
 		}
 	}
 	return types
+}
+
+func (c CLO) AddLegacySources(types sets.String, op Options) sets.String {
+	if c.IncludeLegacyForwardConfig(op) || c.IncludeLegacySyslogConfig(op) {
+		types.Insert(logging.InputNameApplication)
+		types.Insert(logging.InputNameInfrastructure)
+		types.Insert(logging.InputNameAudit)
+	}
+	return types
+}
+
+func (CLO) IncludeLegacyForwardConfig(op Options) bool {
+	_, ok := op[IncludeLegacyForwardConfig]
+	return ok
+}
+
+func (CLO) IncludeLegacySyslogConfig(op Options) bool {
+	_, ok := op[IncludeLegacySyslogConfig]
+	return ok
 }
 
 var Clo CLO

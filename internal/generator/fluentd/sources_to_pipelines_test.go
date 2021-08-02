@@ -15,8 +15,8 @@ This test case includes only the dynamic parts of Fluentd conf. This leaves out 
 var source_to_pipline = Describe("Testing Config Generation", func() {
 	var f = func(clspec logging.ClusterLoggingSpec, secrets map[string]*corev1.Secret, clfspec logging.ClusterLogForwarderSpec, op Options) []Element {
 		return MergeElements(
-			SourcesToInputs(&clfspec, &Options{}),
-			InputsToPipeline(&clfspec, &Options{}),
+			SourcesToInputs(&clfspec, &op),
+			InputsToPipeline(&clfspec, &op),
 		)
 	}
 	DescribeTable("Source(s) to Pipeline(s)", TestGenerateConfWith(f),
@@ -407,6 +407,85 @@ var source_to_pipline = Describe("Testing Config Generation", func() {
     @label @PIPELINE1
   </match>
 </label>`,
+		}),
+		Entry("Legacy Forwarding", ConfGenerateTest{
+			CLFSpec: logging.ClusterLogForwarderSpec{},
+			Options: Options{
+				IncludeLegacyForwardConfig: "",
+				IncludeLegacySyslogConfig:  "",
+			},
+			ExpectedConf: `
+# Dont discard Application logs
+<match kubernetes.**>
+  @type relabel
+  @label @_APPLICATION
+</match>
+
+# Dont discard Infrastructure logs
+<match **_default_** **_kube-*_** **_openshift-*_** **_openshift_** journal.** system.var.log**>
+  @type relabel
+  @label @_INFRASTRUCTURE
+</match>
+
+# Dont discard Audit logs
+<match linux-audit.log** k8s-audit.log** openshift-audit.log**>
+  @type relabel
+  @label @_AUDIT
+</match>
+
+# Send any remaining unmatched tags to stdout
+<match **>
+ @type stdout
+</match>
+
+# Copying application source type to pipeline
+<label @_APPLICATION>
+  <match **>
+    @type copy
+    <store>
+      @type relabel
+      @label @_LEGACY_SECUREFORWARD
+    </store>
+    
+    <store>
+      @type relabel
+      @label @_LEGACY_SYSLOG
+    </store>
+  </match>
+</label>
+
+# Copying infrastructure source type to pipeline
+<label @_INFRASTRUCTURE>
+  <match **>
+    @type copy
+    <store>
+      @type relabel
+      @label @_LEGACY_SECUREFORWARD
+    </store>
+    
+    <store>
+      @type relabel
+      @label @_LEGACY_SYSLOG
+    </store>
+  </match>
+</label>
+
+# Copying audit source type to pipeline
+<label @_AUDIT>
+  <match **>
+    @type copy
+    <store>
+      @type relabel
+      @label @_LEGACY_SECUREFORWARD
+    </store>
+    
+    <store>
+      @type relabel
+      @label @_LEGACY_SYSLOG
+    </store>
+  </match>
+</label>
+`,
 		}),
 		Entry("Complex Case", ConfGenerateTest{
 			Desc: "Complex Case",

@@ -17,7 +17,7 @@ func (a Conf) Sources(spec *logging.ClusterLogForwarderSpec, o *Options) []Eleme
 
 func (a Conf) LogSources(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	var el []Element = make([]Element, 0)
-	types := Clo.GatherSources(spec)
+	types := Clo.GatherSources(spec, o)
 	if types.Has(logging.InputNameApplication) || types.Has(logging.InputNameInfrastructure) {
 		el = append(el,
 			source.KubernetesLogs{
