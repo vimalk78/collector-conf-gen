@@ -11,7 +11,9 @@ import (
 )
 
 func Outputs(clspec *logging.ClusterLoggingSpec, secrets map[string]*corev1.Secret, clfspec *logging.ClusterLogForwarderSpec, op *Options) []Element {
-	outputs := []Element{}
+	outputs := []Element{
+		Comment("Ship logs to specific outputs"),
+	}
 	var bufspec *logging.FluentdBufferSpec = nil
 	if clspec != nil &&
 		clspec.Forwarder != nil &&

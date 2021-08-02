@@ -17,7 +17,7 @@ var JournalLogTemplate = `
     persistent true
     # NOTE: if this does not end in .json, fluentd will think it
     # is the name of a directory - see fluentd storage_local.rb
-    path '/var/log/journal_pos.json'
+    path '/var/lib/fluentd/pos/journal_pos.json'
   </storage>
   matches "#{ENV['JOURNAL_FILTERS_JSON'] || '[]'}"
   tag journal

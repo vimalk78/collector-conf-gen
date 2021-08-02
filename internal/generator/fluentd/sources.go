@@ -39,7 +39,7 @@ func LogSources(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 				Desc:         "Logs from containers (including openshift containers)",
 				Paths:        ContainerLogPaths(),
 				ExcludePaths: ExcludeContainerPaths(),
-				PosFile:      "/var/log/es-containers.log.pos",
+				PosFile:      "/var/lib/fluentd/pos/es-containers.log.pos",
 				OutLabel:     "MEASURE",
 			})
 	}
@@ -55,23 +55,30 @@ func LogSources(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	if types.Has(logging.InputNameAudit) {
 		el = append(el,
 			source.HostAuditLog{
-				Desc:         "Logs from host audit",
+				Desc:         "linux audit logs",
 				OutLabel:     "MEASURE",
 				TemplateName: "inputSourceHostAuditTemplate",
 				TemplateStr:  source.HostAuditLogTemplate,
 			},
 			source.K8sAuditLog{
-				Desc:         "Logs from kubernetes audit",
+				Desc:         "k8s audit logs",
 				OutLabel:     "MEASURE",
 				TemplateName: "inputSourceK8sAuditTemplate",
 				TemplateStr:  source.K8sAuditLogTemplate,
 			},
 			source.OpenshiftAuditLog{
-				Desc:         "Logs from openshift audit",
+				Desc:         "Openshift audit logs",
 				OutLabel:     "MEASURE",
 				TemplateName: "inputSourceOpenShiftAuditTemplate",
 				TemplateStr:  source.OpenshiftAuditLogTemplate,
-			})
+			},
+			source.OVNAuditLogs{
+				Desc:         "Openshift Virtual Network (OVN) audit logs",
+				OutLabel:     "MEASURE",
+				TemplateName: "inputSourceOVNAuditTemplate",
+				TemplateStr:  source.OVNAuditLogTemplate,
+			},
+		)
 	}
 	return el
 }

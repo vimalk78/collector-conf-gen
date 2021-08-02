@@ -76,20 +76,21 @@ var legacy_test = Describe("fluentd conf generation", func() {
   </match>
 </label>
 
-<label @_LEGACY_SECUREFORWARD>  
-  <match **>  
-    @type copy  
-    #include legacy secure-forward.conf  
-    @include /etc/fluent/configs.d/secure-forward/secure-forward.conf  
-  </match>  
-</label>  
+# Ship logs to specific outputs
+<label @_LEGACY_SECUREFORWARD>
+  <match **>
+    @type copy
+    #include legacy secure-forward.conf
+    @include /etc/fluent/configs.d/secure-forward/secure-forward.conf
+  </match>
+</label>
 
 <label @_LEGACY_SYSLOG>
   <match **>
     @type copy
     #include legacy Syslog
     @include /etc/fluent/configs.d/syslog/syslog.conf
-  </match>  
+  </match>
 </label>
 `,
 			}))

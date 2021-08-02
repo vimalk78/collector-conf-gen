@@ -154,7 +154,12 @@ func AppToPipeline(spec *logging.ClusterLogForwarderSpec, o *Options) []Element 
 			SourceTypeToPipeline(logging.InputNameApplication, spec, o),
 		}
 	}
-	fmt.Printf("unRoutedPipelines: %v\n", unRoutedPipelines)
+	if Clo.IncludeLegacyForwardConfig(*o) {
+		unRoutedPipelines = append(unRoutedPipelines, LegacySecureforward)
+	}
+	if Clo.IncludeLegacySyslogConfig(*o) {
+		unRoutedPipelines = append(unRoutedPipelines, LegacySyslog)
+	}
 	switch len(unRoutedPipelines) {
 	case 0:
 		return []Element{

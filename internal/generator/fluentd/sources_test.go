@@ -32,7 +32,7 @@ var log_sources_test = Describe("Testing Config Generation", func() {
   @id container-input
   path "/var/log/containers/*.log"
   exclude_path ["/var/log/containers/fluentd-*_openshift-logging_*.log", "/var/log/containers/elasticsearch-*_openshift-logging_*.log", "/var/log/containers/kibana-*_openshift-logging_*.log"]
-  pos_file "/var/log/es-containers.log.pos"
+  pos_file "/var/lib/fluentd/pos/es-containers.log.pos"
   refresh_interval 5
   rotate_wait 5
   tag kubernetes.*
@@ -52,7 +52,8 @@ var log_sources_test = Describe("Testing Config Generation", func() {
       keep_time_key true
     </pattern>
   </parse>
-</source>`,
+</source>
+`,
 		}),
 		Entry("Only Infrastructure", ConfGenerateTest{
 			CLFSpec: logging.ClusterLogForwarderSpec{
@@ -73,7 +74,7 @@ var log_sources_test = Describe("Testing Config Generation", func() {
   @id container-input
   path "/var/log/containers/*.log"
   exclude_path ["/var/log/containers/fluentd-*_openshift-logging_*.log", "/var/log/containers/elasticsearch-*_openshift-logging_*.log", "/var/log/containers/kibana-*_openshift-logging_*.log"]
-  pos_file "/var/log/es-containers.log.pos"
+  pos_file "/var/lib/fluentd/pos/es-containers.log.pos"
   refresh_interval 5
   rotate_wait 5
   tag kubernetes.*
@@ -106,12 +107,13 @@ var log_sources_test = Describe("Testing Config Generation", func() {
     persistent true
     # NOTE: if this does not end in .json, fluentd will think it
     # is the name of a directory - see fluentd storage_local.rb
-    path '/var/log/journal_pos.json'
+    path '/var/lib/fluentd/pos/journal_pos.json'
   </storage>
   matches "#{ENV['JOURNAL_FILTERS_JSON'] || '[]'}"
   tag journal
   read_from_head "#{if (val = ENV.fetch('JOURNAL_READ_FROM_HEAD','')) && (val.length > 0); val; else 'false'; end}"
-</source>`,
+</source>
+`,
 		}),
 		Entry("Only Audit", ConfGenerateTest{
 			CLFSpec: logging.ClusterLogForwarderSpec{
@@ -126,26 +128,26 @@ var log_sources_test = Describe("Testing Config Generation", func() {
 				},
 			},
 			ExpectedConf: `
-# Logs from host audit
+# linux audit logs
 <source>
   @type tail
   @id audit-input
   @label @MEASURE
-  path "#{ENV['AUDIT_FILE'] || '/var/log/audit/audit.log'}"
-  pos_file "#{ENV['AUDIT_POS_FILE'] || '/var/log/audit/audit.log.pos'}"
+  path "/var/log/audit/audit.log"
+  pos_file "/var/lib/fluentd/pos/audit.log.pos"
   tag linux-audit.log
   <parse>
     @type viaq_host_audit
   </parse>
 </source>
 
-# Logs from kubernetes audit
+# k8s audit logs
 <source>
   @type tail
   @id k8s-audit-input
   @label @MEASURE
-  path "#{ENV['K8S_AUDIT_FILE'] || '/var/log/kube-apiserver/audit.log'}"
-  pos_file "#{ENV['K8S_AUDIT_POS_FILE'] || '/var/log/kube-apiserver/audit.log.pos'}"
+  path "/var/log/kube-apiserver/audit.log"
+  pos_file "/var/lib/fluentd/pos/kube-apiserver.audit.log.pos"
   tag k8s-audit.log
   <parse>
     @type json
@@ -156,13 +158,13 @@ var log_sources_test = Describe("Testing Config Generation", func() {
   </parse>
 </source>
 
-# Logs from openshift audit
+# Openshift audit logs
 <source>
   @type tail
   @id openshift-audit-input
   @label @MEASURE
   path /var/log/oauth-apiserver/audit.log,/var/log/openshift-apiserver/audit.log
-  pos_file /var/log/oauth-apiserver.audit.log
+  pos_file /var/lib/fluentd/pos/oauth-apiserver.audit.log
   tag openshift-audit.log
   <parse>
     @type json
@@ -171,7 +173,24 @@ var log_sources_test = Describe("Testing Config Generation", func() {
     keep_time_key true
     time_format %Y-%m-%dT%H:%M:%S.%N%z
   </parse>
-</source>`,
+</source>
+
+# Openshift Virtual Network (OVN) audit logs
+<source>
+  @type tail
+  @id ovn-audit-input
+  @label @MEASURE
+  path "/var/log/ovn/acl-audit-log.log"
+  pos_file "/var/lib/fluentd/pos/acl-audit-log.pos"
+  tag ovn-audit.log
+  refresh_interval 5
+  rotate_wait 5
+  read_from_head true
+  <parse>
+    @type none
+  </parse>
+</source>
+`,
 		}),
 		Entry("All Log Sources", ConfGenerateTest{
 			CLFSpec: logging.ClusterLogForwarderSpec{
@@ -206,7 +225,7 @@ const AllSources = `
   @id container-input
   path "/var/log/containers/*.log"
   exclude_path ["/var/log/containers/fluentd-*_openshift-logging_*.log", "/var/log/containers/elasticsearch-*_openshift-logging_*.log", "/var/log/containers/kibana-*_openshift-logging_*.log"]
-  pos_file "/var/log/es-containers.log.pos"
+  pos_file "/var/lib/fluentd/pos/es-containers.log.pos"
   refresh_interval 5
   rotate_wait 5
   tag kubernetes.*
@@ -239,33 +258,33 @@ const AllSources = `
     persistent true
     # NOTE: if this does not end in .json, fluentd will think it
     # is the name of a directory - see fluentd storage_local.rb
-    path '/var/log/journal_pos.json'
+    path '/var/lib/fluentd/pos/journal_pos.json'
   </storage>
   matches "#{ENV['JOURNAL_FILTERS_JSON'] || '[]'}"
   tag journal
   read_from_head "#{if (val = ENV.fetch('JOURNAL_READ_FROM_HEAD','')) && (val.length > 0); val; else 'false'; end}"
 </source>
 
-# Logs from host audit
+# linux audit logs
 <source>
   @type tail
   @id audit-input
   @label @MEASURE
-  path "#{ENV['AUDIT_FILE'] || '/var/log/audit/audit.log'}"
-  pos_file "#{ENV['AUDIT_POS_FILE'] || '/var/log/audit/audit.log.pos'}"
+  path "/var/log/audit/audit.log"
+  pos_file "/var/lib/fluentd/pos/audit.log.pos"
   tag linux-audit.log
   <parse>
     @type viaq_host_audit
   </parse>
 </source>
 
-# Logs from kubernetes audit
+# k8s audit logs
 <source>
   @type tail
   @id k8s-audit-input
   @label @MEASURE
-  path "#{ENV['K8S_AUDIT_FILE'] || '/var/log/kube-apiserver/audit.log'}"
-  pos_file "#{ENV['K8S_AUDIT_POS_FILE'] || '/var/log/kube-apiserver/audit.log.pos'}"
+  path "/var/log/kube-apiserver/audit.log"
+  pos_file "/var/lib/fluentd/pos/kube-apiserver.audit.log.pos"
   tag k8s-audit.log
   <parse>
     @type json
@@ -276,13 +295,13 @@ const AllSources = `
   </parse>
 </source>
 
-# Logs from openshift audit
+# Openshift audit logs
 <source>
   @type tail
   @id openshift-audit-input
   @label @MEASURE
   path /var/log/oauth-apiserver/audit.log,/var/log/openshift-apiserver/audit.log
-  pos_file /var/log/oauth-apiserver.audit.log
+  pos_file /var/lib/fluentd/pos/oauth-apiserver.audit.log
   tag openshift-audit.log
   <parse>
     @type json
@@ -290,6 +309,22 @@ const AllSources = `
     # In case folks want to parse based on the requestReceivedTimestamp key
     keep_time_key true
     time_format %Y-%m-%dT%H:%M:%S.%N%z
+  </parse>
+</source>
+
+# Openshift Virtual Network (OVN) audit logs
+<source>
+  @type tail
+  @id ovn-audit-input
+  @label @MEASURE
+  path "/var/log/ovn/acl-audit-log.log"
+  pos_file "/var/lib/fluentd/pos/acl-audit-log.pos"
+  tag ovn-audit.log
+  refresh_interval 5
+  rotate_wait 5
+  read_from_head true
+  <parse>
+    @type none
   </parse>
 </source>
 `

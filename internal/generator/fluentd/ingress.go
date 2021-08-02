@@ -11,16 +11,14 @@ func Concat(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	return []Element{
 		Pipeline{
 			InLabel: helpers.LabelName("CONCAT"),
-			Desc:    "Concat log lines of container logs",
+			Desc:    "Concat log lines of container logs, and send to INGRESS pipeline",
 			SubElements: []Element{
 				ConfLiteral{
-					Desc:         "Concat container lines",
 					TemplateName: "concatLines",
 					TemplateStr:  ConcatLines,
 					OutLabel:     helpers.LabelName("INGRESS"),
 				},
 				Match{
-					Desc:      "Kubernetes Logs go to INGRESS pipeline",
 					MatchTags: "kubernetes.**",
 					MatchElement: Relabel{
 						OutLabel: helpers.LabelName("INGRESS"),
@@ -345,7 +343,6 @@ var GenElasticsearchID string = `
 
 var ConcatLines string = `
 {{define "concatLines" -}}
-# {{.Desc}}
 <filter kubernetes.**>
   @type concat
   key log

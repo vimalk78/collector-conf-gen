@@ -33,26 +33,26 @@ const (
 var NOKEYS = []string{}
 
 func Buffer(bufkeys []string, bufspec *logging.FluentdBufferSpec, bufpath string, os *logging.OutputSpec) []Element {
-	return MakeBuffer(bufkeys, bufspec, bufpath, os)
+	return []Element{
+		MakeBuffer(bufkeys, bufspec, bufpath, os),
+	}
 }
 
-func MakeBuffer(bufkeys []string, bufspec *logging.FluentdBufferSpec, bufpath string, os *logging.OutputSpec) []Element {
-	return []Element{
-		BufferConfig{
-			BufferKeys:           bufkeys,
-			BufferPath:           BufferPath(bufpath),
-			FlushMode:            FlushMode(bufspec),
-			FlushThreadCount:     FlushThreadCount(bufspec),
-			FlushInterval:        FlushInterval(os, bufspec),
-			RetryType:            RetryType(bufspec),
-			RetryWait:            RetryWait(bufspec),
-			RetryMaxInterval:     RetryMaxInterval(bufspec),
-			RetryTimeout:         RetryTimeout(bufspec),
-			QueuedChunkLimitSize: QueuedChunkLimitSize(bufspec),
-			TotalLimitSize:       TotalLimitSize(bufspec),
-			ChunkLimitSize:       ChunkLimitSize(bufspec),
-			OverflowAction:       OverflowAction(os, bufspec),
-		},
+func MakeBuffer(bufkeys []string, bufspec *logging.FluentdBufferSpec, bufpath string, os *logging.OutputSpec) BufferConfig {
+	return BufferConfig{
+		BufferKeys:           bufkeys,
+		BufferPath:           BufferPath(bufpath),
+		FlushMode:            FlushMode(bufspec),
+		FlushThreadCount:     FlushThreadCount(bufspec),
+		FlushInterval:        FlushInterval(os, bufspec),
+		RetryType:            RetryType(bufspec),
+		RetryWait:            RetryWait(bufspec),
+		RetryMaxInterval:     RetryMaxInterval(bufspec),
+		RetryTimeout:         RetryTimeout(bufspec),
+		QueuedChunkLimitSize: QueuedChunkLimitSize(bufspec),
+		TotalLimitSize:       TotalLimitSize(bufspec),
+		ChunkLimitSize:       ChunkLimitSize(bufspec),
+		OverflowAction:       OverflowAction(os, bufspec),
 	}
 }
 

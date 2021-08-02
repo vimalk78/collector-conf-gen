@@ -27,3 +27,13 @@ func (b ConfLiteral) Create(t *template.Template) *template.Template {
 func (b ConfLiteral) Data() interface{} {
 	return b
 }
+
+func Comment(c string) Element {
+	return ConfLiteral{
+		Desc:         c,
+		TemplateName: "comment",
+		TemplateStr: `{{define "comment" -}}
+# {{.Desc}}
+{{- end}}`,
+	}
+}

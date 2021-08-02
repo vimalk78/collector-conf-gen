@@ -51,7 +51,6 @@ func PrometheusMetrics(spec *logging.ClusterLogForwarderSpec, o *Options) []Elem
 			SubElements: []Element{
 				ConfLiteral{
 					TemplateName: "EmitMetrics",
-					Desc:         "xx",
 					TemplateStr:  EmitMetrics,
 				},
 				Match{
@@ -82,7 +81,6 @@ func PrometheusMetrics(spec *logging.ClusterLogForwarderSpec, o *Options) []Elem
 
 var EmitMetrics string = `
 {{define "EmitMetrics" -}}
-# {{.Desc}}
 <filter **>
   @type record_transformer
   enable_ruby

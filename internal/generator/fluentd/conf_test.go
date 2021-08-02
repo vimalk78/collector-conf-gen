@@ -122,7 +122,7 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
   @id container-input
   path "/var/log/containers/*.log"
   exclude_path ["/var/log/containers/fluentd-*_openshift-logging_*.log", "/var/log/containers/elasticsearch-*_openshift-logging_*.log", "/var/log/containers/kibana-*_openshift-logging_*.log"]
-  pos_file "/var/log/es-containers.log.pos"
+  pos_file "/var/lib/fluentd/pos/es-containers.log.pos"
   refresh_interval 5
   rotate_wait 5
   tag kubernetes.*
@@ -155,33 +155,33 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
     persistent true
     # NOTE: if this does not end in .json, fluentd will think it
     # is the name of a directory - see fluentd storage_local.rb
-    path '/var/log/journal_pos.json'
+    path '/var/lib/fluentd/pos/journal_pos.json'
   </storage>
   matches "#{ENV['JOURNAL_FILTERS_JSON'] || '[]'}"
   tag journal
   read_from_head "#{if (val = ENV.fetch('JOURNAL_READ_FROM_HEAD','')) && (val.length > 0); val; else 'false'; end}"
 </source>
 
-# Logs from host audit
+# linux audit logs
 <source>
   @type tail
   @id audit-input
   @label @MEASURE
-  path "#{ENV['AUDIT_FILE'] || '/var/log/audit/audit.log'}"
-  pos_file "#{ENV['AUDIT_POS_FILE'] || '/var/log/audit/audit.log.pos'}"
+  path "/var/log/audit/audit.log"
+  pos_file "/var/lib/fluentd/pos/audit.log.pos"
   tag linux-audit.log
   <parse>
     @type viaq_host_audit
   </parse>
 </source>
 
-# Logs from kubernetes audit
+# k8s audit logs
 <source>
   @type tail
   @id k8s-audit-input
   @label @MEASURE
-  path "#{ENV['K8S_AUDIT_FILE'] || '/var/log/kube-apiserver/audit.log'}"
-  pos_file "#{ENV['K8S_AUDIT_POS_FILE'] || '/var/log/kube-apiserver/audit.log.pos'}"
+  path "/var/log/kube-apiserver/audit.log"
+  pos_file "/var/lib/fluentd/pos/kube-apiserver.audit.log.pos"
   tag k8s-audit.log
   <parse>
     @type json
@@ -192,13 +192,13 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
   </parse>
 </source>
 
-# Logs from openshift audit
+# Openshift audit logs
 <source>
   @type tail
   @id openshift-audit-input
   @label @MEASURE
   path /var/log/oauth-apiserver/audit.log,/var/log/openshift-apiserver/audit.log
-  pos_file /var/log/oauth-apiserver.audit.log
+  pos_file /var/lib/fluentd/pos/oauth-apiserver.audit.log
   tag openshift-audit.log
   <parse>
     @type json
@@ -209,9 +209,24 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
   </parse>
 </source>
 
+# Openshift Virtual Network (OVN) audit logs
+<source>
+  @type tail
+  @id ovn-audit-input
+  @label @MEASURE
+  path "/var/log/ovn/acl-audit-log.log"
+  pos_file "/var/lib/fluentd/pos/acl-audit-log.pos"
+  tag ovn-audit.log
+  refresh_interval 5
+  rotate_wait 5
+  read_from_head true
+  <parse>
+    @type none
+  </parse>
+</source>
+
 # Increment Prometheus metrics
 <label @MEASURE>
-  # xx
   <filter **>
     @type record_transformer
     enable_ruby
@@ -271,9 +286,8 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
   </match>
 </label>
 
-# Concat log lines of container logs
+# Concat log lines of container logs, and send to INGRESS pipeline
 <label @CONCAT>
-  # Concat container lines
   <filter kubernetes.**>
     @type concat
     key log
@@ -282,7 +296,6 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
     separator ''
   </filter>
   
-  # Kubernetes Logs go to INGRESS pipeline
   <match kubernetes.**>
     @type relabel
     @label @INGRESS
@@ -565,6 +578,7 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
   </match>
 </label>
 
+# Ship logs to specific outputs
 <label @ES_1>
   #remove structured field if present
   <filter **>

@@ -11,8 +11,8 @@ var HostAuditLogTemplate = `
   @type tail
   @id audit-input
   @label @{{.OutLabel}}
-  path "#{ENV['AUDIT_FILE'] || '/var/log/audit/audit.log'}"
-  pos_file "#{ENV['AUDIT_POS_FILE'] || '/var/log/audit/audit.log.pos'}"
+  path "/var/log/audit/audit.log"
+  pos_file "/var/lib/fluentd/pos/audit.log.pos"
   tag linux-audit.log
   <parse>
     @type viaq_host_audit
@@ -30,7 +30,7 @@ var OpenshiftAuditLogTemplate = `
   @id openshift-audit-input
   @label @{{.OutLabel}}
   path /var/log/oauth-apiserver/audit.log,/var/log/openshift-apiserver/audit.log
-  pos_file /var/log/oauth-apiserver.audit.log
+  pos_file /var/lib/fluentd/pos/oauth-apiserver.audit.log
   tag openshift-audit.log
   <parse>
     @type json
@@ -52,8 +52,8 @@ var K8sAuditLogTemplate = `
   @type tail
   @id k8s-audit-input
   @label @{{.OutLabel}}
-  path "#{ENV['K8S_AUDIT_FILE'] || '/var/log/kube-apiserver/audit.log'}"
-  pos_file "#{ENV['K8S_AUDIT_POS_FILE'] || '/var/log/kube-apiserver/audit.log.pos'}"
+  path "/var/log/kube-apiserver/audit.log"
+  pos_file "/var/lib/fluentd/pos/kube-apiserver.audit.log.pos"
   tag k8s-audit.log
   <parse>
     @type json
@@ -67,3 +67,25 @@ var K8sAuditLogTemplate = `
 `
 
 type K8sAuditLog = ConfLiteral
+
+var OVNAuditLogTemplate = `
+{{define "inputSourceOVNAuditTemplate" -}}  
+# {{.Desc}}
+<source>
+  @type tail
+  @id ovn-audit-input
+  @label @MEASURE
+  path "/var/log/ovn/acl-audit-log.log"
+  pos_file "/var/lib/fluentd/pos/acl-audit-log.pos"
+  tag ovn-audit.log
+  refresh_interval 5
+  rotate_wait 5
+  read_from_head true
+  <parse>
+    @type none
+  </parse>
+</source>
+{{end}}
+`
+
+type OVNAuditLogs = ConfLiteral
