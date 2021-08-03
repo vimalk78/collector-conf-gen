@@ -124,7 +124,7 @@ func ESOutput(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o loggi
 	}
 	storeID := helpers.StoreID(o.Name, false)
 	return Elasticsearch{
-		StoreID:        strings.ToLower(fmt.Sprintf("%v", helpers.Replacer.Replace(o.Name))),
+		StoreID:        storeID,
 		Host:           u.Hostname(),
 		Port:           port,
 		SecurityConfig: SecurityConfig(o, secret),

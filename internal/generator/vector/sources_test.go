@@ -8,7 +8,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-var log_sources_test = Describe("Vector Config Generation", func() {
+var _ = Describe("Vector Config Generation", func() {
 	var f = func(clspec logging.ClusterLoggingSpec, secrets map[string]*corev1.Secret, clfspec logging.ClusterLogForwarderSpec, op Options) []Element {
 		a := MakeConf()
 		return MergeElements(
@@ -131,56 +131,3 @@ var log_sources_test = Describe("Vector Config Generation", func() {
   include = ["/var/log/oauth-apiserver.audit.log"]`,
 		}))
 })
-
-/*
-var metric_sources_test = Describe("Testing Config Generation", func() {
-	var f = func(spec logging.ClusterLogForwarderSpec) []Element {
-		a := MakeConf()
-		return MergeElements(
-			a.MetricSources(&spec, &Options{}),
-		)
-	}
-	DescribeTable("Metric Source(s)", TestGenerateConfWith(f),
-		Entry("Any Input", ConfGenerateTest{
-			Spec: logging.ClusterLogForwarderSpec{
-				Pipelines: []logging.PipelineSpec{
-					{
-						InputRefs:  []string{},
-						OutputRefs: []string{logging.OutputNameDefault},
-						Name:       "pipeline",
-					},
-				},
-			},
-			ExpectedConf: `
-# Prometheus Monitoring
-<source>
-  @type prometheus
-  bind "#{ENV['POD_IP']}"
-  <ssl>
-    enable true
-    certificate_path "#{ENV['METRICS_CERT'] || '/etc/fluent/metrics/tls.crt'}"
-    private_key_path "#{ENV['METRICS_KEY'] || '/etc/fluent/metrics/tls.key'}"
-  </ssl>
-</source>
-
-<source>
-  @type prometheus_monitor
-  <labels>
-    hostname ${hostname}
-  </labels>
-</source>
-
-# excluding prometheus_tail_monitor
-# since it leaks namespace/pod info
-# via file paths
-
-# This is considered experimental by the repo
-<source>
-  @type prometheus_output_monitor
-  <labels>
-    hostname ${hostname}
-  </labels>
-</source>`,
-		}))
-})
-*/

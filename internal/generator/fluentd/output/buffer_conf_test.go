@@ -10,7 +10,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-var buffer_test = Describe("Generate fluentd conf", func() {
+var _ = Describe("Generate fluentd conf", func() {
 	var f = func(clspec logging.ClusterLoggingSpec, secrets map[string]*corev1.Secret, clfspec logging.ClusterLogForwarderSpec, op Options) []Element {
 		es := make([][]Element, len(clfspec.Outputs))
 		for i := range clfspec.Outputs {
@@ -66,7 +66,7 @@ var buffer_test = Describe("Generate fluentd conf", func() {
 		}))
 })
 
-var retry_buffer_test = Describe("", func() {
+var _ = Describe("Generate fluentd conf", func() {
 	var f = func(clspec logging.ClusterLoggingSpec, secrets map[string]*corev1.Secret, clfspec logging.ClusterLogForwarderSpec, op Options) []Element {
 		es := make([][]Element, len(clfspec.Outputs))
 		for i := range clfspec.Outputs {
@@ -75,7 +75,7 @@ var retry_buffer_test = Describe("", func() {
 		}
 		return MergeElements(es...)
 	}
-	DescribeTable("Buffers", TestGenerateConfWith(f),
+	DescribeTable("Retry Buffers", TestGenerateConfWith(f),
 		Entry("With no tuning parameters", ConfGenerateTest{
 			CLFSpec: logging.ClusterLogForwarderSpec{
 				Pipelines: []logging.PipelineSpec{

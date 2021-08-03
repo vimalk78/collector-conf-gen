@@ -8,7 +8,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-var log_sources_test = Describe("Testing Config Generation", func() {
+var _ = Describe("Testing Config Generation", func() {
 	var f = func(clspec logging.ClusterLoggingSpec, secrets map[string]*corev1.Secret, clfspec logging.ClusterLogForwarderSpec, op Options) []Element {
 		return LogSources(&clfspec, &op)
 	}
@@ -329,7 +329,7 @@ const AllSources = `
 </source>
 `
 
-var metric_sources_test = Describe("Testing Config Generation", func() {
+var _ = Describe("Testing Config Generation", func() {
 	var f = func(clspec logging.ClusterLoggingSpec, secrets map[string]*corev1.Secret, clfspec logging.ClusterLogForwarderSpec, op Options) []Element {
 		return MetricSources(&clfspec, &Options{})
 	}

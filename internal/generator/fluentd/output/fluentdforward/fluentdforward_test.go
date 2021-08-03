@@ -12,7 +12,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-var fluentforwardtest = Describe("fluentd conf generation", func() {
+var _ = Describe("fluentd conf generation", func() {
 	var f = func(clspec logging.ClusterLoggingSpec, secrets map[string]*corev1.Secret, clfspec logging.ClusterLogForwarderSpec, op Options) []Element {
 		var bufspec *logging.FluentdBufferSpec = nil
 		if clspec.Forwarder != nil &&
@@ -22,7 +22,7 @@ var fluentforwardtest = Describe("fluentd conf generation", func() {
 		}
 		return Conf(bufspec, secrets[clfspec.Outputs[0].Name], clfspec.Outputs[0], &op)
 	}
-	DescribeTable("for fluentdforward store", TestGenerateConfWith(f),
+	DescribeTable("for fluentdforward output", TestGenerateConfWith(f),
 		Entry("with tls key,cert,ca-bundle", ConfGenerateTest{
 			CLFSpec: logging.ClusterLogForwarderSpec{
 				Outputs: []logging.OutputSpec{
@@ -37,7 +37,7 @@ var fluentforwardtest = Describe("fluentd conf generation", func() {
 				},
 			},
 			Secrets: map[string]*corev1.Secret{
-				"secureforward-receiver": &corev1.Secret{
+				"secureforward-receiver": {
 					Data: map[string][]byte{
 						"tls.key":       []byte("junk"),
 						"tls.crt":       []byte("junk"),
@@ -99,7 +99,7 @@ var fluentforwardtest = Describe("fluentd conf generation", func() {
 				},
 			},
 			Secrets: map[string]*corev1.Secret{
-				"secureforward-receiver": &corev1.Secret{
+				"secureforward-receiver": {
 					Data: map[string][]byte{
 						"shared_key": []byte("junk"),
 					},

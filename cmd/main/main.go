@@ -27,10 +27,8 @@ func testFluentd() {
 		},
 	}
 	g := generator.MakeGenerator()
-	conf, _ := g.GenerateConfWithHeader(
-		fluentd.Header,
-		generator.MergeSections(
-			fluentd.Conf(nil, nil, &spec, &generator.Options{}))...)
+	conf, _ := g.GenerateConf(generator.MergeSections(
+		fluentd.Conf(nil, nil, &spec, &generator.Options{}))...)
 	fmt.Printf("conf:\n%s\n", conf)
 }
 

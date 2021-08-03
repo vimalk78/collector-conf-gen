@@ -10,9 +10,9 @@ import (
 )
 
 /**
-This test case includes only the dynamic parts of Fluentd conf. This leaves out the static parts which do not change with CLF spec.
+Note: This test case includes only the dynamic parts of Fluentd conf. This leaves out the static parts which do not change with CLF spec.
 **/
-var source_to_pipline = Describe("Testing Config Generation", func() {
+var _ = Describe("Testing Config Generation", func() {
 	var f = func(clspec logging.ClusterLoggingSpec, secrets map[string]*corev1.Secret, clfspec logging.ClusterLogForwarderSpec, op Options) []Element {
 		return MergeElements(
 			SourcesToInputs(&clfspec, &op),
@@ -82,7 +82,7 @@ var source_to_pipline = Describe("Testing Config Generation", func() {
   </match>
 </label>`,
 		}),
-		Entry("", ConfGenerateTest{
+		Entry("Send same logtype to multiple output", ConfGenerateTest{
 			CLFSpec: logging.ClusterLogForwarderSpec{
 				Pipelines: []logging.PipelineSpec{
 					{

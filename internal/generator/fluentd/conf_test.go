@@ -15,11 +15,11 @@ import (
 )
 
 //TODO: Use a detailed CLF spec
-var logging_test = Describe("Testing Complete Config Generation", func() {
+var _ = Describe("Testing Complete Config Generation", func() {
 	var f = func(testcase ConfGenerateTest) {
 		g := MakeGenerator()
 		e := MergeSections(Conf(&testcase.CLSpec, testcase.Secrets, &testcase.CLFSpec, &Options{}))
-		conf, err := g.GenerateConfWithHeader(Header, e...)
+		conf, err := g.GenerateConf(e...)
 		Expect(err).To(BeNil())
 		diff := cmp.Diff(
 			strings.Split(strings.TrimSpace(testcase.ExpectedConf), "\n"),
@@ -33,7 +33,7 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
 		Expect(diff).To(Equal(""))
 	}
 	DescribeTable("Generate full fluent.conf", f,
-		Entry("", ConfGenerateTest{
+		Entry("with complex spec", ConfGenerateTest{
 			CLSpec: logging.ClusterLoggingSpec{
 				Forwarder: &logging.ForwarderSpec{
 					Fluentd: &logging.FluentdForwarderSpec{
@@ -68,7 +68,7 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
 				},
 			},
 			Secrets: map[string]*corev1.Secret{
-				"es-1": &corev1.Secret{
+				"es-1": {
 					Data: map[string][]byte{
 						"tls.key":       []byte("junk"),
 						"tls.crt":       []byte("junk"),
@@ -84,7 +84,6 @@ var logging_test = Describe("Testing Complete Config Generation", func() {
 <system>
   log_level "#{ENV['LOG_LEVEL'] || 'warn'}"
 </system>
-
 
 # Prometheus Monitoring
 <source>

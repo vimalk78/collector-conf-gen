@@ -12,7 +12,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-var elasticsearch_store_test = Describe("Generate fluentd config", func() {
+var _ = Describe("Generate fluentd config", func() {
 	var f = func(clspec logging.ClusterLoggingSpec, secrets map[string]*corev1.Secret, clfspec logging.ClusterLogForwarderSpec, op Options) []Element {
 		var bufspec *logging.FluentdBufferSpec = nil
 		if clspec.Forwarder != nil &&
@@ -22,7 +22,7 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
 		}
 		return Conf(bufspec, secrets[clfspec.Outputs[0].Name], clfspec.Outputs[0], &Options{})
 	}
-	DescribeTable("for Elasticsearch store", TestGenerateConfWith(f),
+	DescribeTable("for Elasticsearch output", TestGenerateConfWith(f),
 		Entry("with username,password", ConfGenerateTest{
 			CLFSpec: logging.ClusterLogForwarderSpec{
 				Outputs: []logging.OutputSpec{
@@ -37,7 +37,7 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
 				},
 			},
 			Secrets: map[string]*corev1.Secret{
-				"es-1": &corev1.Secret{
+				"es-1": {
 					Data: map[string][]byte{
 						"username": []byte("junk"),
 						"password": []byte("junk"),
@@ -162,7 +162,7 @@ var elasticsearch_store_test = Describe("Generate fluentd config", func() {
 				},
 			},
 			Secrets: map[string]*corev1.Secret{
-				"es-1": &corev1.Secret{
+				"es-1": {
 					Data: map[string][]byte{
 						"tls.key":       []byte("junk"),
 						"tls.crt":       []byte("junk"),

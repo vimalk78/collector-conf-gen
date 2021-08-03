@@ -2,7 +2,6 @@ package generator
 
 import (
 	"bytes"
-	"fmt"
 	"strings"
 	"text/template"
 )
@@ -14,11 +13,9 @@ type Element interface {
 	Data() interface{}
 }
 
-type Elements []Element
-
 type Section struct {
-	Elements
-	Comment string
+	Elements []Element
+	Comment  string
 }
 
 type MultiElement interface {
@@ -40,14 +37,6 @@ func MakeGenerator() *Generator {
 	return &Generator{}
 }
 
-func (g *Generator) GenerateConfWithHeader(header string, es ...Element) (string, error) {
-	conf, err := g.generate(es)
-	if err != nil {
-		return "", err
-	}
-	return strings.Join([]string{header, conf}, "\n"), nil
-}
-
 func (g *Generator) GenerateConf(es ...Element) (string, error) {
 	conf, err := g.generate(es)
 	if err != nil {
@@ -56,45 +45,26 @@ func (g *Generator) GenerateConf(es ...Element) (string, error) {
 	return strings.TrimSpace(conf), nil
 }
 
-func (g *Generator) GenerateRec(t *template.Template, e Element, b *bytes.Buffer) error {
-	t = e.Create(t)
-	err := t.ExecuteTemplate(b, e.Name(), e.Data())
-	if err != nil {
-		fmt.Printf("error occured %v\n", err)
-		return err
-	}
-	return nil
-}
-
-func (g *Generator) compose(es []Element) (string, error) {
-	return g.generate(es)
-}
-
-func (g *Generator) compose_one(e Element) (string, error) {
-	return g.generate([]Element{
-		e,
-	})
-}
-
 func (g *Generator) generate(es []Element) (string, error) {
 	if len(es) == 0 {
 		return "", nil
 	}
 	t := template.New("generate")
 	t.Funcs(template.FuncMap{
-		"compose":         g.compose,
-		"compose_one":     g.compose_one,
+		"compose":         func(es []Element) (string, error) { return g.generate(es) },
+		"compose_one":     func(e Element) (string, error) { return g.generate([]Element{e}) },
 		"indent":          indent,
-		"comma_separated": comma_separated,
+		"comma_separated": commaSeparated,
 	})
 	b := &bytes.Buffer{}
 	for i, e := range es {
 		if e == nil {
 			e = Nil
 		}
-		if err := g.GenerateRec(t, e, b); err != nil {
-			fmt.Printf("error occured %v\n", err)
-			return "", err
+		t = e.Create(t)
+		err := t.ExecuteTemplate(b, e.Name(), e.Data())
+		if err != nil {
+			return "error in conf generation", err
 		}
 		if i < len(es)-1 {
 			b.Write([]byte("\n"))
@@ -138,6 +108,6 @@ func indent(length int, in string) string {
 	return strings.Join(outlines, "\n")
 }
 
-func comma_separated(arr []string) string {
+func commaSeparated(arr []string) string {
 	return strings.Join(arr, ",")
 }

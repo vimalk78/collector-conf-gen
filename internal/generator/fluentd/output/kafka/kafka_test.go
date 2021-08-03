@@ -12,7 +12,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-var kafka_store_test = Describe("Generate fluentd config", func() {
+var _ = Describe("Generate fluentd config", func() {
 	var f = func(clspec logging.ClusterLoggingSpec, secrets map[string]*corev1.Secret, clfspec logging.ClusterLogForwarderSpec, op Options) []Element {
 		var bufspec *logging.FluentdBufferSpec = nil
 		if clspec.Forwarder != nil &&
@@ -22,7 +22,7 @@ var kafka_store_test = Describe("Generate fluentd config", func() {
 		}
 		return Conf(bufspec, secrets[clfspec.Outputs[0].Name], clfspec.Outputs[0], &Options{})
 	}
-	DescribeTable("for kafka store", TestGenerateConfWith(f),
+	DescribeTable("for kafka output", TestGenerateConfWith(f),
 		Entry("with username,password to single topic", ConfGenerateTest{
 			CLFSpec: logging.ClusterLogForwarderSpec{
 				Outputs: []logging.OutputSpec{
@@ -42,7 +42,7 @@ var kafka_store_test = Describe("Generate fluentd config", func() {
 				},
 			},
 			Secrets: map[string]*corev1.Secret{
-				"kafka-receiver": &corev1.Secret{
+				"kafka-receiver": {
 					Data: map[string][]byte{
 						"username": []byte("junk"),
 						"password": []byte("junk"),
@@ -97,7 +97,7 @@ var kafka_store_test = Describe("Generate fluentd config", func() {
 				},
 			},
 			Secrets: map[string]*corev1.Secret{
-				"kafka-receiver": &corev1.Secret{
+				"kafka-receiver": {
 					Data: map[string][]byte{
 						"tls.key":       []byte("junk"),
 						"tls.crt":       []byte("junk"),

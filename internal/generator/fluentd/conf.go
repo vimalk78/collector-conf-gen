@@ -6,19 +6,12 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-const Header = `
-## CLO GENERATED CONFIGURATION ###
-# This file is a copy of the fluentd configuration entrypoint
-# which should normally be supplied in a configmap.
-
-<system>
-  log_level "#{ENV['LOG_LEVEL'] || 'warn'}"
-</system>
-
-`
-
 func Conf(clspec *logging.ClusterLoggingSpec, secrets map[string]*corev1.Secret, clfspec *logging.ClusterLogForwarderSpec, op *Options) []Section {
 	return []Section{
+		{
+			Header(op),
+			`Generated fluentd conf Header`,
+		},
 		{
 			Sources(clfspec, op),
 			"Set of all input sources",
@@ -51,6 +44,26 @@ func Conf(clspec *logging.ClusterLoggingSpec, secrets map[string]*corev1.Secret,
 		{
 			Outputs(clspec, secrets, clfspec, op),
 			"Outputs",
+		},
+	}
+}
+
+func Header(op *Options) []Element {
+	const Header = `
+{{define "header" -}}
+## CLO GENERATED CONFIGURATION ###
+# This file is a copy of the fluentd configuration entrypoint
+# which should normally be supplied in a configmap.
+
+<system>
+  log_level "#{ENV['LOG_LEVEL'] || 'warn'}"
+</system>
+{{end}}
+`
+	return []Element{
+		ConfLiteral{
+			TemplateName: "header",
+			TemplateStr:  Header,
 		},
 	}
 }
