@@ -48,7 +48,7 @@ var _ = Describe("Testing Config Generation", func() {
 </match>
 
 # Dont discard Audit logs
-<match linux-audit.log** k8s-audit.log** openshift-audit.log**>
+<match linux-audit.log** k8s-audit.log** openshift-audit.log** ovn-audit.log**>
   @type relabel
   @label @_AUDIT
 </match>
@@ -117,7 +117,7 @@ var _ = Describe("Testing Config Generation", func() {
 </match>
 
 # Dont discard Audit logs
-<match linux-audit.log** k8s-audit.log** openshift-audit.log**>
+<match linux-audit.log** k8s-audit.log** openshift-audit.log** ovn-audit.log**>
   @type relabel
   @label @_AUDIT
 </match>
@@ -428,7 +428,7 @@ var _ = Describe("Testing Config Generation", func() {
 </match>
 
 # Dont discard Audit logs
-<match linux-audit.log** k8s-audit.log** openshift-audit.log**>
+<match linux-audit.log** k8s-audit.log** openshift-audit.log** ovn-audit.log**>
   @type relabel
   @label @_AUDIT
 </match>

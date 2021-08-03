@@ -7,11 +7,16 @@ import (
 	"github.com/vimalk78/collector-conf-gen/internal/generator/fluentd/helpers"
 )
 
+const (
+	ApplicationTags = "kubernetes.**"
+	InfraTags       = "**_default_** **_kube-*_** **_openshift-*_** **_openshift_** journal.** system.var.log**"
+	AuditTags       = "linux-audit.log** k8s-audit.log** openshift-audit.log** ovn-audit.log**"
+)
+
 func SourcesToInputs(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	var el []Element = make([]Element, 0)
 	types := Clo.GatherSources(spec, o)
 	types = Clo.AddLegacySources(types, *o)
-	ApplicationTags := "kubernetes.**"
 	if types.Has(logging.InputNameApplication) {
 		el = append(el, Match{
 			Desc:      "Dont discard Application logs",
@@ -28,7 +33,6 @@ func SourcesToInputs(spec *logging.ClusterLogForwarderSpec, o *Options) []Elemen
 			TemplateStr:  DiscardMatched,
 		})
 	}
-	InfraTags := "**_default_** **_kube-*_** **_openshift-*_** **_openshift_** journal.** system.var.log**"
 	if types.Has(logging.InputNameInfrastructure) {
 		el = append(el, Match{
 			Desc:      "Dont discard Infrastructure logs",
@@ -45,7 +49,6 @@ func SourcesToInputs(spec *logging.ClusterLogForwarderSpec, o *Options) []Elemen
 			TemplateStr:  DiscardMatched,
 		})
 	}
-	AuditTags := "linux-audit.log** k8s-audit.log** openshift-audit.log**"
 	if types.Has(logging.InputNameAudit) {
 		el = append(el, Match{
 			Desc:      "Dont discard Audit logs",

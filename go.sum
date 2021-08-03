@@ -80,6 +80,7 @@ github.com/Shopify/sarama v1.19.0/go.mod h1:FVkBWblsNy7DGZRfXLU0O9RCGt5g3g3yEuWX
 github.com/Shopify/toxiproxy v2.1.4+incompatible/go.mod h1:OXgGpZ6Cli1/URJOF1DMxUHB2q5Ap20/P/eIdh4G0pI=
 github.com/ViaQ/logerr v1.0.10-0.20201221223143-2916c7f40dfc h1:9AiXNtf+qZ7k8xqkF1HCuNN9wUBeUjqGnlIO6BMbDYo=
 github.com/ViaQ/logerr v1.0.10-0.20201221223143-2916c7f40dfc/go.mod h1:KZ3ne81U/sJhHt3AjE5AvhoQDY0Rh1O+u4rEHKjG/No=
+github.com/ViaQ/logerr v1.0.10/go.mod h1:KZ3ne81U/sJhHt3AjE5AvhoQDY0Rh1O+u4rEHKjG/No=
 github.com/agnivade/levenshtein v1.0.1/go.mod h1:CURSv5d9Uaml+FovSIICkLbAUZ9S4RqaHDIsdSBg7lM=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
@@ -675,6 +676,8 @@ github.com/openshift/api v0.0.0-20200602204738-768b7001fe69/go.mod h1:l6TGeqJ92D
 github.com/openshift/build-machinery-go v0.0.0-20200424080330-082bf86082cc/go.mod h1:1CkcsT3aVebzRBzVTSbiKSkJMsC/CASqxesfqEMfJEc=
 github.com/openshift/cluster-logging-operator v0.0.0-20210714221000-fcfa24454f14 h1:MYQY6t4wptCZmtWLbWddCYDjISvSyOzy0zLfaD5yGSo=
 github.com/openshift/cluster-logging-operator v0.0.0-20210714221000-fcfa24454f14/go.mod h1:9VGMGHiQIBwCLJxlkoEFXb+fqWde0e+9CGt3dtsN6dI=
+github.com/openshift/cluster-logging-operator v0.0.0-20210803144829-6747b488f5c1 h1:QQQmeG52V+bOU+h4OelOvUVQLK+WW+IL/fb2QXr2eNw=
+github.com/openshift/cluster-logging-operator v0.0.0-20210803144829-6747b488f5c1/go.mod h1:6kV4F8mRw8sc5YcRVlpqiYNRAQb2D3ZZleXxusxjVS8=
 github.com/openshift/elasticsearch-operator v0.0.0-20200722044541-14fae5dcddfd h1:bcpKEl7oq2JffVenX9N07lvnBJhJ6zZpJ0lIP9w9W0I=
 github.com/openshift/elasticsearch-operator v0.0.0-20200722044541-14fae5dcddfd/go.mod h1:Vir+Zs5Fq5UveEoo5dLMAv4HxSc5pcCB4GPneAIqhFs=
 github.com/openshift/origin v0.0.0-20160503220234-8f127d736703/go.mod h1:0Rox5r9C8aQn6j1oAOQ0c1uC86mYbUFObzjBRvUKHII=
