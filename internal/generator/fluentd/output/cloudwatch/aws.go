@@ -13,8 +13,8 @@ func (a AWSKey) Name() string {
 
 func (a AWSKey) Template() string {
 	return `{{define "` + a.Name() + `" -}}
-aws_key_id "#{open('{{ .KeyIDPath }}','r') do |f|f.read end}"
-aws_sec_key "#{open('{{ .KeyPath }}','r') do |f|f.read end}"
+aws_key_id "#{open({{ .KeyIDPath }},'r') do |f|f.read end}"
+aws_sec_key "#{open({{ .KeyPath }},'r') do |f|f.read end}"
 {{end}}`
 }
 

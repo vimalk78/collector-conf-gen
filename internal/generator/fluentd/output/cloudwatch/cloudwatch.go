@@ -2,6 +2,7 @@ package cloudwatch
 
 import (
 	"fmt"
+	"strings"
 	"text/template"
 
 	logging "github.com/openshift/cluster-logging-operator/pkg/apis/logging/v1"
@@ -15,7 +16,7 @@ import (
 
 type CloudWatch struct {
 	Region         string
-	SecurityConfig []Element
+	SecurityConfig Element
 }
 
 func (cw CloudWatch) Name() string {
@@ -48,8 +49,8 @@ func (cw CloudWatch) Data() interface{} {
 }
 
 func Conf(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o logging.OutputSpec, op *Options) []Element {
-	logGroupPrefix := ""
-	logGroupName := ""
+	logGroupPrefix := LogGroupPrefix(o)
+	logGroupName := LogGroupName(o)
 	return []Element{
 		FromLabel{
 			InLabel: helpers.LabelName(o.Name),
@@ -79,12 +80,10 @@ func OutputConf(bufspec *logging.FluentdBufferSpec, secret *corev1.Secret, o log
 	}
 }
 
-func SecurityConfig(o logging.OutputSpec, secret *corev1.Secret) []Element {
-	return []Element{
-		AWSKey{
-			KeyIDPath: security.SecretPath(o.Secret.Name, "aws_access_key_id"),
-			KeyPath:   security.SecretPath(o.Secret.Name, "aws_secret_access_key"),
-		},
+func SecurityConfig(o logging.OutputSpec, secret *corev1.Secret) Element {
+	return AWSKey{
+		KeyIDPath: security.SecretPath(o.Secret.Name, "aws_access_key_id"),
+		KeyPath:   security.SecretPath(o.Secret.Name, "aws_secret_access_key"),
 	}
 }
 
@@ -98,4 +97,28 @@ func GroupNameStreamName(groupName, streamName, tag string) Element {
 			},
 		},
 	}
+}
+
+func LogGroupPrefix(o logging.OutputSpec) string {
+	if o.Cloudwatch != nil {
+		prefix := o.Cloudwatch.GroupPrefix
+		if prefix != nil && strings.TrimSpace(*prefix) != "" {
+			return fmt.Sprintf("%s.", *prefix)
+		}
+	}
+	return ""
+}
+
+func LogGroupName(o logging.OutputSpec) string {
+	if o.Cloudwatch != nil {
+		switch o.Cloudwatch.GroupBy {
+		case logging.LogGroupByNamespaceName:
+			return "${record['kubernetes']['namespace_name']}"
+		case logging.LogGroupByNamespaceUUID:
+			return "${record['kubernetes']['namespace_id']}"
+		default:
+			return logging.InputNameApplication
+		}
+	}
+	return ""
 }
