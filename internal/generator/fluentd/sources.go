@@ -26,9 +26,6 @@ func MetricSources(spec *logging.ClusterLogForwarderSpec, o *Options) []Element 
 	}
 }
 
-//TODO: handle the following options here
-// - includeLegacyForwardConfig
-// - includeLegacySyslogConfig
 func LogSources(spec *logging.ClusterLogForwarderSpec, o *Options) []Element {
 	var el []Element = make([]Element, 0)
 	types := Clo.GatherSources(spec, o)

@@ -40,7 +40,7 @@ func MakeGenerator() *Generator {
 func (g *Generator) GenerateConf(es ...Element) (string, error) {
 	conf, err := g.generate(es)
 	if err != nil {
-		return "", err
+		return conf, err
 	}
 	return strings.TrimSpace(conf), nil
 }
@@ -51,8 +51,15 @@ func (g *Generator) generate(es []Element) (string, error) {
 	}
 	t := template.New("generate")
 	t.Funcs(template.FuncMap{
-		"compose":         func(es []Element) (string, error) { return g.generate(es) },
-		"compose_one":     func(e Element) (string, error) { return g.generate([]Element{e}) },
+		"compose":     func(es []Element) (string, error) { return g.generate(es) },
+		"compose_one": func(e Element) (string, error) { return g.generate([]Element{e}) },
+		"kv": func(e Element) (string, error) {
+			s, err := g.generate([]Element{e})
+			if strings.TrimSpace(s) == "" {
+				return s, err
+			}
+			return s + "\n", err
+		},
 		"indent":          indent,
 		"comma_separated": commaSeparated,
 	})
